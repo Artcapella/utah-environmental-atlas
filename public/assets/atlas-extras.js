@@ -116,6 +116,23 @@ const extras = {
     return this.strip.open(pid);
   },
 
+  /** Scroll the panel to its top, to a result row (by title) or to an element, and outline it briefly. Used by the tour. */
+  reveal({ top, row, sel }) {
+    clearTimeout(this._rv);
+    if (top) { this.el.closest('.sheet-body')?.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    const find = () => (row ? [...this.el.querySelectorAll('.ip-row .ip-title')].find((n) => n.textContent.trim() === row)?.closest('.ip-row')
+      : this.el.querySelector(sel));
+    let tries = 0;
+    const tick = () => {
+      const n = find();
+      if (!n) { if (++tries < 12) this._rv = setTimeout(tick, 300); return; }
+      n.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      n.classList.add('ip-spot');
+      setTimeout(() => n.classList.remove('ip-spot'), 2600);
+    };
+    this._rv = setTimeout(tick, 900);   // after the debounce and the engine round-trip, so the row is the fresh one
+  },
+
   /** What the map is showing, for the assistant. */
   appState() {
     const s = this.s, hub = window.YOUtah;
@@ -137,7 +154,8 @@ export function installExtras(ImpactPanel) {
   };
 }
 
-const PANEL_ACTIONS = new Set(['impact_tab', 'select_projects', 'set_branch', 'apply_bill', 'set_levers', 'clear_levers', 'open_compare', 'close_compare']);
+const PANEL_ACTIONS = new Set(['impact_tab', 'select_projects', 'set_branch', 'apply_bill', 'set_levers', 'clear_levers', 'open_compare', 'close_compare',
+  'show_math', 'set_basin', 'focus']);   // the last three come only from the guided tour (atlas-tour.js)
 
 /**
  * Run assistant actions (validated server-side by backend/atlas/assistant.py clean_actions).
@@ -155,12 +173,16 @@ export async function runAtlasActions(actions, { hub, getPanel }) {
     await panel.ready;
     await panel.billsReady;
   }
-  let dirty = false;
+  let dirty = false, basins = false, focus = null;
   for (const a of actions || []) {
     const s = panel?.s;
     try {
-      if (a.type === 'open_tab') document.querySelector(`#tabs [data-tab="${a.tab}"]`)?.click();
-      else if (a.type === 'set_layer') hub.setLayer(a.id, a.on !== false);
+      if (a.type === 'open_tab') { const b = document.querySelector(`#tabs [data-tab="${a.tab}"]`); if (b && !b.classList.contains('on')) b.click(); }
+      else if (a.type === 'set_layer') { if (hub.state.layers.has(a.id) !== (a.on !== false)) hub.setLayer(a.id, a.on !== false); }
+      else if (a.type === 'inversion_card') document.getElementById('inv')?.classList.toggle('collapsed', !a.open);
+      else if (a.type === 'show_math') { if (s.math !== !!a.on) { s.math = !!a.on; dirty = true; } }
+      else if (a.type === 'set_basin') { if (a.dry != null && s.basin.dry !== a.dry) { s.basin.dry = a.dry; basins = true; } }
+      else if (a.type === 'focus') focus = a;
       else if (a.type === 'fly_to') hub.map?.flyTo({ center: [a.lng, a.lat], zoom: a.zoom || 8 });
       else if (a.type === 'impact_tab') { s.tab = a.tab; dirty = true; }
       else if (a.type === 'select_projects') { s.selected = new Set(a.ids.filter((id) => panel.projects.some((p) => p.id === id))); dirty = true; }
@@ -175,5 +197,7 @@ export async function runAtlasActions(actions, { hub, getPanel }) {
     } catch (e) { console.warn('Atlas action failed:', a, e); }
   }
   if (dirty && panel) { panel.render(); panel.renderBody(); panel.setActive(panel.isActive()); panel.compute(); }
+  if (basins && panel) panel.updateBasins();
+  if (focus && panel) panel.reveal(focus);
   return done;
 }

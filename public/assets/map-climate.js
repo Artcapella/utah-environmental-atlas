@@ -4,7 +4,6 @@
  *   Wind arrows on top of any field
  *   Live NWS alerts (replaces the demo polygons in DATA.alerts)
  *   A 48-hour PM2.5 trend chart in an air monitor's detail panel
- *   A floating legend with play/pause and an "under the cursor" readout
  *
  * Data: /api/climate/grid (Open-Meteo, 72 h in 3 h steps, interpolated here), /api/alerts,
  * /api/air/history. Everything plugs in through window.YOUtah (addLayer / onTime / onDetail).
@@ -16,7 +15,6 @@
 
   const UTAH = { w: -114.05, s: 37.0, e: -109.05, n: 42.0, notchLon: -111.05, notchLat: 41.0 };
   const IMG = 384;                       // canvas size for a field image
-  const PLAY_MS = 450;                   // one forecast hour per tick while playing
   const REFRESH_MS = 60 * 60 * 1000;
 
   /* ---------- colour ramps (value -> [r,g,b,a]) ---------- */
@@ -45,7 +43,6 @@
     },
   };
   const FIELD_IDS = Object.keys(FIELDS);
-  const compass = (deg) => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(((deg % 360) + 360) % 360 / 45) % 8];
 
   const fmt = (v, d) => (v == null || Number.isNaN(v) ? "–" : Number(v).toFixed(d));
   const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
@@ -71,7 +68,7 @@
   };
 
   /* ---------- grid sampling in space and time ---------- */
-  const state = { grid: null, active: null, playing: null, cursor: null, alertsLoaded: false, alertCount: 0 };
+  const state = { grid: null, active: null, alertsLoaded: false, alertCount: 0 };
 
   /** Bilinear in space, linear in time: `rows` is [step][point], `s` a fractional step. */
   function sampleRows(rows, s, lon, lat) {
@@ -153,7 +150,6 @@
     const id = state.active;
     if (!id || !state.grid?.fields?.[FIELDS[id].key]) {
       if (map.getLayer("climate-field")) map.setLayoutProperty("climate-field", "visibility", "none");
-      renderLegend();
       return;
     }
     const url = fieldImage(id);
@@ -164,7 +160,6 @@
         paint: { "raster-opacity": 1, "raster-fade-duration": 0, "raster-resampling": "linear" } }, "slot-fill");
     }
     map.setLayoutProperty("climate-field", "visibility", "visible");
-    renderLegend();
   }
 
   /* ---------- wind arrows ---------- */
@@ -211,62 +206,6 @@
       }, paint: { "icon-opacity": ["interpolate", ["linear"], ["get", "spd"], 0, 0.35, 4, 0.9] } }, "slot-heat");
     }
     map.setLayoutProperty("climate-wind", "visibility", on ? "visible" : "none");
-  }
-
-  /* ---------- legend card (floating) ---------- */
-  const card = document.createElement("section");
-  card.id = "climate-card";
-  card.className = "glass";
-  card.setAttribute("aria-label", "Climate layer legend and time controls");
-  document.body.appendChild(card);
-  card.addEventListener("click", (e) => {
-    if (e.target.closest("#climate-play")) togglePlay();
-    const pick = e.target.closest("[data-field]");
-    if (pick) hub.setLayer(pick.dataset.field, true);
-  });
-
-  const timeFmt = new Intl.DateTimeFormat("en-US", { weekday: "short", hour: "numeric" });
-
-  function renderLegend() {
-    const id = state.active, field = id && FIELDS[id];
-    const t = hub.state.t, when = t === 0 ? "Now" : `${timeFmt.format(hub.tAt())} · +${t} h`;
-    const tabs = FIELD_IDS.map((f) => `<button type="button" class="cf-tab ${f === id ? "on" : ""}" data-field="${f}" aria-pressed="${f === id}">${FIELDS[f].short}</button>`).join("");
-    const missing = state.grid && field && !state.grid.fields[field.key];
-    card.innerHTML = `
-      <div class="cf-head">
-        <button type="button" id="climate-play" class="cf-play" aria-label="${state.playing ? "Pause" : "Play the next 72 hours"}">${state.playing ? "❚❚" : "▶"}</button>
-        <div class="cf-title"><b>${field ? esc(field.name) : "Climate layers off"}</b><span>${esc(when)}${state.grid ? " · forecast" : ""}</span></div>
-      </div>
-      <div class="cf-tabs" role="group" aria-label="Choose a climate field">${tabs}</div>
-      ${field && !missing ? `<div class="cf-ramp" style="background:${rampCss(field)}"></div>
-        <div class="cf-ticks">${field.ticks.map((v) => `<span style="left:${((v - field.stops[0][0]) / (field.stops[field.stops.length - 1][0] - field.stops[0][0]) * 100).toFixed(1)}%">${field.tickLabel(v)}</span>`).join("")}<em>${esc(field.unit)}</em></div>
-        <p class="cf-probe" aria-live="polite">${probeText()}</p>`
-        : `<p class="cf-probe">${!state.grid ? "Loading statewide forecast…" : missing ? "This forecast is unavailable right now." : "Pick a field to colour the map."}</p>`}
-      ${field ? `<p class="cf-note">${esc(field.note)}</p>` : ""}`;
-  }
-
-  function probeText() {
-    const c = state.cursor, field = state.active && FIELDS[state.active];
-    if (!c || !field || !state.grid) return "Point at the map to read values.";
-    if (!inUtah(c.lng, c.lat)) return "Outside Utah.";
-    const s = stepAt(), v = sample(field.key, s, c.lng, c.lat), w = hub.state.layers.has("f-wind") ? windAt(s, c.lng, c.lat) : null;
-    if (v == null) return "No forecast here.";
-    return `Here: <b>${esc(field.describe(v))}</b>${w ? ` · wind ${Math.round(w.speed)} mph from the ${compass(w.from)}` : ""}`;
-  }
-
-  function updateProbe() {
-    const el = card.querySelector(".cf-probe");
-    if (el && state.grid) el.innerHTML = probeText();
-  }
-
-  function togglePlay() {
-    if (state.playing) { clearInterval(state.playing); state.playing = null; renderLegend(); return; }
-    if (hub.state.t >= 72) hub.setTime(0);
-    state.playing = setInterval(() => {
-      if (hub.state.t >= 72) { clearInterval(state.playing); state.playing = null; renderLegend(); return; }
-      hub.setTime(hub.state.t + 1);
-    }, PLAY_MS);
-    renderLegend();
   }
 
   /* ---------- layer registration ---------- */
@@ -342,15 +281,13 @@
     alertsLayer.legend = () => `<span class="fine">${!state.alertsLoaded ? "Loading active alerts…" : state.alertCount ? `${state.alertCount} active alert${state.alertCount > 1 ? "s" : ""} in Utah. Select an outlined area for details.` : "No active NWS alerts in Utah right now."}</span>`;
   }
 
-  /* ---------- time + cursor ---------- */
+  /* ---------- time ---------- */
   hub.onTime(() => {
     drawField();
     if (hub.state.layers.has("f-wind")) drawWind(true);
   });
 
   function wireMap(map) {
-    map.on("mousemove", (e) => { state.cursor = e.lngLat; updateProbe(); });
-    map.on("click", (e) => { state.cursor = e.lngLat; updateProbe(); });
     // A style rebuild (e.g. terrain fallback) drops sources: redraw everything.
     map.on("style.load", () => { drawField(); drawWind(hub.state.layers.has("f-wind")); drawAnomaly(hub.state.layers.has("f-anom")); });
   }
@@ -369,7 +306,6 @@
     } catch (error) {
       console.error(error);
       state.grid = state.grid || { fields: {}, times: [], lats: [], lons: [] };
-      renderLegend();
     }
   }
 
@@ -424,7 +360,6 @@
     });
   });
 
-  renderLegend();
   loadGrid();
   loadAlerts();
   setInterval(() => { if (document.visibilityState === "visible") { loadGrid(); loadAlerts(); } }, REFRESH_MS);

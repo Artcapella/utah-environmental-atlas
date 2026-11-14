@@ -30,6 +30,8 @@ def test_home_page_is_the_map_with_climate_layers_and_the_assistant() -> None:
     # plug-ins load after the map core (they use window.YOUtah) and charts before the climate module
     tag = lambda name: html.index(f'<script src="/assets/{name}"')
     assert tag("map-live-inversion.js") < tag("env-charts.js") < tag("map-climate.js") < tag("map-guide.js")
+    assert tag("atlas-tour.js") < tag("map-guide.js")   # the guide plays the tour's stops (window.YOUtahTour)
+    assert (ROOT / "public" / "assets" / "atlas-tour.js").is_file()
     for asset in ("map-climate.js", "map-climate.css", "map-guide.js", "env-charts.js", "env-charts.css", "guide-renderer.js"):
         assert (ROOT / "public" / "assets" / asset).is_file(), asset
 

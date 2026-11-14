@@ -112,7 +112,6 @@
   #atlasMapCard .amc-grid{gap:6px}
 }
 
-body.atlas-impact #climate-card{display:none}
 
 /* Bill library (Legislation tab) */
 .ip-bills{display:grid;gap:6px;margin:6px 0}
@@ -166,6 +165,9 @@ body.atlas-branches-open #inv,body.atlas-branches-open #status{display:none}
 .guide-action.link{color:#9fd0e3;text-decoration:none}
 .guide-caution{margin-top:8px!important;padding:6px 9px;border-left:3px solid var(--warn,#e2b84b);background:rgba(226,184,75,.12);border-radius:0 8px 8px 0;font-size:12.3px}
 .guide-agent{margin-top:8px!important;font-size:11px;color:var(--ink-dim,#a9bdb6)}
-.guide-suggest.tour{flex-direction:row}
+.guide-suggest.tour{flex-direction:row;flex-wrap:wrap}
+.guide-suggest.tour.jump button{padding:4px 9px;font-size:12px}
+.guide-suggest.tour .tour-h{flex-basis:100%;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim,#a9bdb6)}
+.ip-spot{outline:2px solid var(--ip-warn,#e2b84b);outline-offset:3px;border-radius:6px}
 .guide-source .source-map{margin-left:auto;flex:none;font:inherit;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line,rgba(231,239,233,.16));background:none;color:#9fd0e3;cursor:pointer}
 span.guide-citation{cursor:default}

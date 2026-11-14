@@ -2,8 +2,8 @@
  *
  * Environmental mode POSTs to /api/atlas/ask (backend/atlas/assistant.py: Gemini tool agent, OpenAI backup,
  * quoted sources as a last resort). The reply carries cited Markdown plus `actions`; window.YOUtahAtlas.run
- * (map-atlas.js) executes them, so the map, not the chat, carries the answer. "Show me around" runs a fixed
- * tour of the same actions and needs no model. Travel mode keeps the older /api/guide/answer planner. */
+ * (map-atlas.js) executes them, so the map, not the chat, carries the answer. "Show me around" plays the fixed
+ * tour in atlas-tour.js through the same actions and needs no model. Travel mode keeps the older /api/guide/answer planner. */
 (function () {
   "use strict";
   const hub = window.YOUtah, renderer = window.YouTahGuideRenderer;
@@ -18,27 +18,8 @@
     "Is there an inversion today?",
   ] : ["Is there an inversion today, and where can I get above it?", "How will air quality change over the next few days?"];
 
-  // Fixed tour: each step moves the map, then explains what is on it.
-  const TOUR = [
-    { actions: [{ type: "close_compare" }, { type: "open_tab", tab: "impact" }, { type: "clear_levers" }, { type: "set_branch", branch: "built" },
-                { type: "impact_tab", tab: "proposed" }, { type: "fly_to", lat: 39.6, lng: -111.9, zoom: 6.1 }],
-      text: "This atlas shows how proposed data centers, and the bills that would regulate them, would affect Utah's water and the Great Salt Lake. Each ring is a proposed data center: the bigger the ring, the more water the engine estimates it would use. The small dots show how far each project is through permitting." },
-    { actions: [{ type: "select_projects", ids: ["stratos"] }, { type: "fly_to", lat: 41.7, lng: -112.55, zoom: 7.6 }],
-      text: "This is Stratos in Box Elder County. The card at the top of the map gives the engine's estimate with its range, next to what the developer says. They are far apart, so the atlas shows both and picks neither. Click any ring for its figures and sources." },
-    { actions: [{ type: "impact_tab", tab: "legislation" }, { type: "apply_bill", bill_id: "mock_dry_cooling" }],
-      text: "Bills live in the Legislation tab. I applied a mock dry-cooling bill (an illustration, not real legislation). The red ring is Stratos built as planned; the dark ring is with the bill, and the label gives before and after. Air emissions do not change, which is the trade-off." },
-    { actions: [{ type: "set_layer", id: "atlas-lake", on: true }, { type: "fly_to", lat: 41.15, lng: -112.5, zoom: 8 }],
-      text: "The tan band inside the Great Salt Lake is the extra lakebed this scenario would expose in the long run. The red dashed outline is the same thing without the bill. The band has the estimated area, not the real shape." },
-    { actions: [{ type: "clear_levers" }, { type: "select_projects", ids: ["antelope", "red_butte"] }, { type: "apply_bill", bill_id: "iron_2026_13" },
-                { type: "fly_to", lat: 37.9, lng: -113.25, zoom: 7.4 }],
-      text: "Real measures are in the library too. Iron County's moratorium outlines the county and takes its projects out of the scenario. Other measures, such as H.B. 76's reporting rule, change what the state knows and not water use, and the map says so." },
-    { actions: [{ type: "clear_levers" }, { type: "set_branch", branch: "built" }, { type: "open_compare", project_id: "stratos" }],
-      text: "The strip at the bottom compares four branches for one project: built as planned, built with conditions, scaled down, and not built here. Choose a card to draw that branch on the map. Not built here is not zero: the water stays in its current use, and a relocated project moves its impact somewhere else." },
-    { actions: [{ type: "close_compare" }, { type: "impact_tab", tab: "basins" }, { type: "set_layer", id: "atlas-basinrisk", on: true }, { type: "fly_to", lat: 39.6, lng: -111.9, zoom: 6.1 }],
-      text: "The bubbles show relative water risk by basin. Their baselines are placeholders until the state water divisions supply data, so read them as a demonstration of the method, not as findings." },
-    { actions: [{ type: "set_layer", id: "atlas-basinrisk", on: false }, { type: "impact_tab", tab: "proposed" }],
-      text: "That is the tour. Ask me where any number comes from or what a bill would change, and I will show it on the map. The Briefing link prints a one-page summary with its data limits." },
-  ];
+  // The guided tour's stops live in atlas-tour.js: each moves the map, then explains what is on it.
+  const TOUR = (window.YOUtahTour && window.YOUtahTour.STOPS) || [];
 
   const launcher = document.createElement("button");
   launcher.type = "button";
@@ -80,7 +61,7 @@
   const send = sheet.querySelector(".guide-send");
   const where = sheet.querySelector(".guide-where");
   const history = [];
-  let busy = false, tourStep = -1;
+  let busy = false, tourStep = -1, touring = false;
 
   function point() {
     const c = hub.map ? hub.map.getCenter() : { lat: 40.7608, lng: -111.891 };
@@ -170,19 +151,31 @@
     if (list.some((a) => a.type === "start_tour")) startTour();
   }
 
+  const tourRow = (cls, html) => { const row = document.createElement("div"); row.className = `guide-suggest tour ${cls}`.trim(); row.innerHTML = html; return row; };
   async function showTourStep(i) {
+    if (touring || !TOUR[i]) return;
+    touring = true;
     tourStep = i;
-    const step = TOUR[i];
-    const el = append("assistant", `**Tour, step ${i + 1} of ${TOUR.length}.** ${step.text}`);
-    await runActions(step.actions.map((a) => ({ ...a, label: "" })), null);
-    const row = document.createElement("div");
-    row.className = "guide-suggest tour";
-    const last = i === TOUR.length - 1;
-    row.innerHTML = last ? "" : `<button type="button" data-tour="next">Next ›</button><button type="button" data-tour="end">End tour</button>`;
-    if (!last) el.append(row); else tourStep = -1;
-    messages.scrollTop = messages.scrollHeight;
+    const step = TOUR[i], last = i === TOUR.length - 1;
+    messages.querySelectorAll(".guide-suggest.tour").forEach((row) => row.remove());   // one set of controls: the current stop's
+    const el = append("assistant", `**Stop ${i + 1} of ${TOUR.length} · ${step.section}: ${step.title}.** ${step.text}`);
+    try { await runActions(step.actions.map((a) => ({ ...a, label: "" })), null); } finally { touring = false; }
+    if (step.links && step.links.length) {
+      const box = document.createElement("div");
+      box.className = "guide-actions";
+      box.append(...step.links.map((l) => Object.assign(document.createElement("a"), { className: "guide-action link", href: l.href, target: "_blank", rel: "noopener", textContent: l.label })));
+      el.append(box);
+    }
+    el.append(tourRow("", `${i > 0 ? '<button type="button" data-tour="back">‹ Back</button>' : ""}${last ? "" : '<button type="button" data-tour="next">Next ›</button>'}<button type="button" data-tour="end">End tour</button>`));
+    if (i === 0 || last) {   // a long tour: let a reader go straight to the part they came for
+      el.append(tourRow("jump", `<span class="tour-h">${last ? "Go back to" : "Or jump to"}</span>` + window.YOUtahTour.sections().filter((x) => x.index !== i)
+        .map((x) => `<button type="button" data-tour="${x.index}">${x.section}</button>`).join("")));
+    }
+    messages.scrollTop += el.getBoundingClientRect().top - messages.getBoundingClientRect().top - 12;
   }
-  function startTour() { showTourStep(0); }
+  function startTour() {
+    if (TOUR.length) showTourStep(0); else append("assistant", "The tour could not be loaded. Reload the page and try again.", "error");
+  }
 
   async function ask(text) {
     const q = text.trim();
@@ -229,9 +222,12 @@
   messages.addEventListener("click", (e) => {
     const t = e.target.closest("[data-tour]");
     if (t) {
-      t.parentElement.remove();
-      if (t.dataset.tour === "next" && tourStep >= 0 && tourStep < TOUR.length - 1) showTourStep(tourStep + 1);
-      else { tourStep = -1; append("assistant", "Tour ended. Ask me anything about what is on the map."); }
+      const go = t.dataset.tour;
+      if (go === "end") {
+        messages.querySelectorAll(".guide-suggest.tour").forEach((row) => row.remove());
+        tourStep = -1;
+        append("assistant", "Tour ended. Ask me anything about what is on the map.");
+      } else showTourStep(go === "next" ? tourStep + 1 : go === "back" ? tourStep - 1 : Number(go));
       return;
     }
     const b = e.target.closest("[data-q]");
