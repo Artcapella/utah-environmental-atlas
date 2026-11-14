@@ -21,7 +21,18 @@ Design doc: https://claude.ai/artifact/GzZ8R2a4VEku8jMgxyHxwq (copy: `docs/atlas
 - **Basin water risk** (`utah-water-planner-v3.html`, superseding the leadership planner and risk map): weighted score, dry-year supply, year filter, junior-curtailment flag, and lenses for developer says / rights / highest on record, plus an engine lens tied to the live scenario so levers move basin scores. **Basin baselines are invented placeholders** until Division data arrives. Data: `public/atlas/data/basin_risk.json`.
 - Scale anchors: Utah generating capacity 10,277 MW (EIA 2024) and the Great Salt Lake need of about 800,000 AF/yr (Strike Team), both as cited in the research notes.
 
+## Added from `environmental_shift_reference_docs/`
+
+- **Water screen** (`YOUtah Climate Water Screen.html`): a single-proposal review for city councils, county commissions, water providers and state reviewers, served at `/screen` (`public/atlas/water-screen.html`; model and Atlas hand-off in `public/assets/atlas-screen.js`). It adds what the map does not have: a claim check of the developer's figure, ranked ways to use less water, red flags, questions for the developer, a hydrology study scope, conditions of approval and a memo.
+  - **Reached from the map**: "Screen ↗" beside each project and each dropped project in the Impact tab, a link in every project popup, the Screen link under Briefing, and the briefing itself. The link carries the registry id (and the phase or scaled size), so the screen opens on that project.
+  - **Registry is the source of project facts.** The reference's two hard-coded Stratos presets are gone; projects load from `GET /api/atlas/projects`. What the registry does not record stays unknown (cooling: U.S. average; water source: new "Not disclosed" option with its own flag, question and study item). Atlas projects start at the engine's central load factor (80%) and PUE (1.3).
+  - **Two models, shown side by side.** The screen keeps its own coefficients (national averages, grid power-plant water). The claim check adds the Atlas table: developer says, this screen, engine estimate (`POST /api/atlas/impact` with the same inputs), highest on record, each with its source-type tag, plus the registry's published figures. Nothing is averaged. An untouched registry project gets exactly the engine number on the map.
+  - **One lake figure.** The screen reads the lake's inflow need from `basin_risk.json` (800,000 AF/yr, Strike Team) instead of the reference's 700,000.
+
 ## Open items
+
+- Water screen: the reference used a 1,712 AF/yr Stratos request and dry cooling; neither is in the research notes, so the screen uses the registry (1,215 AF/yr diversion, cooling undisclosed). Confirm which is right and update the registry if needed.
+- Water screen: decide whether its coefficients should be reconciled with the engine factors (e.g. on-site gas 234 vs 200 gal/MWh; closed-loop WUE 0.1 vs 0.04 L/kWh) or stay separate, as now. Its 128,000 AF shortfall, 0.49 AF household figure and "Utah fleet today" example are carried from the reference unverified.
 
 - Replace placeholder basin baselines and set `baseline_status` in `manifest.json` (re-run `scripts/atlas/build_static_layers.py`, which overwrites it).
 - Fill `baseline_consumptive_af` per project.

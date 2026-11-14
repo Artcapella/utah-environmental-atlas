@@ -47,7 +47,10 @@
         const url = citation && safeUrl(citation.url);
         html += url
           ? `<a class="guide-citation" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" aria-label="Source ${escapeHtml(match[4])}: ${escapeHtml(citation.title || citation.source_name || "Details")}">${escapeHtml(match[4])}</a>`
-          : "";
+          : citation
+            // A source with no link (e.g. the atlas's own impact engine) still shows its label.
+            ? `<span class="guide-citation" title="${escapeHtml(citation.title || citation.source_name || "Source")}">${escapeHtml(match[4])}</span>`
+            : "";
       }
       offset = match.index + match[0].length;
     }

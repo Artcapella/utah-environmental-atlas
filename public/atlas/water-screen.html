@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YOUtah Climate Water Screen</title>
+<meta name="description" content="Screen a proposed Utah data center's water use: a first estimate, a check of the developer's claim, red flags, questions, hydrology study scope, conditions of approval and a memo.">
+<!-- Served at /screen (vercel.json rewrite; app.py route). Adapted from environmental_shift_reference_docs/YOUtah Climate Water Screen.html.
+     The map hands a project over by query: ?project=stratos[&mw=3000] for a registry project, or
+     ?name=..&mw=..&cooling=closed_loop|evaporative&onsite_gas=1&gsl=1 for a dropped one. The URL then tracks the form.
+     Model and mapping: /assets/atlas-screen.js. The Atlas engine estimate is shown beside the screen's, never merged. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: guided input steps on the left; a stacked review packet on the right with a jump bar. One column on phones. */
+  --ink: #12303a;
+  --muted: #56696f;
+  --bg: #f4f6f4;
+  --panel: #ffffff;
+  --line: #d9e1df;
+  --accent: #b23a62;
+  --accent-soft: #f6e3ea;
+  --water: #2b7a8c;
+  --water-soft: #d7ebef;
+  --power: #8a6a2f;
+  --power-soft: #efe5d2;
+  --crit: #b3261e; --crit-soft: #fbe4e2;
+  --warn: #9a6200; --warn-soft: #fbefd6;
+  --ok: #2d7a46; --ok-soft: #dff1e5;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e3ecea; --muted: #a3b5b8; --bg: #0f1a1d; --panel: #16252a; --line: #2a3d42;
+    --accent: #e7799c; --accent-soft: #3a1f2a; --water: #6cc0d2; --water-soft: #173a43;
+    --power: #d8b46a; --power-soft: #3a3020;
+    --crit: #ff8a80; --crit-soft: #3d1c1a; --warn: #f0b84e; --warn-soft: #3a2d12; --ok: #79d39a; --ok-soft: #173826;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e3ecea; --muted: #a3b5b8; --bg: #0f1a1d; --panel: #16252a; --line: #2a3d42;
+  --accent: #e7799c; --accent-soft: #3a1f2a; --water: #6cc0d2; --water-soft: #173a43;
+  --power: #d8b46a; --power-soft: #3a3020;
+  --crit: #ff8a80; --crit-soft: #3d1c1a; --warn: #f0b84e; --warn-soft: #3a2d12; --ok: #79d39a; --ok-soft: #173826;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1260px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 500px) { .wrap { padding: 0 16px; } }
+header { padding: 24px 0 12px; }
+header h1 { font-family: var(--font-display); font-weight: 700; font-size: 30px; margin: 0 0 4px; text-wrap: balance; }
+header h1 span { color: var(--accent); }
+header .lede { margin: 0; color: var(--muted); max-width: 70ch; }
+.howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0 0; padding: 0; list-style: none; }
+@media (max-width: 760px) { .howto { grid-template-columns: 1fr; } }
+.howto li { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 28px 1fr; gap: 8px; font-size: 14px; }
+.howto b { display: block; }
+.num { font-family: var(--font-mono); font-size: 13px; color: #fff; background: var(--accent); width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center; }
+main { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; padding: 16px 0 56px; }
+@media (max-width: 960px) { main { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+.rail { display: flex; flex-direction: column; gap: 14px; }
+h2 { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin: 0 0 4px; text-wrap: balance; }
+h3 { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin: 0 0 6px; }
+.step-h { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.step-h h2 { margin: 0; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+label, .lbl { font-size: 13px; font-weight: 600; }
+.hint { font-size: 12px; color: var(--muted); }
+input[type="number"], input[type="text"], select {
+  font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, .card:focus-within, .seg-ctl label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.presets button { font: inherit; font-size: 13px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.presets button:hover { border-color: var(--accent); }
+.presets button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cards { display: flex; flex-direction: column; gap: 8px; }
+.card { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--bg); }
+.card:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.card input { margin: 3px 0 0; accent-color: var(--accent); }
+.card .t { font-weight: 600; font-size: 14px; display: block; }
+.card .d { font-size: 12px; color: var(--muted); display: block; }
+.dots { font-family: var(--font-mono); font-size: 12px; color: var(--water); white-space: nowrap; letter-spacing: 1px; }
+.dots.p { color: var(--power); }
+.seg-ctl { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg-ctl label { text-align: center; padding: 7px 4px; font-size: 13px; cursor: pointer; background: var(--bg); border-right: 1px solid var(--line); font-weight: 500; }
+.seg-ctl label:last-child { border-right: 0; }
+.seg-ctl input { position: absolute; opacity: 0; pointer-events: none; }
+.seg-ctl label:has(input:checked) { background: var(--accent); color: #fff; }
+.seg-ctl small { display: block; font-size: 11px; opacity: .8; }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; margin-bottom: 8px; font-weight: 500; }
+.check input { margin-top: 3px; accent-color: var(--accent); }
+details.adv { margin-top: 4px; }
+details summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+details[open] summary { margin-bottom: 8px; }
+.results { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.jump { display: flex; flex-wrap: wrap; gap: 6px; position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 8px 0; }
+.jump a { font-size: 13px; font-weight: 600; text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; }
+.jump a:hover { border-color: var(--accent); color: var(--accent); }
+section.panel { scroll-margin-top: 56px; }
+.bottom { border-left: 6px solid var(--accent); }
+.bottom .eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); }
+.bottom p.big { font-size: 18px; line-height: 1.45; margin: 6px 0 0; max-width: 72ch; text-wrap: pretty; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+@media (max-width: 640px) { .tiles { grid-template-columns: 1fr; } }
+.tile { background: var(--bg); border-radius: 8px; padding: 12px 14px; border-top: 4px solid var(--line); }
+.tile.direct { border-top-color: var(--water); }
+.tile.indirect { border-top-color: var(--power); }
+.tile.total { border-top-color: var(--accent); }
+.tile .k { font-size: 12px; font-weight: 700; color: var(--muted); }
+.tile .v { font-family: var(--font-display); font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.tile .u { font-size: 12px; color: var(--muted); }
+.tile .r { font-size: 12px; margin-top: 6px; }
+.tile .r b { font-family: var(--font-mono); font-weight: 500; }
+.chart { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+.bar-row { display: grid; grid-template-columns: 170px 1fr 110px; gap: 10px; align-items: center; }
+@media (max-width: 640px) { .bar-row { grid-template-columns: 1fr; gap: 4px; } }
+.bar-label { font-size: 13px; font-weight: 600; }
+.bar-track { position: relative; height: 24px; background: var(--bg); border-radius: 4px; border: 1px solid var(--line); overflow: hidden; }
+.segm { position: absolute; top: 0; bottom: 0; }
+.segm.direct { background: var(--water); }
+.segm.indirect { background: var(--power); opacity: .85; }
+.segm.request { background: var(--accent); }
+.whisk { position: absolute; top: 50%; height: 2px; background: var(--ink); opacity: .6; }
+.whisk::before, .whisk::after { content: ""; position: absolute; top: -5px; width: 2px; height: 12px; background: var(--ink); }
+.whisk::before { left: 0; } .whisk::after { right: 0; }
+.bar-val { font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
+@media (max-width: 640px) { .bar-val { text-align: left; } }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.verdict { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 8px; margin-top: 12px; font-size: 14px; }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; white-space: nowrap; flex: none; }
+.chip.crit { background: var(--crit-soft); color: var(--crit); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.info { background: var(--water-soft); color: var(--water); }
+.verdict.crit { background: var(--crit-soft); } .verdict.warn { background: var(--warn-soft); } .verdict.ok { background: var(--ok-soft); } .verdict.info { background: var(--water-soft); }
+.verdict .chip { background: var(--panel); }
+.ctx { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+@media (max-width: 960px) { .ctx { grid-template-columns: repeat(2, 1fr); } }
+.ctx div { border-left: 3px solid var(--line); padding-left: 10px; }
+.ctx .n { font-family: var(--font-display); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ctx .d { font-size: 12px; color: var(--muted); }
+ul.list, ol.qs { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+ul.list li { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: start; font-size: 14px; }
+ul.list li .chip { justify-self: start; }
+ul.list li b { display: block; }
+ol.qs { counter-reset: q; }
+ol.qs li { counter-increment: q; display: grid; grid-template-columns: 24px 1fr; gap: 6px; font-size: 14px; }
+ol.qs li::before { content: counter(q); font-family: var(--font-mono); font-size: 12px; color: var(--accent); padding-top: 2px; }
+.scope { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.scope label { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-weight: 400; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); cursor: pointer; }
+.scope label input { margin-top: 4px; accent-color: var(--accent); }
+.scope label b { display: block; font-weight: 600; }
+.scope .why { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.scope .tag { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.headrow { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.btn { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 6px; border: 1px solid var(--accent); color: var(--accent); background: transparent; cursor: pointer; }
+.btn:hover { background: var(--accent-soft); }
+.btn.solid { background: var(--accent); color: #fff; }
+.btn.solid:hover { opacity: .9; }
+.status { font-size: 12px; color: var(--muted); margin: 6px 0 0; min-height: 1em; }
+.memo { white-space: pre-wrap; font-family: var(--font-mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-top: 10px; max-height: 420px; overflow: auto; }
+dl.gloss { display: grid; grid-template-columns: 170px 1fr; gap: 8px 16px; margin: 10px 0 0; font-size: 14px; }
+@media (max-width: 640px) { dl.gloss { grid-template-columns: 1fr; } }
+dl.gloss dt { font-weight: 600; }
+dl.gloss dd { margin: 0; color: var(--muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.tablewrap { overflow-x: auto; margin-top: 10px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+a { color: var(--water); }
+.assume { font-size: 11px; font-weight: 700; color: var(--warn); text-transform: uppercase; letter-spacing: .05em; }
+.note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+ul.plain { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+ul.plain li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; font-size: 16px; line-height: 1.5; max-width: 76ch; }
+ul.plain li .ic { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; font-weight: 500; background: var(--water-soft); color: var(--water); }
+ul.plain li b { font-weight: 600; }
+.best { background: var(--ok-soft); border-radius: 8px; padding: 12px 14px; font-size: 15px; margin-top: 4px; }
+.best b { color: var(--ok); }
+ul.levers { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; }
+ul.levers li { display: grid; grid-template-columns: 1fr 200px; gap: 6px 16px; align-items: center; }
+@media (max-width: 700px) { ul.levers li { grid-template-columns: 1fr; } }
+ul.levers .lt { font-weight: 600; font-size: 14px; }
+ul.levers .ld { font-size: 13px; color: var(--muted); }
+ul.levers .lb { display: flex; flex-direction: column; gap: 3px; }
+ul.levers .ltrack { height: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+ul.levers .lfill { height: 100%; background: var(--ok); }
+ul.levers .lfill.none { background: var(--line); }
+ul.levers .lv { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.crumbs a { color: var(--water); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.presets + .presets { margin-top: 8px; }
+/* Source-type tags: distinct outlines, as everywhere in the Atlas, so meaning never rests on colour. */
+.stag { display: inline-block; border: 1px solid var(--muted); border-radius: 8px; padding: 0 5px; font-size: 10.5px; color: var(--muted); white-space: nowrap; font-weight: 500; }
+.stag.dev { border-style: dashed; } .stag.adv { border-width: 2px; } .stag.ind { border-style: double; border-width: 3px; } .stag.der { border-style: dotted; }
+.rng { color: var(--muted); font-size: 12px; }
+.nq { color: var(--muted); font-style: italic; }
+.cmp { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.cmp td.mono { font-size: 14px; }
+ul.figs { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+ul.figs b { font-family: var(--font-mono); font-weight: 500; }
+@media (prefers-reduced-motion: no-preference) { .segm, .whisk { transition: left .25s, width .25s; } html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <nav class="crumbs" aria-label="Environmental Atlas">
+    <a id="backMap" href="/?impact">← Atlas map: all proposed data centers</a>
+    <a href="/briefing">Legislative briefing</a>
+  </nav>
+  <h1>YOUtah Climate <span>Water Screen</span></h1>
+  <p class="lede">For city councils, county commissions, water providers and state reviewers. Get a first estimate of a proposed data center's water use, check it against what the developer has claimed, and decide what the in-depth hydrology study must cover.</p>
+  <ol class="howto">
+    <li><span class="num">1</span><span><b>Describe the proposal</b>Enter what the developer has disclosed, or start from an example. Unknowns use federal averages.</span></li>
+    <li><span class="num">2</span><span><b>Review the estimate</b>See the likely water range, how it compares with the request, and what it means locally.</span></li>
+    <li><span class="num">3</span><span><b>Take the next step</b>Use the red flags, developer questions, study scope and draft conditions, then copy the screening memo.</span></li>
+  </ol>
+</header>
+
+<main>
+  <form class="rail" id="form" autocomplete="off">
+    <div class="panel">
+      <h3>Start from a proposal</h3>
+      <div class="field" id="atlasField" hidden>
+        <label for="atlasProject">Proposed Utah data center</label>
+        <select id="atlasProject" data-nostate><option value="">Choose from the Atlas…</option></select>
+        <span class="hint">Fills in what the Atlas registry records. What a developer has not disclosed stays "unknown".</span>
+      </div>
+      <div class="presets" id="sizes" role="group" aria-label="Announced sizes" hidden></div>
+      <div class="presets" role="group" aria-label="Example projects">
+        <button type="button" data-preset="hyperscale" aria-pressed="false">Example: 300 MW campus</button>
+        <button type="button" data-preset="fleet" aria-pressed="false">Example: Utah fleet today</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="step-h"><span class="num">1</span><h2>The project</h2></div>
+      <div class="field">
+        <label for="name">Project name</label>
+        <input type="text" id="name">
+      </div>
+      <div class="field">
+        <label for="mw">Power capacity in megawatts (MW)</label>
+        <input type="number" id="mw" min="1" step="1">
+        <span class="hint">Usually in the application or press release. 1,000 MW = 1 gigawatt (GW).</span>
+      </div>
+      <div class="field">
+        <span class="lbl" id="utilLbl">How hard will it run on average?</span>
+        <div class="seg-ctl" role="radiogroup" aria-labelledby="utilLbl">
+          <label><input type="radio" name="util" value="50">Light<small>50%</small></label>
+          <label><input type="radio" name="util" value="65">Typical<small>65%</small></label>
+          <label><input type="radio" name="util" value="80">Heavy<small>80%</small></label>
+          <label><input type="radio" name="util" value="90">AI training<small>90%</small></label>
+        </div>
+      </div>
+      <details class="adv">
+        <summary>Technical settings (optional)</summary>
+        <div class="row2">
+          <div class="field">
+            <label for="basis">The MW figure covers</label>
+            <select id="basis">
+              <option value="facility">Whole facility</option>
+              <option value="it">Servers only (IT load)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pue">Energy overhead (PUE)</label>
+            <input type="number" id="pue" min="1" max="2.5" step="0.05">
+          </div>
+        </div>
+        <span class="hint">PUE is total facility energy divided by server energy. 1.1–1.2 is best in class; leave the default if unknown.</span>
+      </details>
+    </div>
+
+    <div class="panel">
+      <div class="step-h"><span class="num">2</span><h2>How it is cooled</h2></div>
+      <p class="sub">The single biggest driver of on-site water use. Water drops show relative use.</p>
+      <div class="cards" id="coolingCards"></div>
+    </div>
+
+    <div class="panel">
+      <div class="step-h"><span class="num">3</span><h2>Where its power comes from</h2></div>
+      <p class="sub">Power plants also consume water, often more than the data center itself.</p>
+      <div class="cards" id="powerCards"></div>
+    </div>
+
+    <div class="panel">
+      <div class="step-h"><span class="num">4</span><h2>Where its water comes from</h2></div>
+      <div class="field">
+        <label for="source">Primary water source</label>
+        <select id="source">
+          <option value="potable">City or district drinking water</option>
+          <option value="newright">New water right or change application</option>
+          <option value="groundwater">Existing groundwater well right</option>
+          <option value="reclaimed">Reclaimed or recycled water</option>
+          <option value="unknown">Not disclosed</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="basin">Watershed</label>
+        <select id="basin">
+          <option value="gsl">Great Salt Lake basin</option>
+          <option value="colorado">Colorado River basin</option>
+          <option value="sevier">Sevier River basin</option>
+          <option value="other">Other or closed basin</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="request">Water the developer says it needs (acre-feet per year)</label>
+        <input type="number" id="request" min="0" step="1" placeholder="Not disclosed">
+        <span class="hint">Found in the water right application or will-serve request. Leave blank if not disclosed.</span>
+      </div>
+      <label class="check"><input type="checkbox" id="reporting"> Developer commits to public, facility-level water reporting</label>
+      <label class="check"><input type="checkbox" id="confidential"> Water service agreement keeps volumes confidential</label>
+    </div>
+  </form>
+
+  <div class="results">
+    <nav class="jump" aria-label="Sections">
+      <a href="#summary">Summary</a>
+      <a href="#meaning">What it means</a>
+      <a href="#reduce">How to use less</a>
+      <a href="#claim">Claim check</a>
+      <a href="#review">Red flags</a>
+      <a href="#questions">Questions</a>
+      <a href="#study">Study scope</a>
+      <a href="#conditions">Conditions</a>
+      <a href="#memo">Memo</a>
+      <a href="#method">Method</a>
+    </nav>
+
+    <section class="panel bottom" id="summary" aria-live="polite">
+      <div class="eyebrow">Bottom line</div>
+      <p class="big" id="bottomLine"></p>
+      <div class="tiles">
+        <div class="tile direct"><div class="k">Cooling water at the site</div><div class="v" id="tDirect"></div><div class="u">acre-feet per year</div><div class="r" id="rDirect"></div></div>
+        <div class="tile indirect"><div class="k">Water used to make its power</div><div class="v" id="tIndirect"></div><div class="u">acre-feet per year</div><div class="r" id="rIndirect"></div></div>
+        <div class="tile total"><div class="k">Total water footprint</div><div class="v" id="tTotal"></div><div class="u">acre-feet per year</div><div class="r" id="rTotal"></div></div>
+      </div>
+      <div class="ctx">
+        <div><div class="n" id="cHouse"></div><div class="d">Utah households' indoor use equal to the cooling water alone</div></div>
+        <div><div class="n" id="cPeak"></div><div class="d">Million gallons per day on a peak summer day (cooling)</div></div>
+        <div><div class="n" id="cGap"></div><div class="d">of Utah's projected 128,000 acre-foot shortfall by 2060</div></div>
+        <div><div class="n" id="cGsl"></div><div class="d">of the ~<span data-gsl-need>800,000</span> acre-feet a year of added inflow the Great Salt Lake needs</div></div>
+      </div>
+      <p class="note">One acre-foot is about 326,000 gallons, enough to cover a football field one foot deep. Ranges reflect uncertainty in operations and equipment.</p>
+    </section>
+
+    <section class="panel" id="meaning">
+      <h2>What this means, in plain terms</h2>
+      <ul class="plain" id="plain"></ul>
+    </section>
+
+    <section class="panel" id="reduce">
+      <h2>How to use less water</h2>
+      <p class="sub">Each change below is calculated for this project. Bars show acre-feet saved per year, biggest first.</p>
+      <div class="best" id="best"></div>
+      <ul class="levers" id="levers"></ul>
+    </section>
+
+    <section class="panel" id="claim">
+      <div class="headrow"><div><h2>Does the developer's number add up?</h2><p class="sub" style="margin:0">The bars compare the request with the screening estimate. Whiskers show the low-to-high range.</p></div><span class="hint" id="energyLine"></span></div>
+      <div class="chart" id="chart"></div>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>Developer request</span>
+        <span><i style="background:var(--water)"></i>Cooling water</span>
+        <span><i style="background:var(--power)"></i>Power-plant water</span>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <div class="verdict warn" id="sizeNote" hidden></div>
+      <div class="cmp" id="atlasCmp" hidden>
+        <h3>Side by side with the Atlas</h3>
+        <p class="sub">Two estimates of the same proposal, built differently. Neither is a measurement, and they are not averaged.</p>
+        <div class="tablewrap"><table id="cmpTable"></table></div>
+        <p class="note" id="cmpNote"></p>
+        <ul class="figs" id="figs"></ul>
+      </div>
+    </section>
+
+    <section class="panel" id="review">
+      <h2>Red flags for reviewers</h2>
+      <p class="sub">Issues raised by this proposal's design and location, most serious first.</p>
+      <ul class="list" id="flags"></ul>
+    </section>
+
+    <section class="panel" id="questions">
+      <div class="headrow"><div><h2>Questions to ask the developer</h2><p class="sub" style="margin:0">Use at a public hearing, in a records request, or in a completeness review.</p></div><button type="button" class="btn" id="copyQs">Copy questions</button></div>
+      <ol class="qs" id="qs"></ol>
+      <p class="status" id="qsMsg" role="status"></p>
+    </section>
+
+    <section class="panel" id="study">
+      <div class="headrow"><div><h2>Scope for the in-depth hydrology study</h2><p class="sub" style="margin:0">What the developer's study should be required to cover. Items are tailored to the answers on the left; uncheck any that do not apply.</p></div><button type="button" class="btn" id="copyScope">Copy scope</button></div>
+      <div class="scope" id="scope"></div>
+      <p class="status" id="scopeMsg" role="status"></p>
+      <p class="note">Ask that the study be prepared or peer-reviewed by an independent hydrologist chosen by the reviewing agency and paid for by the applicant.</p>
+    </section>
+
+    <section class="panel" id="conditions">
+      <div class="headrow"><div><h2>Possible conditions of approval</h2><p class="sub" style="margin:0">Starting points for staff and counsel. Each ties a commitment to something that can be measured.</p></div><button type="button" class="btn" id="copyCond">Copy conditions</button></div>
+      <ol class="qs" id="conds"></ol>
+      <p class="status" id="condMsg" role="status"></p>
+    </section>
+
+    <section class="panel" id="memo">
+      <div class="headrow"><div><h2>Screening memo</h2><p class="sub" style="margin:0">A plain-text summary for a staff report or council packet.</p></div><button type="button" class="btn solid" id="copyMemo">Copy memo</button></div>
+      <div class="memo" id="memoText"></div>
+      <p class="status" id="memoMsg" role="status"></p>
+    </section>
+
+    <section class="panel" id="method">
+      <h2>Terms, method and sources</h2>
+      <dl class="gloss">
+        <dt>Acre-foot (AF)</dt><dd>About 326,000 gallons. A typical Utah household uses roughly half an acre-foot a year indoors.</dd>
+        <dt>Cooling (direct) water</dt><dd>Water used at the data center, mostly evaporated to remove heat from servers.</dd>
+        <dt>Power-plant (indirect) water</dt><dd>Water consumed to generate the electricity the data center uses. Federal researchers estimate it is about 12 times direct use nationally.</dd>
+        <dt>Consumptive use</dt><dd>Water that evaporates or is otherwise lost and does not return to a river, aquifer or the lake. This is what matters most downstream.</dd>
+        <dt>WUE</dt><dd>Water-use effectiveness: liters of water per kilowatt-hour of server energy. Lower is better.</dd>
+        <dt>PUE</dt><dd>Power usage effectiveness: total facility energy divided by server energy. Lower is better.</dd>
+        <dt>Blowdown</dt><dd>Salty water flushed from evaporative cooling systems, discharged under a water-quality permit.</dd>
+      </dl>
+      <details style="margin-top:14px">
+        <summary>How the estimate is calculated</summary>
+        <p class="note">Annual facility energy (MWh) = capacity × 8,760 hours × utilization. Server energy = facility energy ÷ PUE. Cooling water = server energy × WUE. Power-plant water = facility energy × water consumed per MWh generated. Ranges apply ±15 points of utilization with the low and high value for each option.</p>
+      </details>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Value</th><th>Used</th><th>Basis</th></tr></thead>
+          <tbody>
+            <tr><td>U.S. average cooling water</td><td class="mono">97 gal/MWh ≈ 0.5 L/kWh server</td><td>Derived from DOE/LBNL 2024: 17 billion gallons, 176 TWh (2023)</td></tr>
+            <tr><td>Grid power, national average</td><td class="mono">~1,160 gal/MWh</td><td>LBNL: indirect water ≈ 12× direct</td></tr>
+            <tr><td>On-site gas turbines</td><td class="mono">~234 gal/MWh</td><td>Derived from Utah Clean Energy's Stratos estimate</td></tr>
+            <tr><td>On-site gas engines</td><td class="mono">~28 gal/MWh</td><td>Derived from Utah Clean Energy's Stratos estimate</td></tr>
+            <tr><td>Evaporative and hybrid cooling; summer peaking</td><td class="mono">see options</td><td><span class="assume">Assumption</span> typical industry values; replace with site data</td></tr>
+            <tr><td>Household indoor use</td><td class="mono">0.49 AF/yr</td><td>Salt Lake Tribune: NSA Bluffdale ~390 AF ≈ ~800 households</td></tr>
+            <tr><td>Statewide shortfall; lake need</td><td class="mono">128,000; <span data-gsl-need>800,000</span> AF</td><td>Draft 2026 State Water Plan; <span id="gslSrc">Great Salt Lake Strike Team estimate</span> (the figure the Atlas map uses)</td></tr>
+            <tr><td>Atlas projects: utilization, PUE</td><td class="mono">80%; 1.3</td><td>The Atlas impact engine's central load factor and PUE, so both estimates start from the same operating assumptions</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">This screen and the <a href="/?impact">Atlas map</a> use different models. The screen applies national-average coefficients, the utilization set on the left, and the water that grid power plants consume. The Atlas impact engine uses its own sourced factor ranges, treats undisclosed cooling as closed-loop in its central case, and does not count grid power-plant water. Where both apply, the claim check shows them side by side.</p>
+      <p class="note">A screening estimate, not a hydrologic finding. It does not replace a site study, a water-rights decision by the State Engineer, or site-specific design data. Sources: <a href="https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report">DOE/LBNL 2024</a>, <a href="https://www.everycrsreport.com/reports/R49057.html">CRS R49057</a>, <a href="https://www.gao.gov/products/GAO-25-107172">GAO-25-107172</a>, <a href="https://utahcleanenergy.org/estimated-emissions-and-water-consumption-from-the-proposed-stratos-data-center/">Utah Clean Energy</a>, <a href="https://water.utah.gov/wp-content/uploads/2026/07/Draft-2026-State-Water-Plan.pdf">Draft 2026 State Water Plan</a>.</p>
+    </section>
+  </div>
+</main>
+</div>
+
+<script type="module">
+import { GAL_PER_AF as AF, COOLING, POWER, SOURCE_TXT, BASIN_TXT, compute, fromAtlas, fromParams, toParams, toEngine } from '/assets/atlas-screen.js';
+
+const API = '/api/atlas', DATA = '/atlas/data';
+const TAGS = { gov: 'Government', dev: 'Developer', ind: 'Independent academic', adv: 'Advocacy-commissioned', der: 'Derived' };
+// Generic examples. Real proposals come from the Atlas registry, so their facts live in one place.
+const PRESETS = {
+  hyperscale:  { name: "Example 300 MW data center campus", mw: 300, basis: "facility", util: 80, pue: 1.3, cooling: "evap", power: "grid", source: "potable", basin: "gsl", request: null, reporting: false, confidential: true },
+  fleet:       { name: "Utah's operating data centers (48 sites)", mw: 920, basis: "facility", util: 65, pue: 1.4, cooling: "usavg", power: "grid", source: "potable", basin: "gsl", request: null, reporting: true, confidential: true }
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const tag = k => `<span class="stag ${esc(k)}" title="Source type">${esc(TAGS[k] || k)}</span>`;
+const getJSON = u => fetch(u).then(r => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))));
+
+let projects = [], atlas = null;          // Atlas registry; the registry project this screen started from, if any
+let gslNeed = 800000;                     // AF/yr of added inflow; replaced by the Atlas's own figure when it loads
+
+function cards(target, name, obj, cls) {
+  $(target).innerHTML = Object.entries(obj).map(([k, v]) =>
+    `<label class="card"><input type="radio" name="${name}" value="${k}"><span><span class="t">${v.label}</span><span class="d">${v.d}</span></span><span class="dots ${cls}" title="Relative water use" aria-label="Relative water use">${v.drops}</span></label>`).join("");
+}
+cards("coolingCards", "cooling", COOLING, "");
+cards("powerCards", "power", POWER, "p");
+
+const radio = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value;
+const setRadio = (n, v) => { const el = document.querySelector(`input[name="${n}"][value="${v}"]`); if (el) el.checked = true; };
+const fmt = n => n >= 100 ? Math.round(n).toLocaleString("en-US") : n.toLocaleString("en-US", { maximumFractionDigits: 1 });
+const pct = n => (n < 0.1 ? "<0.1" : n < 10 ? n.toFixed(1) : Math.round(n)) + "%";
+
+function read() {
+  return {
+    name: $("name").value.trim(),
+    mw: Math.max(0, +$("mw").value || 0), basis: $("basis").value, util: +(radio("util") || 65),
+    pue: Math.max(1, +$("pue").value || 1.3), cooling: radio("cooling") || "usavg", power: radio("power") || "grid",
+    source: $("source").value, basin: $("basin").value,
+    request: $("request").value === "" ? null : Math.max(0, +$("request").value),
+    reporting: $("reporting").checked, confidential: $("confidential").checked
+  };
+}
+
+let state = {};
+function render() {
+  const raw = read(), p = { ...raw, name: raw.name || "This project" };
+  history.replaceState(null, "", `${location.pathname}?${toParams(raw, atlas)}`);
+  const mid = compute(p, 0, "mid"), lo = compute(p, -0.15, "lo"), hi = compute(p, 0.15, "hi");
+  const tot = r => r.direct + r.indirect;
+  const peakMGD = mid.directGal / 365 * COOLING[p.cooling].peak / 1e6;
+  const ratio = mid.indirect / Math.max(mid.direct, 0.001);
+
+  $("tDirect").textContent = fmt(mid.direct);
+  $("tIndirect").textContent = fmt(mid.indirect);
+  $("tTotal").textContent = fmt(tot(mid));
+  $("rDirect").innerHTML = `Likely range <b>${fmt(lo.direct)}–${fmt(hi.direct)}</b>`;
+  $("rIndirect").innerHTML = `Likely range <b>${fmt(lo.indirect)}–${fmt(hi.indirect)}</b>`;
+  $("rTotal").innerHTML = `Likely range <b>${fmt(tot(lo))}–${fmt(tot(hi))}</b>`;
+  $("energyLine").textContent = fmt(mid.fac / 1e6) + " TWh of electricity a year";
+  $("cHouse").textContent = fmt(mid.direct / 0.49);
+  $("cPeak").textContent = peakMGD < 10 ? peakMGD.toFixed(2) : fmt(peakMGD);
+  $("cGap").textContent = pct(tot(mid) / 128000 * 100);
+  $("cGsl").textContent = pct(tot(mid) / gslNeed * 100);
+
+  // Claim check
+  const max = Math.max(tot(hi), p.request || 0) * 1.05 || 1;
+  const x = v => (v / max * 100) + "%";
+  const rows = [];
+  if (p.request !== null) rows.push(`<div class="bar-row"><div class="bar-label">Developer request</div><div class="bar-track"><div class="segm request" style="left:0;width:${x(p.request)}"></div></div><div class="bar-val">${fmt(p.request)} AF</div></div>`);
+  rows.push(`<div class="bar-row"><div class="bar-label">Cooling water</div><div class="bar-track"><div class="segm direct" style="left:0;width:${x(mid.direct)}"></div><div class="whisk" style="left:${x(lo.direct)};width:calc(${x(hi.direct)} - ${x(lo.direct)})"></div></div><div class="bar-val">${fmt(mid.direct)} AF</div></div>`);
+  rows.push(`<div class="bar-row"><div class="bar-label">Cooling + power plant</div><div class="bar-track"><div class="segm direct" style="left:0;width:${x(mid.direct)}"></div><div class="segm indirect" style="left:${x(mid.direct)};width:${x(mid.indirect)}"></div><div class="whisk" style="left:${x(tot(lo))};width:calc(${x(tot(hi))} - ${x(tot(lo))})"></div></div><div class="bar-val">${fmt(tot(mid))} AF</div></div>`);
+  $("chart").innerHTML = rows.join("");
+
+  let v, verdictPlain;
+  if (p.request === null) {
+    v = ["warn", "Not disclosed", `No water quantity has been disclosed. Expect roughly ${fmt(lo.direct)}–${fmt(hi.direct)} acre-feet a year for cooling, and ${fmt(tot(lo))}–${fmt(tot(hi))} including power generation.`];
+    verdictPlain = "has not disclosed how much water it needs";
+  } else {
+    const implied = p.request * AF / mid.fac;
+    const imp = `The request works out to ${fmt(implied)} gallons per megawatt-hour; the U.S. average for cooling alone is about 97.`;
+    if (p.request < lo.direct) { v = ["crit", "Too low", `The request is below even the low end of the cooling estimate (${fmt(lo.direct)} AF). ${imp} Ask what design or unlisted water source makes this possible.`]; verdictPlain = "is asking for less water than even the low end of the cooling estimate"; }
+    else if (p.request <= hi.direct) { v = ["warn", "Cooling only", `The request fits the cooling estimate but does not appear to include about ${fmt(mid.indirect)} acre-feet a year used to generate its power. ${imp}`]; verdictPlain = `has requested water that covers cooling but likely leaves out about ${fmt(mid.indirect)} acre-feet a year used to generate its power`; }
+    else if (p.request < tot(lo)) { v = ["info", "Partial", `The request is more than cooling alone but less than the full footprint. ${imp} Confirm whether power-plant water is included.`]; verdictPlain = "has requested more than cooling alone but less than its full footprint"; }
+    else { v = ["ok", "Consistent", `The request is in line with the full screening estimate. ${imp}`]; verdictPlain = "has requested an amount consistent with the full screening estimate"; }
+  }
+  $("verdict").className = "verdict " + v[0];
+  $("verdict").innerHTML = `<span class="chip ${v[0]}">${v[1]}</span><span>${v[2]}</span>`;
+  // A registry figure belongs to the announced size. At a phase or scaled size the verdict is not like for like.
+  const facMW = p.basis === "it" ? p.mw * p.pue : p.mw;
+  const sizeText = atlas && atlas.mw && p.request !== null && p.request === atlas.stated_af && Math.abs(facMW - atlas.mw) > 0.5
+    ? `The developer's ${fmt(p.request)} acre-feet is the figure on record for the announced ${fmt(atlas.mw)} MW. This screen is set to ${fmt(facMW)} MW, so the verdict above does not compare like with like. Enter the figure for this size, or clear the request.` : "";
+  $("sizeNote").hidden = !sizeText;
+  $("sizeNote").innerHTML = sizeText ? `<span class="chip warn">Different size</span><span>${sizeText}</span>` : "";
+
+  const biggest = mid.indirect > mid.direct ? "Most of that water would be used at the power plant, not the data center." : "Most of that water would be used for cooling on site.";
+  $("bottomLine").textContent = `${p.name} would likely consume about ${fmt(tot(mid))} acre-feet of water a year (range ${fmt(tot(lo))}–${fmt(tot(hi))}). ${biggest} The developer ${verdictPlain}.`;
+
+  // How to use less water
+  const T = tot(mid);
+  const alt = o => { const r = compute({ ...p, ...o }, 0, "mid"); return r.direct + r.indirect; };
+  const itE = p.basis === "it" ? p.mw * 8760 * p.util / 100 : mid.fac / p.pue;
+  const levers = [];
+  if (p.cooling !== "dry") levers.push({ t: "Switch to dry or closed-loop cooling", d: "Recirculates water in sealed pipes instead of evaporating it. Uses a little more electricity.", save: T - alt({ cooling: "dry" }) });
+  if (p.cooling === "evap") levers.push({ t: "Use hybrid cooling, with water only on the hottest days", d: "Air-cools most of the year and caps summer water use.", save: T - alt({ cooling: "hybrid" }) });
+  if (p.power !== "renew") levers.push({ t: "Power it with new wind and solar", d: p.power.startsWith("gas") ? "Replaces the on-site gas plant, which consumes water to cool its generators." : "Wind and solar farms use almost no water to make electricity.", save: T - alt({ power: "renew" }) });
+  levers.push({ t: "Build in phases and cap it at half the size", d: "Approve each new phase only after earlier phases prove their actual water use.", save: T / 2 });
+  if (p.pue > 1.1) { const w = POWER[p.power].mid; levers.push({ t: "Require more efficient buildings (PUE 1.1)", d: "Less wasted electricity means less water at the power plant, for the same computing.", save: Math.max(0, (itE * p.pue - itE * 1.1) * w / AF) }); }
+  levers.sort((a, b) => b.save - a.save);
+  if (p.source !== "reclaimed") levers.push({ t: "Cool with reclaimed or recycled water", d: "Does not reduce the total, but moves cooling water off drinking water and rivers.", save: 0, shift: mid.direct });
+  const maxSave = Math.max(...levers.map(l => l.save), 1);
+  $("levers").innerHTML = levers.map(l => `<li><div><div class="lt">${l.t}</div><div class="ld">${l.d}</div></div><div class="lb">${l.shift !== undefined ? `<div class="ltrack"><div class="lfill none" style="width:100%"></div></div><div class="lv">shifts ~${fmt(l.shift)} AF off drinking water</div>` : `<div class="ltrack"><div class="lfill" style="width:${l.save / maxSave * 100}%"></div></div><div class="lv">saves ~${fmt(l.save)} AF/yr (${pct(T ? l.save / T * 100 : 0)})</div>`}</div></li>`).join("");
+  const bestT = alt({ cooling: "dry", power: "renew" });
+  const top = levers[0];
+  if (p.cooling === "dry" && p.power === "renew") $("best").innerHTML = `This design already uses the two lowest-water choices. The remaining step is to <b>verify it</b>: meter it, cap it, and report it publicly.`;
+  else $("best").innerHTML = `<b>Best combination:</b> dry cooling plus wind and solar power would cut the total from about ${fmt(T)} to ${fmt(bestT)} acre-feet a year, <b>${pct(T ? (T - bestT) / T * 100 : 0)} less</b>.`;
+
+  // Plain-language meaning
+  const indShare = T ? mid.indirect / T * 100 : 0;
+  const basinLine = {
+    gsl: "This water comes from the Great Salt Lake basin. Water used up here never reaches the lake, which is already below a healthy level.",
+    colorado: "This water comes from the Colorado River basin, which is short of water and shared with six other states.",
+    sevier: "This water comes from the Sevier River basin, where most water is already committed to farms.",
+    other: "Check whether the local supply can cover this use in a dry year."
+  }[p.basin];
+  const plain = [
+    ["1", `Each year this project would use about <b>${fmt(T)} acre-feet</b> of water. That is about as much as <b>${fmt(T / 0.49)} Utah homes</b> use indoors.`],
+    ["2", indShare >= 50 ? `<b>Most of it (${Math.round(indShare)}%) is used to make the electricity</b>, at a power plant. Only ${Math.round(100 - indShare)}% is used to cool the computers.` : `<b>Most of it (${Math.round(100 - indShare)}%) is used to cool the computers</b> on site. The rest is used at power plants to make its electricity.`],
+    ["3", `The developer ${verdictPlain}.`],
+    ["4", basinLine],
+    ["5", `The biggest single fix: <b>${top.t.toLowerCase()}</b>. That alone would save about ${fmt(top.save)} acre-feet a year.`]
+  ];
+  $("plain").innerHTML = plain.map(([n, t]) => `<li><span class="ic">${n}</span><span>${t}</span></li>`).join("");
+  state.levers = levers; state.plainText = plain.map(x => x[1].replace(/<[^>]+>/g, "")); state.bestText = $("best").textContent; state.T = T;
+
+  // Flags & questions
+  const flags = [], qs = [];
+  if (p.power.startsWith("gas")) { flags.push(["crit", "Power-plant water is likely left out", `On-site gas generation would consume about ${ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)}× as much water as cooling. Water requests often cover only the data center.`]); qs.push("How much water will the on-site power plant consume each year, and is that included in your water right application?"); }
+  else if (p.power === "grid") { flags.push(["info", "Water use happens off-site", "Power plants elsewhere consume water to serve this load. Ask which utility and which plants."]); qs.push("Which utility will supply power, which plants will serve the new load, and how much water do they consume per MWh?"); }
+  if (p.cooling === "evap") { flags.push(["warn", "Summer peak demand", `Evaporative cooling would peak near ${peakMGD < 10 ? peakMGD.toFixed(1) : fmt(peakMGD)} million gallons a day in July and August, when streamflows are lowest and irrigation demand is highest.`]); qs.push("What is your expected use in July and August, and can you switch to dry cooling during a drought declaration?"); }
+  if (p.cooling === "dry") qs.push("How much additional electricity does dry cooling require, and where will that power come from?");
+  if (p.cooling === "usavg") { flags.push(["warn", "Cooling design not disclosed", "Water use can vary tenfold depending on the cooling system chosen."]); qs.push("What cooling system will you use, and what is its design water-use effectiveness (WUE) in summer and annually?"); }
+  if (p.source === "unknown") { flags.push(["crit", "Water source not disclosed", "Reviewers cannot judge reliability, effects on existing rights or effects on other users without knowing where the water would come from."]); qs.push("What is the source of the project's water, and under which water right or service agreement?"); }
+  if (p.source === "potable") { flags.push(["warn", "Drinking water for industrial cooling", "Competes directly with homes and businesses in the provider's service area."]); qs.push("Has the water provider confirmed it can serve this load, and what share of its supply would it use?"); }
+  if (p.source === "newright") { flags.push(["warn", "New or changed water right", "A recent priority date is the first to be cut in drought. Since HB 60 (2026), the State Engineer weighs public-welfare concerns more narrowly, so local review carries more weight."]); qs.push("What is the priority date of the water right, and what is your operating plan when it is curtailed?"); }
+  if (p.source === "groundwater") { flags.push(["warn", "Groundwater pumping", "Effects on nearby springs, wetlands and wells cannot be judged without a hydrologic study."]); qs.push("Will you fund an independent study of pumping effects on nearby springs, wetlands and wells?"); }
+  if (p.source === "reclaimed") flags.push(["ok", "Reclaimed water", "Reduces pressure on drinking water, but confirm that water would not otherwise return to a river or the lake."]);
+  if (p.basin === "gsl") { flags.push(["crit", "Great Salt Lake basin", "Water consumed upstream does not reach a lake that is already below its healthy level, and the state has committed to restoring it by 2034."]); qs.push("Will you offset your consumptive use with water dedicated to the Great Salt Lake?"); }
+  if (p.basin === "colorado") { flags.push(["crit", "Colorado River basin", "New use counts against Utah's share during post-2026 shortage negotiations."]); qs.push("How does this use fit within Utah's Colorado River apportionment and shortage-sharing commitments?"); }
+  if (p.request === null) { flags.push(["crit", "No water quantity disclosed", "Reviewers cannot evaluate a proposal without an annual and peak-day estimate."]); qs.push("What is your estimated annual and peak-day water use at full buildout?"); }
+  else if (p.request < lo.direct) { flags.push(["crit", "Request below screening range", "The amount requested is lower than expected for this size and cooling type."]); qs.push("What cooling design supports your water estimate, and will you commit to it as a condition of approval?"); }
+  if (!p.reporting) { flags.push(["warn", "No public reporting commitment", "Utah's 2026 reporting law (HB 76) publishes only aggregated totals, not facility-level use."]); qs.push("Will you publish facility-level annual water use and WUE each year?"); }
+  if (p.confidential) { flags.push(["warn", "Confidential water volumes", "The Congressional Research Service notes that service agreements can keep actual use from the public."]); qs.push("Will you waive confidentiality on water volumes in your service agreement?"); }
+  qs.push("How much water will each construction phase use, and when does each phase come online?");
+  const order = { crit: 0, warn: 1, info: 2, ok: 3 };
+  flags.sort((a, b) => order[a[0]] - order[b[0]]);
+  const lab = { crit: "Critical", warn: "Watch", info: "Note", ok: "Positive" };
+  $("flags").innerHTML = flags.map(f => `<li><span class="chip ${f[0]}">${lab[f[0]]}</span><span><b>${f[1]}</b>${f[2]}</span></li>`).join("");
+  $("qs").innerHTML = qs.map(q => `<li><span>${q}</span></li>`).join("");
+
+  // Study scope
+  const scope = [
+    ["core", "Complete monthly water budget", "Withdrawals, consumptive use, return flows and discharges at full buildout and for each phase.", "Annual totals hide summer peaks and phase-by-phase growth."],
+    ["core", "Drought-year reliability", "Supply available in a dry year like 2021–2022, and the operating plan when supply falls short.", "New supplies are least reliable when demand is highest."],
+    ["core", "Climate scenarios", "Effects of lower snowpack and higher summer temperatures on both supply and cooling demand.", "Hotter summers raise cooling water use at the same time supply drops."],
+    ["core", "Cumulative effects", "This project together with other approved and pending large users drawing on the same source.", "Individual projects can look small while the total is not."],
+    ["core", "Monitoring and verification plan", "Meters, telemetry, reporting schedule and public access to facility-level data.", "Federal reviewers (GAO, CRS) found actual use is rarely reported."]
+  ];
+  if (p.power !== "renew") scope.push(["power", "Power-plant water in the same budget", p.power.startsWith("gas") ? "Water consumed by the on-site generation, using the plant's actual cooling design." : "Water consumed by the plants serving the load, from the utility's generation mix.", `Power-plant water is about ${ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)}× cooling water in this estimate.`]);
+  if (p.cooling === "dry") scope.push(["power", "Water-energy tradeoff of dry cooling", "Added electricity demand from dry cooling and the water consumed to generate it.", "Saving water on site can raise water use at the power plant."]);
+  if (p.cooling === "evap" || p.cooling === "hybrid" || p.cooling === "usavg") scope.push(["cooling", "Alternatives analysis for cooling", "Compare water and energy use of evaporative, hybrid and dry cooling at this site.", "Cooling choice can change water use by about tenfold."]);
+  if (p.cooling === "evap" || p.cooling === "hybrid") scope.push(["cooling", "Blowdown discharge quality", "Volume, salinity and chemical additives in cooling discharge, and the receiving water.", "Discharge requires a state water-quality permit."]);
+  if (p.source === "unknown") scope.push(["source", "Water source and legal basis", "The source of supply, the water right or service agreement behind it, its priority date and any change application it needs.", "Every other part of the study depends on which source is used."]);
+  if (p.source === "groundwater" || p.source === "newright") scope.push(["source", "Aquifer testing and drawdown modeling", "Pump tests, recharge estimates and modeled drawdown at nearby wells, springs and wetlands over 30+ years.", "Groundwater effects can appear years after pumping starts."]);
+  if (p.source === "newright") scope.push(["source", "Impairment and priority analysis", "Effects on existing senior rights, return flows that others depend on, and how often a junior right would be curtailed.", "The State Engineer must find no impairment of existing rights."]);
+  if (p.source === "potable") scope.push(["source", "Provider capacity and conservation goals", "Source and storage capacity, the provider's water use and preservation element, and effect on its regional conservation goal.", "Industrial demand can absorb capacity planned for residential growth."]);
+  if (p.source === "reclaimed") scope.push(["source", "Downstream effect of reclaimed water use", "Whether the effluent currently returns to a river, wetland or the lake, and who relies on it.", "Reusing effluent can reduce flows that others depend on."]);
+  if (p.basin === "gsl") scope.push(["basin", "Great Salt Lake inflow and elevation effect", "Reduction in inflow to the lake and wetlands, expressed against the 2034 target of 4,198 feet.", "The lake is the end of the system; all consumptive use upstream reduces it."]);
+  if (p.basin === "colorado") scope.push(["basin", "Colorado River compact accounting", "How the use is counted against Utah's apportionment and shortage-sharing obligations.", "Utah's share is under active negotiation."]);
+  const tagTxt = { core: "Always", power: "Power", cooling: "Cooling", source: "Water source", basin: "Watershed" };
+  $("scope").innerHTML = scope.map((s, i) => `<label><input type="checkbox" checked data-scope="${i}"><span><span class="tag">${tagTxt[s[0]]}</span><b>${s[1]}</b>${s[2]}<span class="why">Why: ${s[3]}</span></span></label>`).join("");
+
+  // Conditions
+  const conds = [];
+  conds.push(`Cap annual consumptive water use at ${p.request !== null ? fmt(p.request) + " acre-feet" : "a disclosed and verified amount"}, measured by a meter with telemetry, with automatic review if it is exceeded.`);
+  conds.push("Publish facility-level annual water use, peak-month use and water-use effectiveness (WUE) each year.");
+  if (p.cooling !== "dry") conds.push("Use dry or closed-loop cooling, or meet a maximum WUE set by the reviewing agency, with a summer cap.");
+  else conds.push("Make the dry or closed-loop cooling design a binding condition, with no evaporative cooling without a new approval.");
+  conds.push("Adopt a drought curtailment plan that reduces water use when a state or local drought emergency is declared.");
+  if (p.source !== "reclaimed") conds.push("Use reclaimed or non-potable water for cooling where available, with a feasibility study before each phase.");
+  if (p.basin === "gsl") conds.push("Offset consumptive use with water dedicated to the Great Salt Lake through a lease or donation, verified by the Great Salt Lake Commissioner's office.");
+  if (p.power.startsWith("gas")) conds.push("Include the on-site power plant's water use in the capped amount and in all public reporting.");
+  conds.push("Approve phases separately, with each later phase contingent on verified water use from earlier phases.");
+  $("conds").innerHTML = conds.map(c => `<li><span>${c}</span></li>`).join("");
+
+  state = { ...state, p, raw, mid, lo, hi, tot, flags, qs, scope, conds, verdictText: v[2] + (sizeText ? `\nCaution: ${sizeText}` : ""), peakMGD };
+  renderCmp();
+  buildMemo();
+  queueEngine();
+}
+
+// ---- Side by side with the Atlas: developer says · this screen · engine estimate · highest on record
+const engineFor = () => (state.engine && state.engine.key === state.engineKey ? state.engine : null);
+function renderCmp() {
+  const { p, mid, lo, hi, tot } = state, e = engineFor(), figs = atlas?.figures || [];
+  $("atlasCmp").hidden = !(atlas || e);
+  if ($("atlasCmp").hidden) return;
+  const high = atlas?.published_high_af, highFig = figs.find(f => f.value_af === high);
+  const eng = !e ? '<span class="nq">Computing…</span>' : e.error ? '<span class="nq">Unavailable</span>'
+    : `${fmt(e.total[1])} <span class="rng">(${fmt(e.total[0])}–${fmt(e.total[2])})</span>`;
+  $("cmpTable").innerHTML = `<thead><tr><th>Acre-feet per year</th><th>Developer says ${tag("dev")}</th><th>This screen ${tag("der")}</th><th>Atlas engine ${tag("der")}</th><th>Highest on record</th></tr></thead>
+    <tbody><tr><td>Water consumed</td>
+      <td class="mono">${p.request !== null ? fmt(p.request) : '<span class="nq">Not published</span>'}</td>
+      <td class="mono">${fmt(tot(mid))} <span class="rng">(${fmt(tot(lo))}–${fmt(tot(hi))})</span></td>
+      <td class="mono">${eng}</td>
+      <td class="mono">${high ? `${fmt(high)} ${(highFig?.source_types || []).map(tag).join("")}` : '<span class="nq">None published</span>'}</td></tr></tbody>`;
+  const split = e && !e.error ? ` The engine's central case puts ${fmt(e.site[1])} acre-feet at the site and ${fmt(e.power[1])} at an on-site power plant.` : "";
+  $("cmpNote").textContent = `The engine uses its own factor ranges and a 60–95% load factor, so the utilization setting does not move it. It treats undisclosed cooling as closed-loop in its central case, has no hybrid option, and does not count water used by grid or renewable power.${split} Its high end stacks every worst-case input: an upper bound, not a forecast.`;
+  $("figs").innerHTML = figs.length ? `<li><b style="font-family:inherit;font-weight:600">Published figures for ${esc(atlas.name)}</b></li>` + figs.map(f =>
+    `<li><b>${fmt(f.value_af)} AF/yr</b> ${esc(f.label)} ${f.source_types.map(tag).join("")} ${f.url ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.source)}</a>` : `<span class="rng">${esc(f.source)}</span>`}</li>`).join("") : "";
+}
+
+let engineTimer, engineSeq = 0;
+function queueEngine() {
+  const body = toEngine(state.p, atlas), key = JSON.stringify(body);
+  if (key === state.engineKey) return;
+  state.engineKey = key;
+  clearTimeout(engineTimer);
+  if (!(body.mw > 0 && body.mw <= 50000)) { state.engine = { key, error: true }; renderCmp(); buildMemo(); return; }
+  renderCmp();
+  engineTimer = setTimeout(async () => {
+    const seq = ++engineSeq;
+    let result;
+    try {
+      const r = await fetch(`${API}/impact`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ custom: [body], branch: "built" }) });
+      const w = r.ok ? (await r.json()).projects[0].water_af : null;
+      result = w ? { key, total: w.total, site: w.site, power: w.power } : { key, error: true };
+    } catch { result = { key, error: true }; }
+    if (seq !== engineSeq) return;
+    state.engine = result;
+    renderCmp(); buildMemo();
+  }, 250);
+}
+
+function buildMemo() {
+  const { p, mid, lo, hi, tot, flags, qs, conds, verdictText } = state;
+  const scopeSel = [...document.querySelectorAll("[data-scope]")].filter(c => c.checked).map(c => state.scope[+c.dataset.scope]);
+  const L = [];
+  L.push(`WATER SCREENING MEMO: ${p.name}`);
+  L.push(`Prepared with the YOUtah Climate Water Screen (screening estimate, not a hydrologic finding)`);
+  L.push(`Reopen with these inputs: ${location.href}`);
+  L.push("");
+  L.push("PROPOSAL AS ENTERED");
+  L.push(`- Capacity: ${fmt(p.mw)} MW (${p.basis === "it" ? "server load" : "whole facility"}), ${p.util}% average utilization, PUE ${p.pue}`);
+  L.push(`- Cooling: ${COOLING[p.cooling].label}`);
+  L.push(`- Power: ${POWER[p.power].label}`);
+  L.push(`- Water source: ${SOURCE_TXT[p.source]}, ${BASIN_TXT[p.basin]}`);
+  L.push(`- Developer water request: ${p.request === null ? "not disclosed" : fmt(p.request) + " acre-feet per year"}`);
+  L.push("");
+  L.push("SCREENING ESTIMATE (acre-feet per year, likely range in parentheses)");
+  L.push(`- Cooling water at the site: ${fmt(mid.direct)} (${fmt(lo.direct)}–${fmt(hi.direct)})`);
+  L.push(`- Water used to generate its power: ${fmt(mid.indirect)} (${fmt(lo.indirect)}–${fmt(hi.indirect)})`);
+  L.push(`- Total water footprint: ${fmt(tot(mid))} (${fmt(tot(lo))}–${fmt(tot(hi))})`);
+  L.push(`- Peak summer-day cooling demand: about ${state.peakMGD < 10 ? state.peakMGD.toFixed(2) : fmt(state.peakMGD)} million gallons per day`);
+  L.push(`- Cooling water equals indoor use of about ${fmt(mid.direct / 0.49)} Utah households`);
+  const e = engineFor(), figs = atlas?.figures || [];
+  if ((e && !e.error) || figs.length) {
+    L.push("");
+    L.push("OTHER FIGURES ON RECORD (shown beside the screening estimate, not merged with it)");
+    if (e && !e.error) L.push(`- Atlas impact engine, same inputs [Derived]: ${fmt(e.total[1])} acre-feet per year (range ${fmt(e.total[0])}–${fmt(e.total[2])}). A different factor model: it does not count grid power-plant water, and its high end is an upper bound.`);
+    figs.forEach(f => L.push(`- ${fmt(f.value_af)} acre-feet per year: ${f.label} [${f.source_types.map(k => TAGS[k] || k).join(", ")}] ${f.source}${f.url ? " " + f.url : ""}`));
+  }
+  L.push("");
+  L.push("WHAT THIS MEANS");
+  state.plainText.forEach(t => L.push(`- ${t}`));
+  L.push("");
+  L.push("HOW TO USE LESS WATER");
+  state.levers.forEach(l => L.push(`- ${l.t}: ${l.shift !== undefined ? "moves about " + fmt(l.shift) + " AF off drinking water" : "saves about " + fmt(l.save) + " AF/yr (" + pct(state.T ? l.save / state.T * 100 : 0) + ")"}`));
+  L.push(`- ${state.bestText}`);
+  L.push("");
+  L.push("CLAIM CHECK");
+  L.push(verdictText);
+  L.push("");
+  L.push("RED FLAGS");
+  flags.forEach(f => L.push(`- ${f[1]}: ${f[2]}`));
+  L.push("");
+  L.push("QUESTIONS FOR THE DEVELOPER");
+  qs.forEach((q, i) => L.push(`${i + 1}. ${q}`));
+  L.push("");
+  L.push("REQUIRED SCOPE FOR THE HYDROLOGY STUDY");
+  scopeSel.forEach((s, i) => L.push(`${i + 1}. ${s[1]}: ${s[2]}`));
+  L.push("");
+  L.push("POSSIBLE CONDITIONS OF APPROVAL");
+  conds.forEach((c, i) => L.push(`${i + 1}. ${c}`));
+  L.push("");
+  L.push("BASIS: Coefficients derived from DOE/LBNL 2024 U.S. Data Center Energy Usage Report, Congressional Research Service R49057 (2026), GAO-25-107172 (2025), Utah Clean Energy's Stratos analysis, and the draft 2026 Utah State Water Plan. Evaporative and hybrid cooling values are typical industry assumptions.");
+  $("memoText").textContent = L.join("\n");
+}
+
+/** Fill the form. `from` is the Atlas registry project the inputs came from (null for examples and typed-in proposals). */
+function apply(p, from = null, preset = null) {
+  atlas = from;
+  $("name").value = p.name; $("mw").value = p.mw || ""; $("basis").value = p.basis; setRadio("util", p.util);
+  $("pue").value = p.pue; setRadio("cooling", p.cooling); setRadio("power", p.power); $("source").value = p.source;
+  $("basin").value = p.basin; $("request").value = p.request ?? ""; $("reporting").checked = p.reporting; $("confidential").checked = p.confidential;
+  document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.preset === preset)));
+  $("atlasProject").value = atlas ? atlas.id : "";
+  const sizes = Object.entries(atlas?.size_options_mw || {});
+  $("sizes").hidden = !sizes.length;
+  $("sizes").innerHTML = sizes.map(([label, mw]) => `<button type="button" data-mw="${+mw}" aria-pressed="${+mw === +p.mw}">${esc(label)}</button>`).join("");
+  $("backMap").href = atlas ? `/?impact&projects=${encodeURIComponent(atlas.id)}` : "/?impact";
+  $("backMap").textContent = atlas ? `← ${atlas.name} on the Atlas map` : "← Atlas map: all proposed data centers";
+  render();
+}
+
+document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => apply(PRESETS[b.dataset.preset], null, b.dataset.preset)));
+$("atlasProject").addEventListener("change", e => { const a = projects.find(x => x.id === e.target.value); if (a) apply(fromAtlas(a), a); });
+$("sizes").addEventListener("click", e => {
+  const b = e.target.closest("[data-mw]");
+  if (!b) return;
+  $("mw").value = b.dataset.mw;
+  $("sizes").querySelectorAll("[data-mw]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  render();
+});
+const edited = e => {
+  if (e.target.id === "atlasProject") return;   // handled above
+  document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", "false"));
+  $("sizes").querySelectorAll("[data-mw]").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.mw === +$("mw").value)));
+  render();
+};
+$("form").addEventListener("input", edited);
+$("form").addEventListener("change", edited);
+$("form").addEventListener("submit", e => e.preventDefault());
+$("scope").addEventListener("change", buildMemo);
+
+async function copy(text, msgId) {
+  try { await navigator.clipboard.writeText(text); $(msgId).textContent = "Copied to clipboard."; }
+  catch { $(msgId).textContent = "Your browser blocked copying. Select the text and copy it by hand."; }
+}
+$("copyQs").addEventListener("click", () => copy(`Questions for ${state.p.name}:\n` + state.qs.map((q, i) => `${i + 1}. ${q}`).join("\n"), "qsMsg"));
+$("copyScope").addEventListener("click", () => {
+  const sel = [...document.querySelectorAll("[data-scope]")].filter(c => c.checked).map(c => state.scope[+c.dataset.scope]);
+  copy(`Required scope for the hydrology study, ${state.p.name}:\n` + sel.map((s, i) => `${i + 1}. ${s[1]}: ${s[2]}`).join("\n"), "scopeMsg");
+});
+$("copyCond").addEventListener("click", () => copy(`Possible conditions of approval, ${state.p.name}:\n` + state.conds.map((c, i) => `${i + 1}. ${c}`).join("\n"), "condMsg"));
+$("copyMemo").addEventListener("click", () => copy($("memoText").textContent, "memoMsg"));
+
+// Start from the link the map sent, else Stratos from the registry, else a generic example (no API: static preview).
+(async function boot() {
+  const q = new URLSearchParams(location.search);
+  const [reg, basin] = await Promise.all([getJSON(`${API}/projects`).catch(() => []), getJSON(`${DATA}/basin_risk.json`).catch(() => null)]);
+  projects = Array.isArray(reg) ? reg : [];
+  if (basin?.gsl_need_af > 0) {
+    gslNeed = basin.gsl_need_af;
+    document.querySelectorAll("[data-gsl-need]").forEach(n => (n.textContent = fmt(gslNeed)));
+    if (basin.gsl_need_source) $("gslSrc").textContent = basin.gsl_need_source;
+  }
+  if (projects.length) {
+    $("atlasField").hidden = false;
+    $("atlasProject").innerHTML += projects.map(a => `<option value="${esc(a.id)}">${esc(a.name)} · ${esc(a.county)} County${a.mw ? ` · ${fmt(a.mw)} MW` : ""}</option>`).join("");
+  }
+  const stratos = projects.find(a => a.id === "stratos");
+  if ([...q.keys()].length) { const { p, atlas: a } = fromParams(q, projects); apply(p, a); }
+  else if (stratos) apply(fromAtlas(stratos), stratos);
+  else apply(PRESETS.hyperscale, null, "hyperscale");
+})();
+</script>
+</body>
+</html>

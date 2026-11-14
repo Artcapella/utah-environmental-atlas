@@ -46,6 +46,10 @@ LAYERS = {"atlas-projects": "Proposed data centers", "atlas-permits": "Permit pi
 PLACES = {"great_salt_lake": ("the Great Salt Lake", 41.1, -112.5, 8.2), "utah": ("all of Utah", 39.4, -111.6, 6.1)}
 SOURCE_TYPE_NAMES = {"gov": "Government", "dev": "Developer", "ind": "Independent academic", "adv": "Advocacy-commissioned",
                      "der": "Derived by the atlas"}
+LEVER_NAMES = {"cooling_required": "closed-loop cooling", "max_wue": "a water-use cap", "onsite_gas_allowed": "no on-site gas",
+               "power_cooling_required": "dry-cooled power", "gsl_offset_ratio": "a Great Salt Lake offset",
+               "moratorium_counties": "county moratoria", "habitat_setback_km": "a habitat setback",
+               "reporting_threshold_af": "a reporting threshold"}
 AIR_TOOLS = ("get_air_quality", "get_weather", "get_inversion_status", "get_inversion_outlook")
 
 
@@ -155,7 +159,7 @@ def clean_actions(raw: Any) -> list[dict]:
             except TypeError:
                 continue
             if levers:
-                out.append({"type": kind, "levers": levers, "label": "Set levers: " + ", ".join(levers)})
+                out.append({"type": kind, "levers": levers, "label": "Set " + ", ".join(LEVER_NAMES.get(k, k) for k in levers)})
         elif kind == "clear_levers":
             out.append({"type": kind, "label": "Cleared bills and levers"})
         elif kind == "fly_to":
@@ -196,11 +200,16 @@ _BILL_ALIASES = {
 }
 
 
-def heuristic_actions(query: str, app: AppState | None) -> list[dict]:
-    """Map moves inferred from the question alone, used when no model chose any."""
+def _normalise(query: str) -> str:
     q = query.lower()
     for pattern, repl in ((r"\bh\.?\s?b\.?\s*(\d+)", r"hb\1"), (r"\bs\.?\s?b\.?\s*(\d+)", r"sb\1"), (r"\be\.?\s?o\.?\s*(\d{4})", r"eo\1")):
         q = re.sub(pattern, repl, q)
+    return q
+
+
+def heuristic_actions(query: str, app: AppState | None) -> list[dict]:
+    """Map moves inferred from the question alone, used when no model chose any."""
+    q = _normalise(query)
     if re.search(r"\b(tour|show me around|walk me through|get(ting)? started|how do i use|what can (you|this|i) do)\b", q):
         return clean_actions([{"type": "start_tour"}])
     acts: list[dict] = []
@@ -346,7 +355,7 @@ async def _tool_scenario(run: AtlasRun, args: dict[str, Any]) -> dict[str, Any]:
     result = _scenario(ids, levers, branch)
     names = ", ".join(REGISTRY_BY_ID[i].name for i in ids[:2]) + (f" +{len(ids) - 2}" if len(ids) > 2 else "")
     result["source_label"] = run.cite_engine(f"Engine estimate: {names}, {BRANCHES[branch].lower()}"
-                                             + (f" with {', '.join(levers)}" if levers else ""))
+                                             + (f" with {', '.join(LEVER_NAMES.get(k, k) for k in levers)}" if levers else ""))
     return result
 
 
@@ -581,7 +590,7 @@ def _engine_context(run: AtlasRun, request: AskRequest) -> tuple[str, str | None
     ids, levers, branch = scenario
     result = _scenario(ids, levers, branch)
     names = ", ".join(REGISTRY_BY_ID[i].name for i in ids[:2]) + (f" +{len(ids) - 2}" if len(ids) > 2 else "")
-    label = run.cite_engine(f"Engine estimate: {names}, {BRANCHES[branch].lower()}" + (f" with {', '.join(levers)}" if levers else ""))
+    label = run.cite_engine(f"Engine estimate: {names}, {BRANCHES[branch].lower()}" + (f" with {', '.join(LEVER_NAMES.get(k, k) for k in levers)}" if levers else ""))
     run.evidence.append(result)
     return f"\n[{label}] Atlas impact engine result for the scenario on the map (Derived by the atlas)\n{json.dumps(result)}\n", _scenario_sentence(result, label)
 
@@ -599,7 +608,8 @@ async def _openai_answer(request: AskRequest, run: AtlasRun, pack: list[dict], e
 
 
 def _best_sentences(doc: kn.Doc, query_tokens: set[str], limit: int = 300) -> str:
-    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", doc.text) if s.strip()]
+    body = re.sub(r"\s*\((?:action|impact_tab|layer id|bill_id)[^)]*\)", "", doc.text)
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", body) if s.strip()]
     ranked = sorted(range(len(sentences)), key=lambda i: (-len(query_tokens & set(kn.tokens(sentences[i]))), i))
     keep, used = [], 0
     for i in sorted(ranked[:2]):
@@ -627,12 +637,24 @@ def _local_answer(request: AskRequest, run: AtlasRun, hits: list[kn.Hit], engine
     return "\n\n".join(parts) + "\n\nThe AI models are unavailable right now, so these are quoted source passages rather than a written answer."
 
 
+def _pinned(query: str, hits: list[kn.Hit]) -> list[kn.Hit]:
+    """Records of the projects and bills a question names go first, whatever the ranking says."""
+    q = _normalise(query)
+    ids = [f"project:{pid}" for pid, names in _PROJECT_ALIASES.items() if any(n in q for n in names)]
+    ids += [f"bill:{bid}" for bid, names in _BILL_ALIASES.items() if any(n in q for n in names)]
+    index = kn.get_index()
+    pinned = [kn.Hit(index.by_id[i], 1.0) for i in ids[:3] if i in index.by_id]
+    seen = {h.doc.id for h in pinned}
+    return pinned + [h for h in hits if h.doc.id not in seen][:max(0, SOURCE_PACK + 1 - len(pinned))]
+
+
 async def ask(request: AskRequest) -> AskResponse:
     request.query = re.sub(r"\s+", " ", request.query).strip()
     run = AtlasRun(lat=request.lat, lng=request.lng, app=request.app)
     previous = next((t.text for t in reversed(request.history) if t.role == "user"), "")
     retrieval_query = f"{previous} {request.query}".strip() if len(request.query) < 60 and previous else request.query
     hits, mode = await kn.search(retrieval_query, SOURCE_PACK)
+    hits = _pinned(request.query, hits)
     pack = [_doc_result(run, h.doc) for h in hits]
     run.evidence.append(pack)
 

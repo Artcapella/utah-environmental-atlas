@@ -148,6 +148,16 @@ APP_GUIDE = [
     ("Legislative briefing", "The briefing (action open_briefing, or /briefing) is a one-page print view: statewide "
      "totals, what each lever would change alone, then by basin and by project, with a fixed data-limits box. It is "
      "watermarked as a draft while basin baselines are placeholders."),
+    ("Water screen for one proposal", "The water screen (/screen, or 'Screen' beside a project in the Impact tab and in a "
+     "project's map popup) reviews a single data center proposal for a city council, county commission, water provider "
+     "or state reviewer. It gives a first estimate of cooling water and power-plant water, checks the developer's stated "
+     "water use against that estimate (too low, cooling only, partial or consistent), ranks ways to use less water, and "
+     "lists red flags, questions to ask the developer, a scope for the in-depth hydrology study, possible conditions of "
+     "approval and a screening memo to copy into a staff report. It opens with the facts the Atlas registry records for "
+     "the project; what a developer has not disclosed stays unknown. The screen is a separate, simpler model than the "
+     "impact engine: it uses national-average coefficients and counts water consumed by grid power plants, which the "
+     "engine does not. Its claim check shows the developer's figure, the screen's estimate, the engine's estimate and "
+     "the highest figure on record side by side, and never merges them. It is a screening estimate, not a hydrologic finding."),
     ("Show the math and citations", "At the bottom of the Impact tab: 'Show the math' lists the formulas, factor ranges "
      "with sources and per-project assumptions. 'Copy citation' and 'Download citation' export the scenario's inputs, "
      "factors and sources as text for a filing or a memo."),

@@ -71,8 +71,9 @@ def test_guide_search_route_exposes_ranked_source_metadata(monkeypatch) -> None:
 
 def test_map_guide_asks_the_environmental_agent_for_the_map_centre() -> None:
     script = (Path(__file__).resolve().parents[1] / "public" / "assets" / "map-guide.js").read_text(encoding="utf-8")
-    assert "/api/guide/answer" in script
-    assert 'mode: ENV_MODE ? "environmental" : "travel"' in script
+    # Environmental mode now goes to the atlas assistant (air tools included); travel mode keeps the planner.
+    assert "/api/guide/answer" in script and "/api/atlas/ask" in script
+    assert 'ENV_MODE ? "/api/atlas/ask" : "/api/guide/answer"' in script
     assert "hub.map.getCenter()" in script
     assert "renderer.renderMarkdown" in script  # answers are rendered through the shared, escaping renderer
 

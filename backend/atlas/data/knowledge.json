@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-14T20:15:45+00:00",
+ "built_at": "2026-11-14T20:29:59+00:00",
  "docs": [
   {
    "id": "source:gbif-occurrence-density-tiles",
@@ -2773,7 +2773,7 @@
    "id": "context:audiences",
    "kind": "context",
    "title": "Who the atlas is for",
-   "text": "Utah Legislature (primary audience): decides Statewide rules: caps, thresholds, incentives, MIDA authority; view: Legislative briefing (statewide, basin, project); output: One-page print export with its data limits. Protestants in State Engineer water-right proceedings: decides State Engineer, on the legal record of each application; view: Project detail with Show the math; output: Citation export (inputs, factors, sources). County commissions: decides Zoning; view: County drill-down in the briefing; output: One-page export filtered to a county. Divisions of Water Rights and Water Resources: decides Data partners; view: None; output: Agency baselines replace the placeholders.",
+   "text": "Utah Legislature (primary audience): decides Statewide rules: caps, thresholds, incentives, MIDA authority; view: Legislative briefing (statewide, basin, project); output: One-page print export with its data limits. Protestants in State Engineer water-right proceedings: decides State Engineer, on the legal record of each application; view: Project detail with Show the math; output: Citation export (inputs, factors, sources). County commissions: decides Zoning; view: County drill-down in the briefing; water screen for one proposal (/screen); output: One-page export filtered to a county; screening memo with questions, study scope and conditions. Divisions of Water Rights and Water Resources: decides Data partners; view: None; output: Agency baselines replace the placeholders.",
    "source_name": "Atlas decision context",
    "url": "",
    "source_type": null,
@@ -3222,6 +3222,20 @@
    "kind": "app",
    "title": "Legislative briefing",
    "text": "The briefing (action open_briefing, or /briefing) is a one-page print view: statewide totals, what each lever would change alone, then by basin and by project, with a fixed data-limits box. It is watermarked as a draft while basin baselines are placeholders.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:water-screen-for-one-proposal",
+   "kind": "app",
+   "title": "Water screen for one proposal",
+   "text": "The water screen (/screen, or 'Screen' beside a project in the Impact tab and in a project's map popup) reviews a single data center proposal for a city council, county commission, water provider or state reviewer. It gives a first estimate of cooling water and power-plant water, checks the developer's stated water use against that estimate (too low, cooling only, partial or consistent), ranks ways to use less water, and lists red flags, questions to ask the developer, a scope for the in-depth hydrology study, possible conditions of approval and a screening memo to copy into a staff report. It opens with the facts the Atlas registry records for the project; what a developer has not disclosed stays unknown. The screen is a separate, simpler model than the impact engine: it uses national-average coefficients and counts water consumed by grid power plants, which the engine does not. Its claim check shows the developer's figure, the screen's estimate, the engine's estimate and the highest figure on record side by side, and never merges them. It is a screening estimate, not a hydrologic finding.",
    "source_name": "Atlas user guide",
    "url": "",
    "source_type": null,

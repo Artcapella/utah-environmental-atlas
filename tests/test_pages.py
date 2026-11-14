@@ -115,3 +115,19 @@ def test_briefing_is_served_and_routed() -> None:
     assert client.get("/atlas/data/permits.geojson").status_code == 200
     config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
     assert {"source": "/briefing", "destination": "/atlas/briefing.html"} in config["rewrites"]
+
+
+def test_water_screen_is_served_and_linked_from_the_map() -> None:
+    client = TestClient(app)
+    page = client.get("/screen?project=stratos")
+    assert page.status_code == 200 and 'id="atlasProject"' in page.text and 'id="atlasCmp"' in page.text
+    assert "from '/assets/atlas-screen.js'" in page.text
+    assert client.get("/assets/atlas-screen.js").status_code == 200
+    config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+    assert {"source": "/screen", "destination": "/atlas/water-screen.html"} in config["rewrites"]
+    # The map hands a project to the screen from the Projects tab, dropped projects and the map popup.
+    panel = (ROOT / "public" / "assets" / "atlas-panel.js").read_text(encoding="utf-8")
+    assert "from './atlas-screen.js'" in panel and panel.count("this.screenLink(") >= 2
+    assert "/screen?project=" in (ROOT / "public" / "assets" / "atlas-layers.js").read_text(encoding="utf-8")
+    # One lake-need figure across the app: the screen reads the Atlas's, it does not carry its own.
+    assert "700,000" not in page.text

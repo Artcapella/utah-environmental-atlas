@@ -9,6 +9,7 @@
  */
 import { addAtlasLayers, setGroupVisibility, setTileOverlay, LEGENDS } from './atlas-layers.js';
 import { ImpactPanel } from './atlas-panel.js';
+import { runAtlasActions } from './atlas-extras.js';
 
 const hub = window.YOUtah;
 const UTAH_BOUNDS = [[-114.05, 37.0], [-109.05, 42.0]];
@@ -109,6 +110,12 @@ function boot() {
     document.body.classList.toggle('atlas-impact', opening);   // hides the climate card under the map headline
     panel?.setActive(opening);
   });
+
+  // The assistant (map-guide.js) moves the map through this: run(actions) and state() for what is on screen.
+  window.YOUtahAtlas = {
+    run: (actions) => runAtlasActions(actions, { hub, getPanel: ensurePanel }),
+    state: () => (panel?.projects ? panel.appState() : null),
+  };
 
   // Deep link: /?impact opens the Impact tab directly (used by the briefing's "back to map" link).
   if (new URLSearchParams(location.search).has('impact')) document.querySelector('#tabs [data-tab="impact"]')?.click();

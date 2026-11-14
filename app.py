@@ -164,6 +164,12 @@ async def briefing_page() -> FileResponse:
     return FileResponse(PUBLIC_DIR / "atlas" / "briefing.html")
 
 
+@app.get("/screen", include_in_schema=False)
+async def water_screen_page() -> FileResponse:
+    """Water screen for one proposal: estimate, claim check, red flags, questions, study scope, conditions, memo."""
+    return FileResponse(PUBLIC_DIR / "atlas" / "water-screen.html")
+
+
 @app.get("/inversion", include_in_schema=False)
 async def inversion_page() -> FileResponse:
     return FileResponse(PUBLIC_DIR / "inversion.html")

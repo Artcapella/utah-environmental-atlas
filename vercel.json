@@ -24,6 +24,10 @@
     {
       "source": "/briefing",
       "destination": "/atlas/briefing.html"
+    },
+    {
+      "source": "/screen",
+      "destination": "/atlas/water-screen.html"
     }
   ],
   "redirects": [

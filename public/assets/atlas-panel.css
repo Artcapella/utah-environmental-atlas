@@ -21,6 +21,8 @@
 .ip-row-btns{align-items:center}
 .ip-list{max-height:260px;overflow:auto;display:grid;gap:4px;padding-right:4px}
 .ip-proj label{display:flex;gap:6px;align-items:flex-start}
+.ip-projrow{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.ip-screen{flex:none;font-size:12px;white-space:nowrap}
 .ip-proj .ip-size{margin:3px 0 2px 22px;width:calc(100% - 22px)}
 .ip input[type=number],.ip input[type=text],.ip select,.ip textarea{font:inherit;width:100%;padding:6px 8px;border:1px solid var(--ip-line);background:rgba(255,255,255,.06);color:var(--ip-ink);border-radius:8px}
 .ip select option{background:var(--deep,#0f2628);color:var(--ip-ink)}
@@ -111,3 +113,59 @@
 }
 
 body.atlas-impact #climate-card{display:none}
+
+/* Bill library (Legislation tab) */
+.ip-bills{display:grid;gap:6px;margin:6px 0}
+.ip-bill{border:1px solid var(--ip-line);border-radius:10px;padding:7px 9px;font-size:12.6px}
+.ip-bill.on{border-color:var(--ip-accent);background:rgba(111,168,191,.1)}
+.ip-bill-head{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ip-bill-head button{margin-left:auto}
+.ip-bill details{margin-top:4px}
+.ip-bill summary{cursor:pointer;color:var(--ip-accent);font-size:12px}
+.ip-mock{border-style:dashed;color:var(--ip-warn);border-color:var(--ip-warn)}
+#atlasMapCard .amc-btn{font:inherit;font-size:11.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line,rgba(231,239,233,.2));background:rgba(255,255,255,.06);color:var(--ink,#e7efe9);cursor:pointer}
+#atlasMapCard .amc-btn:hover{background:rgba(255,255,255,.14)}
+
+/* Four-branch strip, docked over the map so the map stays visible (map-first) */
+#atlasBranches{position:fixed;z-index:23;left:calc(var(--panel-w,380px) + 4px);right:12px;bottom:12px;max-height:46vh;overflow:auto;
+  border-radius:var(--r,14px);padding:10px 12px}
+#atlasBranches[hidden]{display:none}
+.bs-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.bs-head select{width:auto;max-width:240px}
+.bs-hint{flex:1;min-width:140px}
+.ip .bs-close{border-radius:50%;width:28px;height:28px;padding:0;font-size:17px;line-height:1}
+.bs-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ip .bs-card{display:grid;gap:3px;text-align:left;padding:8px 10px;border-radius:10px;align-content:start}
+.ip .bs-card[aria-pressed=true]{background:rgba(111,168,191,.2);color:var(--ip-ink);border-color:var(--ip-accent);font-weight:400;box-shadow:inset 0 0 0 1px var(--ip-accent)}
+.bs-name{font-weight:700;font-size:12.5px}
+.bs-v{font-size:19px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1.15}
+.bs-v small{font-size:11px;font-weight:600;color:var(--ip-muted)}
+.bs-card .ip-bar{display:block}
+.bs-k,.bs-desc{font-size:11.3px;color:var(--ip-muted);line-height:1.35}
+.bs-table{margin-top:8px}
+.bs-table table{table-layout:fixed}
+.bs-table th[scope=row]{width:13%}
+.bs-group th{background:rgba(255,255,255,.06);color:var(--ip-ink)}
+.bs-cell{margin:0 0 5px}
+.bs-cell.engine{font-variant-numeric:tabular-nums}
+.bs-note{display:none;color:var(--ip-muted);font-size:11px;line-height:1.35;margin-top:2px}
+.bs-shownotes .bs-note{display:block}
+.bs-limits{margin-top:6px!important}
+body.atlas-branches-open #inv,body.atlas-branches-open #status{display:none}
+@media (max-width:899px){
+  #atlasBranches{left:0;right:0;bottom:0;max-height:58dvh;border-radius:16px 16px 0 0;z-index:26}
+  .bs-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bs-table{overflow-x:auto}
+  .bs-table table{min-width:720px}
+}
+
+/* Atlas guide (chat): what it did on the map, cautions, and source caveats */
+.guide-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;align-items:center}
+.guide-actions-h{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim,#a9bdb6);margin-right:2px}
+.guide-action{font-size:11.5px;border:1px solid var(--line,rgba(231,239,233,.16));border-radius:999px;padding:1px 8px;color:var(--ink,#e7efe9)}
+.guide-action.link{color:#9fd0e3;text-decoration:none}
+.guide-caution{margin-top:8px!important;padding:6px 9px;border-left:3px solid var(--warn,#e2b84b);background:rgba(226,184,75,.12);border-radius:0 8px 8px 0;font-size:12.3px}
+.guide-agent{margin-top:8px!important;font-size:11px;color:var(--ink-dim,#a9bdb6)}
+.guide-suggest.tour{flex-direction:row}
+.guide-source .source-map{margin-left:auto;flex:none;font:inherit;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line,rgba(231,239,233,.16));background:none;color:#9fd0e3;cursor:pointer}
+span.guide-citation{cursor:default}

@@ -110,6 +110,7 @@ The map's **Impact** tab shows legislators how proposed data centers, and the bi
 - **Panel tabs**: Projects · Legislation (manual levers, or paste a bill; shows with-levers vs built-as-planned) · Basins (water-risk model; **placeholder baselines**) · Permits (five-gate pipeline, events, open decisions) · Drop a project · Who decides.
 - **Share a scenario**: the URL updates as you work, e.g. `/?impact&projects=all&branch=conditions&levers={"power_cooling_required":"dry"}`.
 - **Briefing**: `/briefing` (one page, print to PDF; `?branch=` and `?county=` for a county drill-down). Watermarked "Draft" until `public/atlas/data/manifest.json` marks basin baselines as agency data.
+- **Water screen**: `/screen` reviews one proposal for local and state reviewers: a first estimate, a check of the developer's claim, ways to use less water, red flags, questions, hydrology study scope, conditions and a memo. Open it from "Screen ↗" beside a project in the Impact tab or from a project's map popup (`/screen?project=stratos&mw=3000`); the URL tracks the form. It is a separate screening model (`public/assets/atlas-screen.js`), so its claim check shows the engine estimate and published figures beside its own.
 - **Stratos pilot**: `/atlas/pilots/stratos_who_pays.html` (unchanged).
 - **Data**: `public/atlas/data/` (static layers; `backend/atlas/data/` holds the lake outline for the API). Rebuild after editing the registry: `python scripts/atlas/build_static_layers.py`. Fetch biodiversity, wildfire and pollution overlap layers: `python scripts/atlas/fetch_layers.py all`. Check the 72 catalogued sources: `python scripts/atlas/check_sources.py`.
 
@@ -180,3 +181,14 @@ Product rules: keep the official-source links and disclaimers. Present comfort a
 2. ~~Protected ingest route and schedule~~ Done for `utah-daq` (snapshots, predictions, `ingest_runs`). Remaining: the other sources.
 3. ~~Replace demo items with database reads in `backend/services/dashboard.py`.~~ Done: the dashboard reads from Supabase and falls back to providers. Remaining: weather and air snapshots from `observations`.
 4. Add source filters, language selection, and a citation drawer before expanding to a chatbot.
+
+## Atlas assistant, bill library and branch strip
+
+The map is the primary display; these features all draw on it.
+
+- **Atlas assistant** (`POST /api/atlas/ask`, `backend/atlas/assistant.py`, chat in `public/assets/map-guide.js`). Answer chain: Gemini tool agent, then OpenAI (direct `OPENAI_API_KEY`, else `AI_GATEWAY_API_KEY`), then quoted source passages with no model. Every reply returns `actions` that move the map (select projects, apply a bill, fly, toggle layers, open the branch strip, start the tour). Numbers not found in a source or tool result trigger one rewrite and are otherwise listed in `unverified_numbers`.
+- **Knowledge index** (`backend/atlas/knowledge.py`): the source catalog, project registry and figures, permit pipeline, basins, bills, engine factors, branch comparison, decision context, research notes and an app guide. Rebuild after changing any of them: `python scripts/atlas/build_knowledge.py` (`--check` reports staleness; a test fails when the shipped index is stale). Placeholder basin numbers are deliberately left out.
+- **Bill library** (`GET /api/atlas/bills`, `backend/atlas/bills.py`): real measures and labelled mock bills mapped onto the engine's levers. Real entries are summaries of coverage and agency documents, not bill text.
+- **Four-branch strip** (`POST /api/atlas/compare`, `backend/atlas/comparison.py`, `public/assets/atlas-compare.js`): docks over the map; each card redraws the map for that branch.
+- `GET /api/atlas/ask/status` reports which models and search mode are available (no credentials).
+

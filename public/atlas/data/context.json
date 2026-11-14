@@ -4,7 +4,7 @@
   "audiences": [
     {"id": "legislature", "primary": true, "who": "Utah Legislature", "decides": "Statewide rules: caps, thresholds, incentives, MIDA authority", "view": "Legislative briefing (statewide, basin, project)", "output": "One-page print export with its data limits"},
     {"id": "protestants", "primary": false, "who": "Protestants in State Engineer water-right proceedings", "decides": "State Engineer, on the legal record of each application", "view": "Project detail with Show the math", "output": "Citation export (inputs, factors, sources)"},
-    {"id": "counties", "primary": false, "who": "County commissions", "decides": "Zoning", "view": "County drill-down in the briefing", "output": "One-page export filtered to a county"},
+    {"id": "counties", "primary": false, "who": "County commissions", "decides": "Zoning", "view": "County drill-down in the briefing; water screen for one proposal (/screen)", "output": "One-page export filtered to a county; screening memo with questions, study scope and conditions"},
     {"id": "water_divisions", "primary": false, "who": "Divisions of Water Rights and Water Resources", "decides": "Data partners", "view": "None", "output": "Agency baselines replace the placeholders"}
   ],
   "committees": [

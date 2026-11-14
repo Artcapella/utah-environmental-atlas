@@ -6,6 +6,8 @@
 // outline (not color-only) · "not quantified" shown, never zero · no net score · "would", not "will".
 import { updateScenarioOverlays, setPlayaScenario, TIER_COLORS } from './atlas-layers.js';
 import { loadBasinRisk, scoreBasins, pushBasinRisk, LENS_LABELS } from './atlas-basin-risk.js';
+import { screenUrl } from './atlas-screen.js';
+import { installExtras } from './atlas-extras.js';   // bill library, four-branch strip, assistant state
 
 const TAGS = { gov: 'Government', dev: 'Developer', ind: 'Independent academic', adv: 'Advocacy-commissioned', der: 'Derived' };
 const BRANCHES = { built: 'Built as planned', conditions: 'Built with conditions', scaled: 'Delayed or scaled down', not_built: 'Not built here' };
@@ -36,8 +38,8 @@ function inGeom(x, y, g) {
 }
 
 export class ImpactPanel {
-  constructor(el, { map = null, api = '/api/atlas', data = '/atlas/data', briefingUrl = '/briefing', isActive = () => true, mapCard = null } = {}) {
-    Object.assign(this, { el, map, api, data, briefingUrl, isActive, mapCard });
+  constructor(el, { map = null, api = '/api/atlas', data = '/atlas/data', briefingUrl = '/briefing', screenBase = '/screen', isActive = () => true, mapCard = null } = {}) {
+    Object.assign(this, { el, map, api, data, briefingUrl, screenBase, isActive, mapCard });
     this.s = {
       tab: 'proposed', selected: new Set(['stratos']), branch: 'built', scale: 0.5, sizes: {},
       levers: {}, custom: [], math: false, result: null, baseline: null, summary: null, bill: null, proposal: null, busy: false,
@@ -65,6 +67,7 @@ export class ImpactPanel {
     }
     fetch(`${this.data}/utah_counties.geojson`).then((r) => r.json()).then((fc) => (this.counties = fc.features)).catch(() => {});
     this.readUrl();
+    this.initExtras();
     if (this.map) this.map.on('click', (e) => this.onMapClick(e));
     this.render();
     this.compute();
@@ -145,9 +148,11 @@ export class ImpactPanel {
       const seq = (this._seq = (this._seq || 0) + 1);
       try {
         // With levers set, also run "Built as planned" so the panel can show what the levers would change.
-        const compare = this.s.branch !== 'built' && Object.keys(this.s.levers).length > 0;
-        const [result, overlays, baseline] = await Promise.all([this.post('/impact', this.body()), this.post('/overlays', this.body()),
-          compare ? this.post('/impact', this.body({ branch: 'built', levers: {}, scale: 1 })) : null]);
+        // The same holds for the scaled-down and not-built branches: the map draws both cases at once.
+        const compare = this.s.branch !== 'built' && (Object.keys(this.s.levers).length > 0 || this.s.branch !== 'conditions');
+        const base = { branch: 'built', levers: {}, scale: 1, ...(this.s.branch === 'scaled' ? { sizes: {} } : {}) };
+        const [result, overlays, baseline, baseOverlays] = await Promise.all([this.post('/impact', this.body()), this.post('/overlays', this.body()),
+          compare ? this.post('/impact', this.body(base)) : null, compare ? this.post('/overlays', this.body(base)) : null]);
         if (seq !== this._seq) return;   // a newer request superseded this one
         this.s.result = result;
         this.s.baseline = baseline;
@@ -157,9 +162,17 @@ export class ImpactPanel {
           const was = Object.fromEntries(baseline.projects.filter((p) => p.water_af).map((p) => [p.project, p.water_af.total[1]]));
           for (const f of overlays.projects.features) {
             const b = was[f.properties.id];
-            if (b != null && f.properties.water_central != null && Math.abs(b - f.properties.water_central) > 0.5) f.properties.baseline_central = b;
+            if (b != null && f.properties.not_built) f.properties.baseline_central = b;
+            else if (b != null && f.properties.water_central != null && Math.abs(b - f.properties.water_central) > 0.5) f.properties.baseline_central = b;
           }
+          // A county moratorium removes a project from the scenario: keep it on the map, marked as removed.
+          const kept = new Set(overlays.projects.features.map((f) => f.properties.id));
+          for (const f of baseOverlays.projects.features) {
+            if (!kept.has(f.properties.id)) overlays.projects.features.push({ ...f, properties: { ...f.properties, removed: true, baseline_central: f.properties.water_central, water_central: 0 } });
+          }
+          overlays.baseline_playa = baseOverlays.playa;   // lakebed exposed without the bill, drawn as a dashed outline
         }
+        overlays.moratorium = this.s.branch === 'built' ? [] : this.s.levers.moratorium_counties || [];
         if (this.map) { updateScenarioOverlays(this.map, overlays); setPlayaScenario(this.map, '__none__'); }
         this.renderMapCard();
         this.writeUrl();
@@ -196,6 +209,12 @@ export class ImpactPanel {
       this.s.proposal = x;
     } catch (e) { this.s.proposal = { error: String(e.message || e) }; }
     this.renderTab();
+  }
+  /** Link to the water screen (/screen) for one proposal, at the size the scenario gives it. Levers are not carried over. */
+  screenLink(p, label = 'Screen ↗') {
+    const s = this.s, k = s.branch === 'scaled' ? s.scale : 1;
+    const mw = p.id ? (s.sizes[p.id] ?? p.mw) * k : p.mw * k;
+    return `<a class="ip-screen" href="${esc(screenUrl(p, { mw, base: this.screenBase }))}" target="_blank" rel="noopener" title="Check the developer's water claim; get red flags, questions, study scope and conditions for ${esc(p.name)}">${label}</a>`;
   }
   /** Engine central AF/yr per registry project in the current scenario (0 when not built here). */
   engineAF() {
@@ -249,23 +268,25 @@ export class ImpactPanel {
         ${Object.entries(BRANCHES).map(([k, v]) => `<button data-branch="${k}" aria-pressed="${s.branch === k}">${v}</button>`).join('')}
       </div>
       ${s.branch === 'scaled' ? `<label class="ip-scale">Share of announced size
-        <select data-scale>${[0.25, 0.5, 0.75].map((x) => `<option value="${x}" ${s.scale == x ? 'selected' : ''}>${x * 100}%</option>`).join('')}</select></label>` : ''}
+        <select data-scale>${[0.25, 0.5, 0.75, 1].map((x) => `<option value="${x}" ${s.scale == x ? 'selected' : ''}>${x === 1 ? '100% of the size chosen in Projects' : `${x * 100}%`}</option>`).join('')}</select></label>` : ''}
       ${s.branch === 'conditions' && !Object.keys(s.levers).length ? '<p class="ip-muted ip-hint">No conditions set yet. Choose levers in the <b>Legislation</b> tab.</p>' : ''}
       <div class="ip-summary" aria-live="polite"></div>
       <div class="ip-body" aria-live="polite"></div>
       <div class="ip-foot">
         <label><input type="checkbox" class="ip-math" ${s.math ? 'checked' : ''}> Show the math</label>
+        <button class="ip-branches">Compare four branches</button>
         <button class="ip-explain">Plain-language summary</button>
         <button class="ip-copy">Copy citation</button>
         <button class="ip-dl">Download citation</button>
         <a class="ip-brief" href="${this.briefingUrl}?branch=${s.branch}" target="_blank" rel="noopener">Legislative briefing ↗</a>
+        <a href="${this.screenBase}" target="_blank" rel="noopener" title="Screen one proposal: claim check, red flags, questions, study scope, conditions, memo">Water screen ↗</a>
         <a href="/atlas/pilots/stratos_who_pays.html" target="_blank" rel="noopener">Stratos: who pays ↗</a>
       </div>`;
     this.el.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => {
       s.tab = b.dataset.tab; this.render(); this.renderBody(); this.setActive(this.isActive());
     }));
     this.el.querySelectorAll('[data-branch]').forEach((b) => (b.onclick = () => { s.branch = b.dataset.branch; this.render(); this.compute(); }));
-    this.el.querySelector('[data-scale]')?.addEventListener('change', (e) => { s.scale = +e.target.value; this.compute(); });
+    this.el.querySelector('[data-scale]')?.addEventListener('change', (e) => { s.scale = +e.target.value; this.renderTab(); this.compute(); });
     this.el.querySelector('.ip-math').onchange = (e) => { s.math = e.target.checked; this.renderBody(); };
     this.el.querySelector('.ip-explain').onclick = () => this.explain();
     this.el.querySelector('.ip-copy').onclick = async () => {
@@ -285,7 +306,7 @@ export class ImpactPanel {
     box.innerHTML = html;
     const on = (sel, ev, fn) => box.querySelectorAll(sel).forEach((n) => n.addEventListener(ev, fn));
     on('[data-pid]', 'change', (e) => { const c = e.target; c.checked ? s.selected.add(c.dataset.pid) : s.selected.delete(c.dataset.pid); this.renderTab(); this.compute(); });
-    on('[data-size]', 'change', (e) => { const c = e.target; c.value ? (s.sizes[c.dataset.size] = +c.value) : delete s.sizes[c.dataset.size]; this.compute(); });
+    on('[data-size]', 'change', (e) => { const c = e.target; c.value ? (s.sizes[c.dataset.size] = +c.value) : delete s.sizes[c.dataset.size]; this.renderTab(); this.compute(); });
     on('[data-all]', 'click', () => { this.projects.forEach((p) => s.selected.add(p.id)); this.renderTab(); this.compute(); });
     on('[data-none]', 'click', () => { s.selected.clear(); this.renderTab(); this.compute(); });
     on('[data-d]', 'change', (e) => { const c = e.target; s.drop[c.dataset.d] = c.type === 'checkbox' ? c.checked : c.type === 'number' ? +c.value : c.value; });
@@ -306,7 +327,8 @@ export class ImpactPanel {
       if (Array.isArray(v) && !v.length) v = undefined;
       this.setLever(k, v);
     });
-    on('[data-clear-levers]', 'click', () => { s.levers = {}; this.render(); this.compute(); });
+    on('[data-clear-levers]', 'click', () => { s.levers = {}; s.bills = []; this.render(); this.compute(); });
+    this.bindExtras(box);
     on('[data-b]', 'change', (e) => {
       const c = e.target, k = c.dataset.b;
       s.basin[k] = c.type === 'checkbox' ? c.checked : k === 'lens' ? c.value : +c.value;
@@ -335,11 +357,11 @@ export class ImpactPanel {
   tabProposed() {
     const s = this.s;
     return `<div class="ip-list">${this.projects.map((p) => `
-      <div class="ip-proj"><label><input type="checkbox" data-pid="${esc(p.id)}" ${s.selected.has(p.id) ? 'checked' : ''}>
-        <span>${esc(p.name)} <span class="ip-muted">${esc(p.county)} · ${fmt(p.mw)} MW · ${esc(p.status)}</span></span></label>
+      <div class="ip-proj"><div class="ip-projrow"><label><input type="checkbox" data-pid="${esc(p.id)}" ${s.selected.has(p.id) ? 'checked' : ''}>
+        <span>${esc(p.name)} <span class="ip-muted">${esc(p.county)} · ${fmt(p.mw)} MW · ${esc(p.status)}</span></span></label>${p.mw ? this.screenLink(p) : ''}</div>
       ${Object.keys(p.size_options_mw || {}).length ? `<select data-size="${esc(p.id)}" class="ip-size" aria-label="Size for ${esc(p.name)}"><option value="">Size: as announced (${fmt(p.mw)} MW)</option>
         ${Object.entries(p.size_options_mw).map(([k, v]) => `<option value="${v}" ${s.sizes[p.id] == v ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select>` : ''}</div>`).join('')}</div>
-      <div class="ip-row-btns"><button data-all>All</button><button data-none>None</button><span class="ip-muted">Locations are approximate.</span></div>
+      <div class="ip-row-btns"><button data-all>All</button><button data-none>None</button><span class="ip-muted">Locations are approximate. <b>Screen</b> opens one proposal's claim check, red flags, questions and conditions.</span></div>
       ${this.capacityLine()}`;
   }
 
@@ -412,7 +434,7 @@ export class ImpactPanel {
         <label class="ip-check"><input type="checkbox" data-d="onsite_gas" ${d.onsite_gas ? 'checked' : ''}> On-site gas power</label>
         <label class="ip-check"><input type="checkbox" data-d="gsl_basin" ${d.gsl_basin ? 'checked' : ''}> Drains to Great Salt Lake</label>
       </div>
-      ${s.custom.map((c, i) => `<div class="ip-chip">${esc(c.name)} · ${esc(c.county)} · ${fmt(c.mw)} MW <button data-rm="${i}" aria-label="Remove ${esc(c.name)}">×</button></div>`).join('')}
+      ${s.custom.map((c, i) => `<div class="ip-chip">${esc(c.name)} · ${esc(c.county)} · ${fmt(c.mw)} MW ${this.screenLink(c)} <button data-rm="${i}" aria-label="Remove ${esc(c.name)}">×</button></div>`).join('')}
       <details class="ip-sub"><summary>Fill from proposal text</summary>
         <textarea class="ip-proposaltext" rows="4" placeholder="Paste a proposal, filing or news summary"></textarea>
         <button class="ip-parse-proposal">Read proposal</button>
@@ -426,7 +448,7 @@ export class ImpactPanel {
     const s = this.s, b = s.bill, L = s.levers;
     const chk = (k, v, label) => `<label class="ip-check"><input type="checkbox" data-ml="${k}" data-v='${JSON.stringify(v)}' ${JSON.stringify(L[k]) === JSON.stringify(v) ? 'checked' : ''}> ${label}</label>`;
     const num = (k, label, step) => `<label>${label}<input type="number" min="0" step="${step}" data-ml="${k}" value="${L[k] ?? ''}"></label>`;
-    return `<p class="ip-muted">Levers apply under <b>Built with conditions</b> or <b>Delayed or scaled down</b>. Setting one switches from Built as planned.</p>
+    return `${this.billLibraryHtml()}<p class="ip-muted">Levers apply under <b>Built with conditions</b> or <b>Delayed or scaled down</b>. Setting one switches from Built as planned.</p>
       <div class="ip-form">
         ${chk('cooling_required', 'closed_loop', 'Require closed-loop cooling')}
         ${chk('power_cooling_required', 'dry', 'Require dry-cooled power plants')}
@@ -589,3 +611,5 @@ export class ImpactPanel {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 }
+
+installExtras(ImpactPanel);

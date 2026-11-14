@@ -17,11 +17,12 @@ const C = {
 export const LAYER_GROUPS = {
   reference: ['atlas-boundary-line', 'atlas-counties-line'],
   water: ['atlas-counties-fill', 'atlas-basins-line', 'atlas-basins-label', 'atlas-wbd-tiles', 'atlas-fema-tiles'],
-  lake: ['atlas-gsl-fill', 'atlas-gsl-line', 'atlas-playa-fill', 'atlas-playa-line'],
+  lake: ['atlas-gsl-fill', 'atlas-gsl-line', 'atlas-playa-fill', 'atlas-playa-line', 'baseline-playa-fill', 'baseline-playa-line'],
   biodiversity: ['atlas-gbif-hex', 'atlas-gbif-tiles', 'atlas-habitat-fill', 'atlas-habitat-line'],
   wildfire: ['atlas-perimeters-fill', 'atlas-firms-points', 'atlas-firms-tiles'],
   pollution: ['atlas-tri-points'],
-  projects: ['atlas-projects-circle', 'atlas-projects-label', 'scenario-playa-fill', 'scenario-baseline-circle', 'scenario-projects-circle', 'scenario-projects-label'],
+  projects: ['atlas-projects-circle', 'atlas-projects-label', 'scenario-playa-fill', 'scenario-baseline-circle', 'scenario-projects-circle', 'scenario-projects-label',
+    'atlas-moratorium-fill', 'atlas-moratorium-line', 'atlas-moratorium-label'],
   permits: ['atlas-permits-circle', 'atlas-permits-symbol'],
   basinrisk: ['atlas-basinrisk-circle', 'atlas-basinrisk-label'],
 };
@@ -45,7 +46,8 @@ export const LEGENDS = {
     note: 'Hollow ring = not in the impact engine (town-level location). "Not found" means no filing was found, not that none exists.' },
   basinrisk: { title: 'Basin water risk (PLACEHOLDER baselines)', items: RISK_CATS.map(([n, min, c]) => [`${n} (score ${min}+)`, c]),
     note: 'Basin supply, junior-right share and storage are invented placeholders until Division of Water Rights / Water Resources data is loaded. Not a finding.' },
-  projects: { title: 'Proposed data centers', items: [['Drains to Great Salt Lake', C.water], ['Other basin', '#8a6d3b']],
+  projects: { title: 'Proposed data centers', items: [['Drains to Great Salt Lake', C.water], ['Other basin', '#8a6d3b'],
+    ['Red ring: built as planned, when a bill or scenario changes it', C.cost], ['Red dashed county: moratorium in the scenario', C.cost]],
     note: 'Circle area = engine central water estimate. Locations are approximate.' },
 };
 
@@ -80,6 +82,7 @@ export async function addAtlasLayers(map, { base = ATLAS_BASE, firmsKey = null, 
   addGeo(map, 'atlas-projects', f('projects.geojson'));
   addGeo(map, 'scenario-projects', EMPTY);
   addGeo(map, 'scenario-playa', EMPTY);
+  addGeo(map, 'baseline-playa', EMPTY);
   addGeo(map, 'atlas-permits', f('permits.geojson'));
   addGeo(map, 'atlas-basinrisk', map.__atlasBasinRisk || EMPTY);   // filled by atlas-basin-risk.js
 
@@ -173,6 +176,17 @@ export async function addAtlasLayers(map, { base = ATLAS_BASE, firmsKey = null, 
     paint: { 'text-color': C.ink, 'text-halo-color': '#fff', 'text-halo-width': 1.4 } }, beforeId);
 
   // scenario overlays (filled by updateScenarioOverlays)
+  // Counties under a moratorium in the scenario, and the lakebed exposed without the bill (dashed, behind the "with" band).
+  const noCounty = ['==', ['get', 'name'], ''];
+  addLayer(map, { id: 'atlas-moratorium-fill', type: 'fill', source: 'atlas-counties', filter: noCounty, paint: { 'fill-color': C.cost, 'fill-opacity': 0.12 } }, beforeId);
+  addLayer(map, { id: 'atlas-moratorium-line', type: 'line', source: 'atlas-counties', filter: noCounty,
+    paint: { 'line-color': C.cost, 'line-width': 2.5, 'line-dasharray': [2, 1.5] } }, beforeId);
+  addLayer(map, { id: 'atlas-moratorium-label', type: 'symbol', source: 'atlas-counties', filter: noCounty,
+    layout: { 'text-field': ['concat', ['get', 'name'], ' County\nmoratorium in this scenario'], 'text-size': 11, 'text-font': boldFont },
+    paint: { 'text-color': C.cost, 'text-halo-color': '#fff', 'text-halo-width': 1.5 } }, beforeId);
+  addLayer(map, { id: 'baseline-playa-fill', type: 'fill', source: 'baseline-playa', paint: { 'fill-color': C.cost, 'fill-opacity': 0.14 } }, beforeId);
+  addLayer(map, { id: 'baseline-playa-line', type: 'line', source: 'baseline-playa',
+    paint: { 'line-color': C.cost, 'line-width': 1.4, 'line-dasharray': [2, 2] } }, beforeId);
   addLayer(map, { id: 'scenario-playa-fill', type: 'fill', source: 'scenario-playa', paint: { 'fill-color': C.playa, 'fill-opacity': 0.85 } }, beforeId);
   // Ghost ring: the same project's built-as-planned estimate, drawn only when levers changed it.
   const baseRadius = ['interpolate', ['linear'], ['sqrt', ['max', ['coalesce', ['get', 'baseline_central'], 0], 1]], 0, 4, 100, 12, 250, 26];
@@ -183,11 +197,15 @@ export async function addAtlasLayers(map, { base = ATLAS_BASE, firmsKey = null, 
   // The finding, written on the map: name + engine central water (and "was" when a lever changed it).
   const af = (k) => ['number-format', ['get', k], { 'max-fraction-digits': 0 }];
   addLayer(map, { id: 'scenario-projects-label', type: 'symbol', source: 'scenario-projects', layout: {
-    'text-field': ['case',
+    'text-field': ['concat', ['case',
+      ['to-boolean', ['get', 'removed']], ['concat', ['get', 'name'], '\n', af('baseline_central'), ' AF/yr → removed by moratorium'],
+      ['all', ['to-boolean', ['get', 'not_built']], ['has', 'baseline_central']], ['concat', ['get', 'name'], '\n', af('baseline_central'), ' AF/yr → not built here'],
       ['to-boolean', ['get', 'not_built']], ['concat', ['get', 'name'], '\nnot built here'],
       ['has', 'baseline_central'], ['concat', ['get', 'name'], '\n', af('baseline_central'), ' → ', af('water_central'), ' AF/yr'],
       ['has', 'water_central'], ['concat', ['get', 'name'], '\n', af('water_central'), ' AF/yr'],
       ['get', 'name']],
+      // A reporting rule (e.g. H.B. 76) changes what the state knows, not use: say which projects it would reach.
+      ['case', ['!', ['has', 'would_report']], '', ['to-boolean', ['get', 'would_report']], '\nwould report its use', '\nbelow the reporting threshold']],
     'text-size': 12, 'text-font': boldFont, 'text-anchor': 'top', 'text-offset': [0, 1.2], 'text-optional': true, 'symbol-sort-key': ['-', 0, ['coalesce', ['get', 'water_central'], 0]] },
     paint: { 'text-color': C.ink, 'text-halo-color': '#fff', 'text-halo-width': 1.6 } }, beforeId);
   if (map.__atlasScenario) updateScenarioOverlays(map, map.__atlasScenario);   // restore after a style reload
@@ -215,17 +233,25 @@ export function setPlayaScenario(map, scenario) {
 }
 
 // overlays = response of POST /api/atlas/overlays
+// Optional extras for drawing with and without at once: overlays.baseline_playa (lakebed band built as planned)
+// and overlays.moratorium (county names to outline).
 export function updateScenarioOverlays(map, overlays) {
   map.__atlasScenario = overlays;
   map.getSource('scenario-projects')?.setData(overlays?.projects || EMPTY);
   map.getSource('scenario-playa')?.setData(overlays?.playa || EMPTY);
+  map.getSource('baseline-playa')?.setData(overlays?.baseline_playa || EMPTY);
+  const counties = (overlays?.moratorium || []).map((c) => String(c).toLowerCase());
+  for (const id of ['atlas-moratorium-fill', 'atlas-moratorium-line', 'atlas-moratorium-label'])
+    if (map.getLayer(id)) map.setFilter(id, ['in', ['downcase', ['get', 'name']], ['literal', counties]]);
 }
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString());
 const projectPopup = (p) => `<b>${esc(p.name)}</b><br>${esc(p.county)} County · ${esc(p.basin)}<br>${fmt(p.mw)} MW${p.status ? ' · ' + esc(p.status) : ''}<hr style="margin:4px 0;border:0;border-top:1px solid currentColor;opacity:.25">
-    ${p.not_built === true || p.not_built === 'true' ? 'Not built here: water stays in current use; relocation impacts unknown, not zero.' : `Engine water: <b>${fmt(p.water_central)}</b> AF/yr (range ${fmt(p.water_low)}–${fmt(p.water_high)})<br>
+    ${p.removed === true || p.removed === 'true' ? 'Removed from this scenario by a county moratorium. Moratoria are capped at 180 days; the engine treats it as permanent.'
+      : p.not_built === true || p.not_built === 'true' ? 'Not built here: water stays in current use; relocation impacts unknown, not zero.' : `Engine water: <b>${fmt(p.water_central)}</b> AF/yr (range ${fmt(p.water_low)}–${fmt(p.water_high)})<br>
     Developer stated: ${fmt(p.stated_af)} · Rights: ${fmt(p.rights_af)} · Highest on record: ${fmt(p.published_high_af)}`}<br>
-    <small>${String(p.id || '').startsWith('custom_') ? 'Dropped project (your scenario).' : 'Location approximate.'} Engine values are estimates.</small>`;
+    <small>${String(p.id || '').startsWith('custom_') ? 'Dropped project (your scenario).' : 'Location approximate.'} Engine values are estimates.</small>
+    ${p.id && p.mw != null && !String(p.id).startsWith('custom_') ? `<br><a href="/screen?project=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Screen this proposal: claim check, questions, conditions ↗</a>` : ''}`;
 const GATE_NAMES = { land: 'Land use', water: 'Water right', air: 'Air permit', wq: 'Water quality', build: 'Construction' };
 const STATUS_LABELS = { done: '✓ Done', inprogress: '▶ In progress', partial: '◐ Partly done', pending: '⋯ Pending', appealed: '⚖ Appealed',
   onhold: '⏸ On hold', withdrawn: '✕ Withdrawn', notfound: '? Not found', notsearched: '∅ Not searched', inferred: '≈ Inferred', na: '– N/A' };
@@ -262,4 +288,5 @@ function bindPopups(map) {
     ${p.curtail === true || p.curtail === 'true' ? '<br><b>J</b>: demand exceeds headroom and most rights are junior; junior rights would likely be curtailed first.' : ''}
     <br><small>PLACEHOLDER baselines, not agency data.</small>`, 'atlas-permits-circle');
   pop('atlas-playa-fill', lakebed, 'scenario-playa-fill');
+  pop('baseline-playa-fill', (p) => `<b>Exposed lakebed, built as planned</b><br>~${fmt(p.playa_acres_central)} acres, lake ~${p.level_drop_ft_central} ft lower (long run)<br><small>Red dashed outline = without the bill or scenario now applied. Illustrative band, not a mapped shoreline.</small>`, 'scenario-playa-fill');
 }
