@@ -1,19 +1,103 @@
-# Comprehensive Utah
+# Utah Environmental Atlas
 
-A Vercel-ready **FastAPI/Python** application with a Supabase-backed discovery dashboard for Utah newcomers. The starter makes the state legible through live conditions, events, outdoor access, community places, and local stories—not just the usual tourism highlights.
+A map-first tool that shows Utah legislators how proposed data centers, and the bills that would regulate them, would affect the state's water, air and the Great Salt Lake.
 
-## What is included
+Every number comes from a sourced, deterministic impact engine and is shown as a low / central / high range with its source type (Government, Developer, Independent academic, Advocacy-commissioned, Derived). AI models only read bills and proposals and explain results. They never produce figures.
 
-- Responsive dashboard shell with an interactive MapLibre map, filters, featured events, Utah stories, and source-status UI.
-- A full-screen map hub at **`/map`** (`public/map.html`) with MapTiler 3D terrain and contours, layers, trip planning, and an inversion view. It hydrates normalized places, events and DAQ inversion estimates from `/api/map-data`; unsupported layers remain visibly offline samples. On Vercel the CDN serves it through the `/map` rewrite in `vercel.json`; locally `app.py` serves it. Its MapTiler key is a browser key: restrict its allowed origins in the MapTiler dashboard.
-- **The map is the homepage (`/`)**: live Utah DAQ monitors, NWS alerts and stations, the smog-lid estimate, and statewide forecast fields (modeled PM2.5, temperature, mixing height, wind) that animate with the 72-hour time slider; plus the "Ask about the air" assistant. `/map/simple` redirects here, and the former landing page with trend charts lives at `/about`.
-- **Snow & skiing** in both map views: 15 resort pins with snowfall labels, mapped runs by difficulty, lift lines and names, snow forecasts, official lift/run reports and fresh lift waits where published. Use the Snow & skiing switch on the simple map or its Conditions layer on the advanced map; `?ski=1` opens either map in skiing mode. Resort details include tickets/parking/rentals links, webcams, directions, ski buses, canyon roads, and avalanche forecasts. See [ski layer data and coverage](docs/SKI_LAYER.md).
-- Python FastAPI API, Pydantic domain models, and a working NWS server-side adapter with mock-safe fallbacks.
-- A deterministic **Escape the Inversion** recommendation route that is ready to receive Utah DAQ, UDOT, UTA, elevation, and trailhead data.
-- Supabase/Postgres schema, Row Level Security, PostGIS geometry columns, provenance, ingestion-run logging, and seed data.
-- Provider-adapter contracts so data work can progress independently from frontend work.
-- **Utah intelligence** (`backend/intelligence/`): a trainable Outdoor Comfort nowcast and an explainable Local Pulse score, with a leakage-aware training pipeline. See [Utah intelligence](#utah-intelligence).
-- Vercel configuration and environment-variable documentation.
+**Audience.** The Legislature first, for statewide rules on caps, thresholds, incentives and MIDA authority. Secondary: protestants in State Engineer water-right proceedings, county commissions, and the Divisions of Water Rights and Water Resources as data partners. Read why in [docs/atlas/decisions.md](docs/atlas/decisions.md) and [docs/atlas/design.md](docs/atlas/design.md).
+
+> **Placeholder data.** Basin water-risk baselines are invented until agency data loads. The briefing is watermarked "Draft" until `public/atlas/data/manifest.json` marks them as agency data. Project coordinates are approximate.
+
+## How this differs from Comprehensive Utah
+
+This repo grew out of [Comprehensive Utah](https://github.com/Artcapella/YOUtah), a discovery app for Utah newcomers built around events, places, food, skiing and trip planning. The Environmental Atlas keeps that app's map, live air-quality and weather feeds, and FastAPI/Supabase backend, but changes what the app is for:
+
+| | Comprehensive Utah | Utah Environmental Atlas |
+| --- | --- | --- |
+| Who it's for | Newcomers and visitors | Legislators, committee staff, reviewers |
+| Main question | What should I do in Utah today? | What would this data center or bill do to our water? |
+| Homepage | Discovery map with events and places | Atlas map with projects, the lake, basins and permits |
+| Output | Recommendations | Ranges with sources, a one-page briefing, a water screen |
+| AI | Travel guide (OpenAI RAG) | Atlas assistant that moves the map and is checked against sources |
+
+The tourist features still exist but are hidden. Pages carry `body.env-mode`: [public/assets/env-mode.css](public/assets/env-mode.css) hides elements marked `.tourist`, and an `ENV_MODE` flag in the page scripts skips events, food, personas, itineraries, promoters, ski and transit layers. Remove the class to get the old experience back.
+
+## What's in the app
+
+### The map (`/`)
+
+The map is the main display. The panels, tables and chat all support it. Its **Impact** tab draws the findings on the map:
+
+- Data-center rings sized by the engine's water estimate.
+- A ghost ring with a "was → now" label when a lever changes a project.
+- Permit-stage dots.
+- The extra lakebed a scenario would expose.
+- Basin risk bubbles.
+- A headline card.
+
+Panel tabs:
+
+- **Projects**: the 10-project registry.
+- **Legislation**: set levers by hand, or paste a bill or pick one from the library. Shows the result with the levers beside the result built as planned.
+- **Basins**: the water-risk model, using placeholder baselines.
+- **Permits**: a five-gate pipeline (land use, water right, air, water quality, construction) with events and open decisions.
+- **Drop a project**: place a hypothetical project anywhere.
+- **Who decides**: HB60, county moratoria and MIDA jurisdiction.
+
+Every result is shown for four scenario branches: built as planned, built with conditions, delayed or scaled down, and not built here. "Not built here" doesn't mean zero impact: if the project moves elsewhere, its impacts there are unknown, and the app says so.
+
+**Four-branch strip.** It docks over the map, and each card redraws the map for that branch.
+
+**Sharing.** The URL updates as you work, so a link reproduces the scenario. For example:
+
+```
+/?impact&projects=all&branch=conditions&levers={"power_cooling_required":"dry"}
+```
+
+The map also keeps the live conditions layers: Utah DAQ monitors, NWS alerts and stations, the inversion ("smog lid") estimate, and 72-hour forecast fields.
+
+### Other pages
+
+| Page | What it is |
+| --- | --- |
+| `/briefing` | One-page legislative briefing that prints to PDF. It goes statewide → basin → project, with three columns: what the developer or agency says, the engine's estimate, and the highest figure on record. Use `?branch=` and `?county=` for a county drill-down. |
+| `/screen` | Water screen for one proposal, for city councils, county commissions, water providers and state reviewers. It gives a first estimate, a check of the developer's claim, ways to use less water, red flags, questions for the developer, a hydrology study scope, conditions of approval and a memo. Open it from "Screen ↗" in the Impact tab or a project popup, for example `/screen?project=stratos&mw=3000`. |
+| `/atlas/pilots/stratos_who_pays.html` | The Stratos "who pays" pilot, unchanged. |
+| `/about`, `/inversion` | Air-quality trends and the inversion explainer. |
+
+### Atlas assistant and guided tour
+
+- **Assistant** (`POST /api/atlas/ask`). Tries a Gemini tool agent first, then OpenAI, then quotes source passages with no model. Each reply carries map actions: select projects, apply a bill, fly to a place, toggle layers, open the branch strip, or start the tour. If a reply contains a number that isn't in a source or tool result, the assistant rewrites it once. Numbers it still can't trace are listed in `unverified_numbers`.
+- **Guided tour** ([public/assets/atlas-tour.js](public/assets/atlas-tour.js)). Fixed stops written for a legislator. Each stop sets up the map completely, then points to a figure on the map or in the panel. No model is involved, so the tour can't quote a wrong number. Start it from "Show me around" or from the assistant.
+
+## Architecture
+
+```text
+public/map.html + public/assets/atlas-*.js   MapLibre map, Impact panel, tour, branch strip
+public/atlas/                                 briefing, water screen, pilot, static data layers
+backend/atlas/
+  engine.py        deterministic factor model → (low, central, high) ranges per branch
+  gemini.py        extracts levers/proposal fields with quotes; narrates under a number guard
+  assistant.py     tool-using chat agent that returns map actions
+  knowledge.py     source-backed index the assistant answers from
+  bills.py         bill library mapped onto engine levers
+  comparison.py    four-branch comparison
+  router.py        /api/atlas/* routes
+backend/providers/ live NWS, Utah DAQ, UDOT, UTA and other adapters (normalized Pydantic models)
+supabase/          Postgres/PostGIS schema, RLS, migrations
+```
+
+### API
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/atlas/projects` | Project registry with engine results |
+| `POST /api/atlas/impact` | Run the engine for projects, branch and levers |
+| `POST /api/atlas/overlays` | Map overlays for a scenario |
+| `POST /api/atlas/compare` | Four-branch comparison |
+| `GET /api/atlas/bills` | Bill library. Real measures are summaries of coverage and agency documents, not bill text. Mock bills are labelled as mock. |
+| `POST /api/atlas/extract/project`, `/extract/bill` | Gemini extraction with quotes (returns 503 without `GEMINI_API_KEY`) |
+| `POST /api/atlas/ask`, `GET /api/atlas/ask/status` | Assistant, and which models are available (no credentials returned) |
 
 ## Run locally
 
@@ -26,169 +110,73 @@ cp .env.example .env.local
 uvicorn app:app --reload
 ```
 
-The UI works without any API keys using transparent demo data. Add a `NEXT_PUBLIC_MAPTILER_KEY` for a production basemap. Until then the map uses MapLibre's demo style for development only.
+Without keys, the map, engine, briefing, screen, tour and source-quoting assistant all work. Optional keys, set in `.env.local` or in Vercel's environment variables:
 
-## Connect Supabase
-
-1. Create a Supabase project.
-2. Copy `.env.example` to `.env.local` and fill in `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_…`) and `SUPABASE_SECRET_KEY` (`sb_secret_…`) from **Project Settings → API Keys**. The legacy names `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are still accepted.
-3. Install the CLI and link it: `npx supabase login && npx supabase link --project-ref <project-ref>`.
-4. Push the versioned schema: `npx supabase db push`.
-5. Start the app and check `GET /api/health`: `"supabase_status": "ok"` means the schema is live and readable. `schema_missing` means step 4 hasn't run.
-6. In Vercel, add every variable from `.env.example` under **Project Settings → Environment Variables**. The application deliberately exposes no secret keys to the browser.
-
-How the backend uses Supabase (`backend/supabase_client.py`, `backend/repository.py`):
-
-- **Reads** use the publishable key, so they see only what the RLS policies expose publicly.
-- **Writes** (ingestion) use the secret key, which bypasses RLS. It is server-only and never returned to the browser.
-- The dashboard serves ingested rows for each lane (places, events, road advisories, transit advisories) and falls back to the provider adapter when a lane's table is empty or Supabase is unreachable. Lanes served from the database show as `cached` in the source drawer.
-- The new `sb_` keys need a recent `supabase-py` (the pinned 2.33.0 works). 2.13 and earlier reject them with `Invalid API key`.
-
-Schema changes belong in `supabase/migrations/`. Create a migration with:
-
-```bash
-npx supabase migration new describe_change
-```
-
-Commit the migration with the feature branch. This keeps the shared database reproducible while the team works in parallel.
-
-## AI guide and RAG
-
-The map now opens first and includes an **Ask YOUtah** guide plus a compact taste quiz. The quiz saves preference-only data (interests, pace, group, budget, access needs, and a voluntary home-base label) in the visitor's browser cookie; this project does not persist a profile or an account identifier.
-
-The guide has a useful source-backed fallback with no model key. Once OpenAI is configured, its production path is:
-
-```text
-map + cookie persona
-  → /api/guide/answer (server only)
-  → Supabase hybrid retrieval (keyword + pgvector + persona + proximity + popularity)
-  → OpenAI Responses API, optionally with live web search
-  → answer + source links returned to the browser
-```
-
-`supabase/migrations/20261107050000_guide_rag.sql` creates `guide_documents`, a derived search index. It mirrors the authoritative `places`, `events`, `advisories`, and `stories` tables; it does not replace them. Every indexed document carries its source URL and freshness timestamp. The retrieval RPC is service-role-only, so clients cannot dump the full index or embedding data.
-
-1. Push migrations: `npx supabase db push`.
-2. In Vercel, add a newly created **rotated** `OPENAI_API_KEY` only under Project Settings → Environment Variables (Production and Preview). Do not place it in a `NEXT_PUBLIC_*` variable or commit it.
-3. Leave `OPENAI_MODEL=gpt-6-astra` and `OPENAI_EMBEDDING_MODEL=text-embedding-3-small` unless you also migrate the `vector(1536)` column for a different embedding dimensionality.
-4. Add `CRON_SECRET`; the `/api/cron/refresh-guide` job (daily on Vercel Hobby, hourly via `.github/workflows/live-cron.yml`) rebuilds derived documents and embeds a bounded batch of changed rows. Existing ingest crons keep live sources fresher than that where supported.
-
-The optional “Include live web sources” toggle uses the OpenAI Responses API web-search tool, not a separate search-provider key. The existing provider keys remain optional: MapTiler improves tiles; Ticketmaster, UDOT, RIDB, Google Places, and similar connectors each need their own account/key to move from their built-in fallback to live data.
-
-## Deploy to Vercel
-
-1. Push the repository to GitHub.
-2. Import it in Vercel; the platform detects `app.py` and FastAPI automatically.
-3. Add the environment variables for Production and Preview.
-4. Deploy. Every pull request receives a preview URL; `main` is the judge-facing build.
-
-## Data-provider ownership
-
-| Module | Owner scope | Current state |
-| --- | --- | --- |
-| `backend/providers/nws.py` | Weather, forecasts, alerts | Live adapter (display + numeric model inputs) + fallback |
-| `backend/providers/utah_daq.py` | AQI and inversion ceiling | Live: 14 county stations, nearest-station AQI (EPA 2024 breakpoints). Inversion cap is still a placeholder |
-| `backend/providers/udot.py` | Roads, canyon access, traffic | Live UDOT alerts API when `UDOT_API_KEY` is set |
-| `backend/providers/uta.py` | GTFS-RT transit / ski bus | Live public GTFS-Realtime service-alert feed |
-| `backend/providers/events.py` | Ticketmaster, Eventbrite, campus/library events | Ticketmaster live when `TICKETMASTER_API_KEY` is set; demo values otherwise |
-| `backend/providers/ugrc.py` | Trails, places, cultural layers | Live: ~560 statewide trailheads (ArcGIS, no key) for the `ugrc` ingest. Dashboard fallback is still demo |
-| `backend/providers/ridb.py` | Campgrounds and recreation facilities | Live with `RIDB_API_KEY` for the `ridb` ingest |
-| `backend/providers/osm.py` | Parks, viewpoints, museums, art, libraries (OpenStreetMap via Overpass) | Live for the `osm` ingest. Needs a descriptive `NWS_USER_AGENT` |
-| `backend/providers/google_places.py` | Google Places search, ratings, reviews | Adapter only (`GOOGLE_MAPS_API_KEY`). Billed per call and not cacheable, so no route uses it yet |
-| `backend/providers/arcgis.py`, `http.py` | Shared: any ArcGIS feature layer (UGRC, UDOT); retrying JSON client for ingestion | Used by the adapters above |
-
-All providers return normalized Pydantic domain models from `backend/models.py`; the frontend never consumes provider-specific JSON.
-
-**Places ingestion.** `ugrc`, `ridb` and `osm` each fetch statewide and upsert into `places` by `(source_id, external_id)`. Run one with `POST /api/admin/ingest {"source": "osm"}`, or all of them through the weekly cron (`GET /api/cron/ingest-places`, in `vercel.json`). The dashboard reads the nearest few places per category around its point through the `nearby_places` SQL function. Apply `supabase/migrations/*_place_sources.sql` first.
-
-## Environmental Atlas: data centers, water and legislation
-
-The map's **Impact** tab shows legislators how proposed data centers, and the bills that would regulate them, would affect Utah's water and the Great Salt Lake. The map carries the findings: rings sized by engine water estimate with labels, a ghost ring with a "was → now" label when a lever changes a project, permit-stage dots, the extra exposed lakebed, basin risk bubbles, and a headline card over the map. Decisions: [docs/atlas/decisions.md](docs/atlas/decisions.md) · design: [docs/atlas/design.md](docs/atlas/design.md).
-
-- **Engine** (`backend/atlas/engine.py`): a deterministic, sourced factor model; every output is a (low, central, high) range. Gemini (`backend/atlas/gemini.py`) only extracts bill levers and proposal fields with quotes, and narrates under a number guard. Without `GEMINI_API_KEY` those two features return 503; everything else works.
-- **API**: `GET /api/atlas/projects`; `POST /api/atlas/impact`, `/overlays`, `/extract/project`, `/extract/bill`.
-- **Panel tabs**: Projects · Legislation (manual levers, or paste a bill; shows with-levers vs built-as-planned) · Basins (water-risk model; **placeholder baselines**) · Permits (five-gate pipeline, events, open decisions) · Drop a project · Who decides.
-- **Share a scenario**: the URL updates as you work, e.g. `/?impact&projects=all&branch=conditions&levers={"power_cooling_required":"dry"}`.
-- **Briefing**: `/briefing` (one page, print to PDF; `?branch=` and `?county=` for a county drill-down). Watermarked "Draft" until `public/atlas/data/manifest.json` marks basin baselines as agency data.
-- **Water screen**: `/screen` reviews one proposal for local and state reviewers: a first estimate, a check of the developer's claim, ways to use less water, red flags, questions, hydrology study scope, conditions and a memo. Open it from "Screen ↗" beside a project in the Impact tab or from a project's map popup (`/screen?project=stratos&mw=3000`); the URL tracks the form. It is a separate screening model (`public/assets/atlas-screen.js`), so its claim check shows the engine estimate and published figures beside its own.
-- **Stratos pilot**: `/atlas/pilots/stratos_who_pays.html` (unchanged).
-- **Data**: `public/atlas/data/` (static layers; `backend/atlas/data/` holds the lake outline for the API). Rebuild after editing the registry: `python scripts/atlas/build_static_layers.py`. Fetch biodiversity, wildfire and pollution overlap layers: `python scripts/atlas/fetch_layers.py all`. Check the 72 catalogued sources: `python scripts/atlas/check_sources.py`.
-
-## Utah intelligence
-
-Two intentionally distinct products, served under `/api/intelligence` and shown in the hero card:
-
-1. **Outdoor Comfort**: a three-class (`good` / `caution` / `poor`) nowcast of the 24-hour PM2.5 band at the nearest Utah DAQ station, `horizon_hours` (default 3) ahead. A trained model is served only when an artifact has passed the training gate. Otherwise responses say `conservative_fallback` and `/api/intelligence/model-status` says why.
-2. **Local Pulse**: an explainable 0–100 appeal score from nearby events (Supabase events, then live Ticketmaster) and predicted comfort. It is never an attendance count, and demo events are never scored.
-
-| Endpoint | Purpose |
+| Variable | Enables |
 | --- | --- |
-| `GET /api/intelligence/brief?lat=&lng=` | Comfort + Local Pulse for a point, with the station used, data freshness, and source links. |
-| `POST /api/intelligence/comfort` | Score a supplied feature vector (see `ComfortFeatures`). |
-| `POST /api/intelligence/feedback` | Privacy-safe interaction (`detail_opened`, …) stored server-side in `analytics_events`. The browser never writes the table. Place-card clicks send these. |
-| `GET /api/intelligence/model-status` | Model version, metrics, training window, or the fallback reason. |
+| `GEMINI_API_KEY` (`GEMINI_MODEL`, `GEMINI_FALLBACK_MODELS`) | Bill and proposal extraction, narration, and the assistant's first-choice agent |
+| `OPENAI_API_KEY` or `AI_GATEWAY_API_KEY` | Assistant fallback |
+| `NEXT_PUBLIC_MAPTILER_KEY` | 3D terrain basemap. This is a browser key, so restrict its allowed origins in MapTiler. |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` | Live database (see below) |
+| `CRON_SECRET` | Scheduled ingest routes |
 
-### Training pipeline
+Never put a secret in a `NEXT_PUBLIC_*` variable.
 
-Training is offline. Requests never retrain. The deployed artifact is portable JSON (`backend/intelligence/artifacts/outdoor_comfort.json`) evaluated in pure Python. scikit-learn is a training-only dependency because it would grow the Vercel bundle from about 52 MB to about 327 MB.
+### Tests
 
 ```bash
-pip install -r requirements-ml.txt
-
-# 1. Quality-assured PM2.5, temperature and humidity for the DAQ stations from EPA AQS
-#    (no key; ~150 MB per year, cached in data/raw). DAQ sends no hourly wind to AQS, so wind
-#    is left missing there and is learned from the ingested DAQ snapshots instead.
-python scripts/backfill_aqs_history.py --years 2024 2025 2026 --out data/utah_air_history.csv
-
-# 2. Snapshots this project collected (needs the migration + ingest below). Optional until they accumulate.
-python scripts/export_training_data.py --source supabase --out data/daq_snapshots.csv
-
-# 3. Train. QA'd history first: it wins when both files hold the same station-hour.
-python scripts/train_outdoor_comfort.py --input data/utah_air_history.csv --input data/daq_snapshots.csv
-
-pytest
+.venv/Scripts/python.exe -m pytest      # Windows; use .venv/bin/python elsewhere
+node --test tests/*.test.cjs            # front-end tests (tour, water screen, basin risk, …)
 ```
 
-The trainer joins targets on exact timestamps, splits chronologically (60/20/20) with a purge gap, and calibrates on the validation fold. It refuses to write an artifact unless all of the following hold:
+## Data
 
-- At least 200 rows and two target classes.
-- The model beats the persistence baseline on test-period accuracy without losing macro-F1.
-- The exported JSON reproduces scikit-learn's probabilities exactly.
+- **Static layers** are in `public/atlas/data/`: projects, counties, the lake outline, playa scenarios, basin risk, permits, and the decision context. `backend/atlas/data/` holds the lake outline for the API.
+- **Rebuild after editing the registry:** `python scripts/atlas/build_static_layers.py`. This overwrites `manifest.json`.
+- **Rebuild the assistant's index** after changing sources, projects, bills or engine factors: `python scripts/atlas/build_knowledge.py`. Use `--check` to report staleness; a test fails when the shipped index is stale. Placeholder basin numbers are deliberately left out of the index.
+- **Overlap layers** (biodiversity, wildfire, pollution): `python scripts/atlas/fetch_layers.py all`.
+- **Check the 72 catalogued sources:** `python scripts/atlas/check_sources.py`. The catalog is [docs/atlas/source_catalog.csv](docs/atlas/source_catalog.csv), and the research behind the figures is [docs/atlas/research_notes.md](docs/atlas/research_notes.md).
 
-Commit the `.json` (and its `.metrics.json`) to deploy it.
+### Open data items
 
-**Collecting training data.** `POST /api/admin/ingest` with `{"source": "utah-daq"}` and the `x-ingest-secret` header, or the daily Vercel Cron in `vercel.json` (`GET /api/cron/ingest`, `Authorization: Bearer $CRON_SECRET`). Each run:
+- Replace the placeholder basin baselines with Division data, then set `baseline_status` in `manifest.json`.
+- Fill `baseline_consumptive_af` per project, so the app can compare a project's water use with the converted rights' current use (EO 2026-03).
+- Confirm the Stratos water request and cooling type used by the water screen.
+- Decide whether the water screen's coefficients should match the engine's.
+- Confirm the Revenue and Taxation committee's role.
 
-- Writes new station-hour readings to `ml_feature_snapshots`, keeping the first-seen `available_at`.
-- Logs one prediction per station to `ml_predictions`, for later comparison with what happened.
-- Records the run in `ingest_runs`.
+The full list is in [docs/atlas/decisions.md](docs/atlas/decisions.md#open-items).
 
-The DAQ feed keeps 10+ days of history, so a daily schedule leaves no gaps. Apply `supabase/migrations/*_intelligence.sql` first (`npx supabase db push`).
+## Supabase
 
-Product rules: keep the official-source links and disclaimers. Present comfort as guidance, not a safety clearance. Comfort bands (≤12 / ≤35.4 µg/m³) are deliberately simpler than the official AQI shown beside them.
+1. Create a project and fill in the `SUPABASE_*` keys from **Project Settings → API Keys**. The legacy `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` names still work.
+2. Run `npx supabase login && npx supabase link --project-ref <ref>`, then `npx supabase db push`.
+3. `GET /api/health` should report `"supabase_status": "ok"`. A status of `schema_missing` means the push hasn't run.
+
+Reads use the publishable key, so they only see what the RLS policies make public. Writes and ingestion use the secret key, which stays server-side. Put schema changes in `supabase/migrations/` (`npx supabase migration new <name>`).
+
+## Air-quality intelligence (carried over)
+
+`/api/intelligence` serves an **Outdoor Comfort** nowcast: a three-class PM2.5 band at the nearest DAQ station, a few hours ahead. Training is offline (`requirements-ml.txt`, `scripts/backfill_aqs_history.py`, `scripts/train_outdoor_comfort.py`). The deployed model is portable JSON. If no model has passed the training gate, the API serves a conservative fallback and `/api/intelligence/model-status` says why. Daily DAQ snapshots are collected by `GET /api/cron/ingest`.
+
+## Deploy
+
+Import the repo in Vercel; it detects `app.py` and FastAPI. Add the environment variables for Production and Preview. [vercel.json](vercel.json) maps `/` to the map and `/briefing` and `/screen` to the atlas pages, and schedules the ingest crons.
 
 ## Source and safety rules
 
-- Fetch providers through server routes, not the browser, so rate limits and secret keys remain controlled.
-- Preserve every source URL, provider ID, and update timestamp. The source drawer is part of the product story.
-- Treat inversion height as an estimate and do not frame it as a safety clearance.
-- Keep public read access on curated/live data; use the service role only in server-side ingestion.
-- Store raw source payloads only if needed for debugging and attribution. Never put tokens or personal data there.
+- Every published figure keeps its source URL, source type and date. Nothing is averaged across sources, and nothing gets a single net score.
+- Show ranges, not single numbers. An unknown stays visibly unknown. Unknown cooling defaults to closed-loop for the central estimate and evaporative for the high one.
+- Providers are fetched by server routes, never from the browser. No secret key reaches the browser.
+- The inversion height is an estimate, not a safety clearance.
 
-## Next build targets
+## Team
 
-1. ~~Utah DAQ and Ticketmaster adapters~~ Done. Remaining: UDOT, UTA, UGRC, and a DAQ ceilometer source for the real inversion cap.
-2. ~~Protected ingest route and schedule~~ Done for `utah-daq` (snapshots, predictions, `ingest_runs`). Remaining: the other sources.
-3. ~~Replace demo items with database reads in `backend/services/dashboard.py`.~~ Done: the dashboard reads from Supabase and falls back to providers. Remaining: weather and air snapshots from `observations`.
-4. Add source filters, language selection, and a citation drawer before expanding to a chatbot.
+- H Dunn
+- Diane Hoskins
+- Maddie Johnson
+- Robin Murillo
 
-## Atlas assistant, bill library and branch strip
+## License
 
-The map is the primary display; these features all draw on it.
-
-- **Atlas assistant** (`POST /api/atlas/ask`, `backend/atlas/assistant.py`, chat in `public/assets/map-guide.js`). Answer chain: Gemini tool agent, then OpenAI (direct `OPENAI_API_KEY`, else `AI_GATEWAY_API_KEY`), then quoted source passages with no model. Every reply returns `actions` that move the map (select projects, apply a bill, fly, toggle layers, open the branch strip, start the tour). Numbers not found in a source or tool result trigger one rewrite and are otherwise listed in `unverified_numbers`.
-- **Knowledge index** (`backend/atlas/knowledge.py`): the source catalog, project registry and figures, permit pipeline, basins, bills, engine factors, branch comparison, decision context, research notes and an app guide. Rebuild after changing any of them: `python scripts/atlas/build_knowledge.py` (`--check` reports staleness; a test fails when the shipped index is stale). Placeholder basin numbers are deliberately left out.
-- **Bill library** (`GET /api/atlas/bills`, `backend/atlas/bills.py`): real measures and labelled mock bills mapped onto the engine's levers. Real entries are summaries of coverage and agency documents, not bill text.
-- **Four-branch strip** (`POST /api/atlas/compare`, `backend/atlas/comparison.py`, `public/assets/atlas-compare.js`): docks over the map; each card redraws the map for that branch.
-- `GET /api/atlas/ask/status` reports which models and search mode are available (no credentials).
-
+[MIT](LICENSE)
