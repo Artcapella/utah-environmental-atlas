@@ -45,3 +45,18 @@ def test_map_nav_link_stays_visible_on_narrow_screens() -> None:
     css = (ROOT / "public" / "assets" / "styles.css").read_text(encoding="utf-8")
     assert ".nav-links { display:none; }" not in css
     assert ".nav-links a:not(.nav-map) { display:none; }" in css
+
+
+def test_pages_run_in_environmental_mode_with_tourist_ui_hidden() -> None:
+    css = (ROOT / "public" / "assets" / "env-mode.css").read_text(encoding="utf-8")
+    assert ".env-mode .tourist" in css
+    for page in ("index.html", "map-simple.html", "map.html", "inversion.html"):
+        html = (ROOT / "public" / page).read_text(encoding="utf-8")
+        assert '<body class="env-mode">' in html, page
+        assert "/assets/env-mode.css" in html, page
+        assert not re_promoter_link_visible(html), page
+
+
+def re_promoter_link_visible(html: str) -> bool:
+    import re
+    return any("tourist" not in tag for tag in re.findall(r'<a[^>]*href="/promoters"[^>]*>', html))

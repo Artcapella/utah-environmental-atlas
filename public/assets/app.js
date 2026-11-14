@@ -6,6 +6,9 @@ const API = {
   config: "/api/config"
 };
 
+// Environmental mode hides the tourist sections (places, events, local pulse); see env-mode.css.
+const ENV_MODE = document.body.classList.contains("env-mode");
+
 let map;
 let markers = [];
 let allPlaces = [];
@@ -39,7 +42,7 @@ function renderBrief(brief) {
   const station = brief.air_station;
   document.querySelector("#brief-detail").textContent =
     `${kind} from the ${station.name} monitor (${station.distance_km} km): ${comfort.reasons[0]}. ` +
-    `Pulse: ${brief.local_pulse.drivers[0]}. ${comfort.disclaimer}`;
+    (ENV_MODE ? "" : `Pulse: ${brief.local_pulse.drivers[0]}. `) + comfort.disclaimer;
 }
 
 function sendFeedback(entityId, entityType, eventType) {
@@ -149,6 +152,11 @@ function loadBrief() {
 
 async function start() {
   loadBrief();
+  if (ENV_MODE) {
+    // Only the live conditions card is shown; skip the places map, events, and inversion picks.
+    renderConditions(await fetch(API.dashboard).then(response => response.json()));
+    return;
+  }
   await initializeMap();
   const [dashboardResponse, inversionResponse] = await Promise.all([
     fetch(API.dashboard).then(response => response.json()),

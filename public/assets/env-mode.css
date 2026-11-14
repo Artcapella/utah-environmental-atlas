@@ -1,0 +1,4 @@
+/* Environmental-app mode.
+   Pages carrying <body class="env-mode"> hide tourist-oriented UI (events, food, lore, promoters,
+   itinerary planning, personas, travel chat). Remove the body class to bring it all back. */
+.env-mode .tourist { display: none !important; }

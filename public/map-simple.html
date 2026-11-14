@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
-    <meta name="description" content="A simple street map for finding places around Utah." />
+    <meta name="description" content="A simple map of Utah air quality, conditions, and public lands." />
     <title>YOUtah — Simple Map</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,8 +12,9 @@
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="/assets/simple-map.css" />
     <link rel="stylesheet" href="/assets/ski-layer.css" />
+    <link rel="stylesheet" href="/assets/env-mode.css" />
   </head>
-  <body>
+  <body class="env-mode">
     <main class="map-app">
       <div id="simple-map" aria-label="Interactive street map of Utah" role="application"></div>
 
@@ -28,12 +29,12 @@
         <nav class="view-switch" aria-label="Map view">
           <a class="active" href="/map/simple" aria-current="page" data-view="simple">Simple</a>
           <a href="/map" data-view="advanced">Advanced</a>
-          <a href="/promoters">Promoters</a>
+          <a class="tourist" href="/promoters">Promoters</a>
         </nav>
-        <button class="header-action" id="plan-launcher" type="button" aria-haspopup="dialog" aria-label="Open saved stops">
+        <button class="header-action tourist" id="plan-launcher" type="button" aria-haspopup="dialog" aria-label="Open saved stops">
           <span aria-hidden="true">♡</span><span>Saved</span><b id="plan-count" hidden>0</b>
         </button>
-        <button class="persona-button" id="persona-launcher" type="button" aria-haspopup="dialog" title="Personalize your Utah guide">
+        <button class="persona-button tourist" id="persona-launcher" type="button" aria-haspopup="dialog" title="Personalize your Utah guide">
           <span class="persona-spark" aria-hidden="true">✦</span>
           <span>My Utah</span>
           <span class="persona-dot" id="persona-dot" aria-label="Personalization quiz incomplete"></span>
@@ -44,18 +45,18 @@
         <button class="panel-handle" id="panel-handle" type="button" aria-controls="place-panel" aria-expanded="false" aria-label="Expand places list"><span aria-hidden="true"></span></button>
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Explore nearby</p>
-            <h1>Find your next place</h1>
+            <p class="eyebrow">Utah environment</p>
+            <h1>Conditions &amp; public lands</h1>
           </div>
           <button class="locate-button" id="locate" type="button" title="Use my location" aria-label="Use my location">◎</button>
         </div>
 
-        <label class="ski-layer-toggle" for="ski-layer-toggle">
+        <label class="ski-layer-toggle tourist" for="ski-layer-toggle">
           <span><span aria-hidden="true">⛷</span> Snow & skiing <small>Resorts, runs, lifts & snowfall</small></span>
           <input id="ski-layer-toggle" type="checkbox" aria-controls="ski-layer-content" />
         </label>
 
-        <div class="category-filters" role="group" aria-label="Filter places by type">
+        <div class="category-filters tourist" role="group" aria-label="Filter places by type">
           <button class="category active" type="button" data-category="all">All</button>
           <button class="category" type="button" data-category="outdoors">Outdoors</button>
           <button class="category" type="button" data-category="community">Community</button>
@@ -65,16 +66,16 @@
         </div>
 
         <div class="quick-actions" aria-label="Quick map tools">
-          <button id="today-launcher" type="button"><span aria-hidden="true">☀</span> Today</button>
+          <button id="today-launcher" type="button"><span aria-hidden="true">☀</span> Conditions</button>
           <button id="air-launcher" type="button"><span aria-hidden="true">☁</span> Air guide</button>
           <button id="nearby-launcher" type="button"><span aria-hidden="true">⌖</span> Nearby</button>
-          <button class="mobile-only" id="persona-chip" type="button" aria-haspopup="dialog"><span aria-hidden="true">✦</span> My Utah</button>
+          <button class="mobile-only tourist" id="persona-chip" type="button" aria-haspopup="dialog"><span aria-hidden="true">✦</span> My Utah</button>
         </div>
 
         <p class="result-summary" id="result-summary" aria-live="polite">Loading places…</p>
         <div class="place-list" id="place-list" aria-live="polite"></div>
         <div class="ski-layer-content" id="ski-layer-content" hidden></div>
-        <p class="panel-note"><span class="live-dot"></span> Places are supplied by live and public sources. <a class="mobile-only" href="/promoters">For promoters →</a></p>
+        <p class="panel-note"><span class="live-dot"></span> Places are supplied by live and public sources. <a class="mobile-only tourist" href="/promoters">For promoters →</a></p>
       </aside>
 
       <div class="map-tools" aria-label="Map controls">
@@ -84,7 +85,7 @@
       </div>
       <div class="map-status" id="map-status" role="status">Loading street map…</div>
 
-      <button class="guide-launcher" id="guide-launcher" type="button" aria-controls="guide-sheet" aria-expanded="false">
+      <button class="guide-launcher tourist" id="guide-launcher" type="button" aria-controls="guide-sheet" aria-expanded="false">
         <span aria-hidden="true">✦</span>
         <span>Ask YOUtah</span>
       </button>

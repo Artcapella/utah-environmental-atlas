@@ -17,6 +17,10 @@ const CITY_SHORTCUTS = [
   ["Provo", -111.6585, 40.2338], ["Park City", -111.497, 40.6461], ["Moab", -109.5498, 38.5733],
 ];
 
+// Environmental mode (body.env-mode, see env-mode.css): show only outdoor/public-land places,
+// no events, ski layer, saved stops, persona quiz, travel guide, or welcome tour.
+const ENV_MODE = document.body.classList.contains("env-mode");
+
 let map;
 let allPlaces = [];
 let markers = [];
@@ -331,7 +335,7 @@ function makeMarker(place) {
   const source = placeUrl ? `<a href="${escapeHtml(placeUrl)}" target="_blank" rel="noopener noreferrer">View source ↗</a>` : "";
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${place.coordinate.lat},${place.coordinate.lng}`;
   const popup = new maplibregl.Popup({ offset: 20, closeButton: false }).setHTML(
-    `<h2>${escapeHtml(place.name)}</h2><p>${escapeHtml(place.description)}</p><p class="popup-actions"><a href="${directions}" target="_blank" rel="noopener noreferrer">Directions ↗</a> <button type="button" data-save-place="${escapeHtml(place.id)}">Save</button></p>${source}`
+    `<h2>${escapeHtml(place.name)}</h2><p>${escapeHtml(place.description)}</p><p class="popup-actions"><a href="${directions}" target="_blank" rel="noopener noreferrer">Directions ↗</a>${ENV_MODE ? "" : ` <button type="button" data-save-place="${escapeHtml(place.id)}">Save</button>`}</p>${source}`
   );
   popup.on("open", () => popup.getElement()?.querySelector("[data-save-place]")?.addEventListener("click", () => savePlace(place)));
   const marker = new maplibregl.Marker({ element, anchor: "bottom" })
@@ -571,7 +575,9 @@ async function loadPlaces() {
       description: `${event.venue} · ${new Date(event.starts_at).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}${event.is_free ? " · Free" : ""}`,
       tags: [event.category, event.venue, "event"], source_url: event.source_url,
     }));
-    allPlaces = [...(dashboard.places || []), ...events];
+    allPlaces = ENV_MODE
+      ? (dashboard.places || []).filter((place) => groupFor(place) === "outdoors")
+      : [...(dashboard.places || []), ...events];
     render();
   } catch (error) {
     console.error(error);
@@ -624,13 +630,13 @@ function showToday() {
   const weather = dashboardData?.weather;
   const air = dashboardData?.air;
   const events = allPlaces.filter((place) => place.category === "event").slice(0, 4);
-  featureEyebrow.textContent = "Your local pulse";
-  featureTitle.textContent = "Today in Utah";
+  featureEyebrow.textContent = ENV_MODE ? "Live conditions" : "Your local pulse";
+  featureTitle.textContent = ENV_MODE ? "Utah right now" : "Today in Utah";
   const aqiClass = (air?.aqi || 0) > 100 ? "air-caution" : "air-good";
   featureBody.innerHTML = `<div class="condition-grid">
     <article class="feature-card"><h3>Weather</h3><span class="condition-value">${weather ? `${weather.temperature_f}°` : "—"}</span><p>${escapeHtml(weather?.short_forecast || "Loading conditions")}${weather?.wind ? ` · ${escapeHtml(weather.wind)}` : ""}</p></article>
     <article class="feature-card"><h3>Air quality</h3><span class="condition-value ${aqiClass}">${air ? air.aqi : "—"}</span><p>${escapeHtml(air?.category || "Loading air quality")}</p></article>
-  </div>${events.length ? `<h3 class="eyebrow">Upcoming nearby</h3>${events.map((event) => `<article class="feature-card feature-row"><div><h3>${escapeHtml(event.name)}</h3><p>${escapeHtml(event.description)}</p></div><button type="button" data-feature-place="${escapeHtml(event.id)}">Map</button></article>`).join("")}` : featureCard("No events loaded yet", "Try again shortly, or ask YOUtah to find something happening near you.")}`;
+  </div>${ENV_MODE ? "" : events.length ? `<h3 class="eyebrow">Upcoming nearby</h3>${events.map((event) => `<article class="feature-card feature-row"><div><h3>${escapeHtml(event.name)}</h3><p>${escapeHtml(event.description)}</p></div><button type="button" data-feature-place="${escapeHtml(event.id)}">Map</button></article>`).join("")}` : featureCard("No events loaded yet", "Try again shortly, or ask YOUtah to find something happening near you.")}`;
   bindFeaturePlaces(); openFeature();
 }
 
@@ -685,6 +691,7 @@ function bindFeaturePlaces() {
 }
 
 function showWelcome() {
+  if (ENV_MODE) return;
   try {
     if (localStorage.getItem(WELCOME_STORAGE)) return;
     welcomeDialog.showModal?.();
@@ -717,7 +724,7 @@ function wireControls() {
     const first = visiblePlaces()[0];
     if (first) {
       focusPlace(first, true);
-    } else if (search.value.trim()) {
+    } else if (search.value.trim() && !ENV_MODE) {
       askGuide(`Help me find: ${search.value.trim()}`);
     }
   });
@@ -777,7 +784,7 @@ async function start() {
   writePlan();
   wireControls();
   await initialiseMap();
-  if (new URLSearchParams(location.search).get("ski") === "1") toggleSki(true);
+  if (!ENV_MODE && new URLSearchParams(location.search).get("ski") === "1") toggleSki(true);
   await loadPlaces();
   setTimeout(showWelcome, 550);
 }

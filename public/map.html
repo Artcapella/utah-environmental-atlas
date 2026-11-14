@@ -19,6 +19,7 @@
   Public API for the chatbot / RAG later: window.YOUtah (bottom of file).
 -->
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
+<link rel="stylesheet" href="/assets/env-mode.css" />
 <style>
 /* ---------- Design tokens: swap these for the designer's palette ---------- */
 :root{
@@ -223,7 +224,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>
-<body>
+<body class="env-mode">
 <div id="map" role="application" aria-label="Topographic map of Utah"></div>
 <div id="maperr">Map tiles could not load — the panels still work with demo data.</div>
 
@@ -252,7 +253,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
   </nav>
   <button class="fab" id="fab3d" title="Toggle 2D / 3D terrain" aria-label="Toggle 3D terrain">3D</button>
   <button class="fab" id="fabLocate" title="My location" aria-label="My location">◎</button>
-  <button class="fab" id="fabSuggest" title="Suggest a spot" aria-label="Suggest a spot" data-i18n-title="suggest">＋</button>
+  <button class="fab tourist" id="fabSuggest" title="Suggest a spot" aria-label="Suggest a spot" data-i18n-title="suggest">＋</button>
 </div>
 
 <aside id="panel" class="sheet glass" aria-label="Explore">
@@ -266,7 +267,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
     <div id="tabs" role="tablist">
       <button class="on" data-tab="today" data-i18n="today">Today</button>
       <button data-tab="layers" data-i18n="layers">Layers</button>
-      <button data-tab="plan" data-i18n="plan">Plan</button>
+      <button class="tourist" data-tab="plan" data-i18n="plan">Plan</button>
     </div>
   </div>
   <div class="sheet-body">
@@ -336,7 +337,7 @@ const PAL = { spruce:'#163a3a', glacier:'#6fa8bf', lake:'#3f7f99', moss:'#7f9f6a
   sandstone:'#d2ad7b', bark:'#6b4f3a', slate:'#4b6470', smog:'#9a8566', gold:'#d9a441', plum:'#8a6d8f', rust:'#a2553c', teal:'#3e8d86' };
 
 const I18N = {
-  en: { search:'Search Utah: places, events, trails…', today:'Today', layers:'Layers', plan:'Plan', now:'Now', tonight:'Tonight',
+  en: { search:'Search Utah: air monitors, stations, parks…', today:'Today', layers:'Layers', plan:'Plan', now:'Now', tonight:'Tonight',
     tomorrow:'Tomorrow', weekend:'Weekend', happening:"What's most interesting", beyond:'Beyond the brochure', beyondHint:'Hide the usual ski / national-park / Temple Square picks',
     fit:'Fit my budget', escape:'Escape the inversion', getThere:'Get there', addPlan:'Add to plan', directions:'Directions', share:'Share',
     promote:'Promote', suggest:'Suggest a spot', crowd:'Predicted crowd', budget:'Budget', total:'Total', lensFor:'Show me Utah as a…',
@@ -691,6 +692,13 @@ const LAYERS = [
   { id:'contours', cat:'context', name:'Contour lines + smog line', emoji:'〽', color:PAL.bark, kind:'special', on:true, personas:['outdoors'], src:'maptiler' },
   { id:'hillshade', cat:'context', name:'Terrain shading', emoji:'⛰', color:PAL.sage, kind:'special', on:true, personas:[], src:'usgs' }
 ];
+/* Environmental mode (body.env-mode, see /assets/env-mode.css): tourist layers stay defined so
+   existing code keeps working, but they start off and are not listed, searched, or ranked. */
+const ENV_MODE = document.body.classList.contains('env-mode');
+const TOURIST_LAYERS = new Set(['ski','transit','vehicles','roads','cams','parking','gas','rideshare','events','trails','spaces','food',
+  'community','uni','libraries','wifi','outages','visitor','lore','landmarks','art','film','crowds','grid']);
+const TOURIST_CONTEXTS = new Set(['bb','age']);
+if (ENV_MODE) for (const L of LAYERS) if (TOURIST_LAYERS.has(L.id)) { L.on = false; L.hidden = true; }
 const LBYID = Object.fromEntries(LAYERS.map(l => [l.id, l]));
 const PRESETS = {
   visitor:['events','food','lore','landmarks','parks','visitor','transit','parking','rideshare','spaces','art','alerts'],
@@ -790,6 +798,7 @@ function bestHour(it) {
 function feed() {
   const T = tAt(), out = [], cap = capHeight(T), aqi = valleyAQI(T);
   const push = (it, score, reasons, when) => {
+    if (!it || LBYID[it.layer]?.hidden) return;
     if (state.offBrochure && it.brochure) return;
     if (state.persona && (it.personas || LBYID[it.layer]?.personas || []).includes(state.persona)) { score += 14; reasons.push(t(state.persona)); }
     if (it.sponsored) { score += 6; }
@@ -1339,10 +1348,10 @@ function renderToday() {
   const items = feed(), a = valleyAQI(), cap = capHeight();
   const personaChips = PERSONAS.map(p => `<button class="chip ${state.persona === p ? 'on' : ''}" data-persona="${p}">${t(p)}</button>`).join('');
   $('#tab-today').innerHTML = `
-    <div class="section-title" style="margin-top:4px">${t('happening')} · ${esc($('#timeText').textContent)}</div>
-    <div class="row-wrap" style="margin-bottom:8px">${personaChips}</div>
+    <div class="section-title" style="margin-top:4px">${ENV_MODE ? 'Conditions' : t('happening')} · ${esc($('#timeText').textContent)}</div>
+    ${ENV_MODE ? '' : `<div class="row-wrap" style="margin-bottom:8px">${personaChips}</div>
     <div class="toggle-row"><span>${t('beyond')}<br><span class="fine">${t('beyondHint')}</span></span><label class="switch"><input type="checkbox" id="offBrochure" ${state.offBrochure ? 'checked' : ''}><span></span></label></div>
-    <div class="toggle-row" style="padding-top:0"><span>${t('fit')} <span class="fine">(${money(remainingBudget())} left)</span></span><label class="switch"><input type="checkbox" id="fitBudget" ${state.fitBudget ? 'checked' : ''}><span></span></label></div>
+    <div class="toggle-row" style="padding-top:0"><span>${t('fit')} <span class="fine">(${money(remainingBudget())} left)</span></span><label class="switch"><input type="checkbox" id="fitBudget" ${state.fitBudget ? 'checked' : ''}><span></span></label></div>`}
     ${a > 100 ? `<button class="card" data-open-inv style="border-color:rgba(154,133,102,.6);background:rgba(154,133,102,.12)">
       <div class="top"><div class="emoji" style="background:rgba(154,133,102,.35)">🌫</div><div><h4>${t('escape')}</h4>
       <div class="meta">Valley AQI ${a} · smog up to ~${cap.toLocaleString()} m. ${escapes().length} trailheads above it by bus or car.</div></div></div></button>` : ''}
@@ -1353,14 +1362,16 @@ function renderToday() {
           <div>${it.sponsored ? '<span class="tag gold">Sponsored</span>' : ''}${reasons.map(r => `<span class="tag ${/smog|Free|Short|new snow/.test(r) ? 'good' : /outage|Busy/.test(r) ? 'bad' : ''}">${esc(r)}</span>`).join('')}${over ? '<span class="tag bad">Over budget</span>' : ''}</div></div>
           <div class="score">${fmtDist(d)}<br>${it.price != null ? money(it.price) : ''}</div></div>
       </button>`).join('')}
-    <p class="fine">Ranking: time-to-start, popularity, predicted crowd, distance, persona & air quality. Demo data — see Layers › ${t('sources')}.</p>`;
+    ${ENV_MODE && !items.length ? `<p class="muted">Valley air is ${esc(aqiInfo(a)[0].toLowerCase())} (AQI ${a}); smog lid ≈ ${cap.toLocaleString()} m. Turn on more conditions under Layers.</p>` : ''}
+    <p class="fine">${ENV_MODE ? 'Air quality, smog lid and hazards' : 'Ranking: time-to-start, popularity, predicted crowd, distance, persona & air quality'}. Demo data — see Layers › ${t('sources')}.</p>`;
 }
 
 function renderLayers() {
   const p = state.persona;
   const personaChips = PERSONAS.map(x => `<button class="chip ${p === x ? 'on' : ''}" data-persona="${x}">${t(x)}</button>`).join('');
   const cats = CATS.map(c => {
-    let ls = LAYERS.filter(l => l.cat === c.id && (l.id !== 'contours' || CONFIG.maptilerKey));
+    let ls = LAYERS.filter(l => l.cat === c.id && !l.hidden && (l.id !== 'contours' || CONFIG.maptilerKey));
+    if (!ls.length) return '';
     if (p) ls = [...ls].sort((a, b) => (b.personas.includes(p)) - (a.personas.includes(p)));
     const onCount = ls.filter(l => state.layers.has(l.id)).length;
     return `<details class="cat" data-cat="${c.id}" ${state.openCats.has(c.id) || (p && ls.some(l => l.personas.includes(p))) ? 'open' : ''}>
@@ -1375,9 +1386,9 @@ function renderLayers() {
     </details>`;
   }).join('');
   $('#tab-layers').innerHTML = `
-    <div class="section-title" style="margin-top:4px">${t('lensFor')}</div>
-    <div class="row-wrap">${personaChips}</div>
-    ${p ? `<button class="btn small primary" id="applyPreset" style="margin-top:8px">${t('applyPreset')} (${PRESETS[p].length})</button>` : ''}
+    ${ENV_MODE ? '' : `<div class="section-title" style="margin-top:4px">${t('lensFor')}</div>
+    <div class="row-wrap">${personaChips}</div>`}
+    ${p && !ENV_MODE ? `<button class="btn small primary" id="applyPreset" style="margin-top:8px">${t('applyPreset')} (${PRESETS[p].length})</button>` : ''}
     <div class="toggle-row" style="margin-top:8px"><span>3D terrain <span class="fine">(2D is lighter for older devices)</span></span><label class="switch"><input type="checkbox" id="t3d" ${state.three ? 'checked' : ''}><span></span></label></div>
     ${cats}
     <details class="cat"><summary>🔗 ${t('sources')}</summary>
@@ -1391,7 +1402,7 @@ function contextBlock() {
   if (state.context === 'land') legend = `<div class="row-wrap" style="margin-top:8px">${Object.entries(LAND_COLORS).map(([k, v]) => `<span class="tag"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${v};margin-right:4px"></span>${k}</span>`).join('')}</div>`;
   else if (C.ramp) legend = `<div class="legend">${C.ramp.map(([, c]) => `<span style="flex:1;background:${c}"></span>`).join('')}</div><div class="legend-l"><span>${C.ramp[0][0]}</span><span>${C.unit}</span><span>${C.ramp[C.ramp.length - 1][0]}+</span></div>`;
   return `<div style="padding:6px 0 10px"><div class="fine" style="margin-bottom:6px">${t('contextMap')}</div>
-    <select class="ctl" id="contextSel">${Object.entries(CONTEXTS).map(([k, v]) => `<option value="${k}" ${state.context === k ? 'selected' : ''}>${v.name}</option>`).join('')}</select>${legend}
+    <select class="ctl" id="contextSel">${Object.entries(CONTEXTS).filter(([k]) => !ENV_MODE || !TOURIST_CONTEXTS.has(k)).map(([k, v]) => `<option value="${k}" ${state.context === k ? 'selected' : ''}>${v.name}</option>`).join('')}</select>${legend}
     ${state.context !== 'none' ? `<p class="fine">Tap a hex for values. ${SOURCES[C.src].name} (demo hexes).</p>` : ''}</div>`;
 }
 
@@ -1468,12 +1479,12 @@ function renderDetail(it) {
         const link = site || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${it.name} trailhead Utah`)}`;
         return `<a class="btn primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${site ? '↗ Visit Trailhead Website' : '↗ View Trailhead on Maps'}</a>`;
       })() : ''}
-      ${isPlace || it.layer === 'events' ? `<button class="btn ${inPlan ? '' : 'primary'}" id="dPlan">${inPlan ? '✓ In plan' : '＋ ' + t('addPlan')}</button>` : ''}
+      ${!ENV_MODE && (isPlace || it.layer === 'events') ? `<button class="btn ${inPlan ? '' : 'primary'}" id="dPlan">${inPlan ? '✓ In plan' : '＋ ' + t('addPlan')}</button>` : ''}
       <a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lng}&travelmode=transit">${t('directions')}</a>
       <button class="btn" id="dShare">${t('share')}</button>
-      ${isPlace || it.layer === 'events' ? `<button class="btn" id="dPromote" title="Businesses & organizers can boost a listing">★ ${t('promote')}</button>` : ''}
+      ${!ENV_MODE && (isPlace || it.layer === 'events') ? `<button class="btn" id="dPromote" title="Businesses & organizers can boost a listing">★ ${t('promote')}</button>` : ''}
     </div>
-    ${isPlace || it.layer === 'events' ? `<div class="box"><h4>🔮 ${t('crowd')} <span class="tag demo">ML · demo</span></h4>
+    ${!ENV_MODE && (isPlace || it.layer === 'events') ? `<div class="box"><h4>🔮 ${t('crowd')} <span class="tag demo">ML · demo</span></h4>
       <div class="ml-chip"><span class="pct">${Math.round(b * 100)}%</span><span class="muted">${b > .7 ? 'Busy' : b > .35 ? 'Moderate' : 'Quiet'} at ${fmtTime(T)} · ±${8 + Math.round(hash01(it.gid) * 8)}%${it.layer !== 'events' && bh ? ` · best time ~${bh.h % 12 || 12}${bh.h < 12 ? 'am' : 'pm'}` : ''}</span></div>
       <div class="spark" aria-hidden="true">${prof.map((v, h) => `<i class="${h === T.getHours() ? 'now' : ''}" style="height:${Math.max(4, v * 100)}%"></i>`).join('')}</div>
       <div class="fine">Features: day-of-week, hour, weather, AQI, events nearby, online buzz${it.buzz ? ` (${it.buzz} mentions this week)` : ''}. Backtested on last season (demo MAE ≈ 9 pts).</div></div>` : ''}
@@ -1481,7 +1492,7 @@ function renderDetail(it) {
       ${gt.rows.map(([i, s]) => `<div class="go-row"><b>${i}</b><span>${esc(s)}</span></div>`).join('')}</div>
     ${ga ? `<div class="box"><h4>📍 Address grid</h4><div><b>${esc(ga.text)}</b> <span class="muted">· ${esc(ga.g.name)}</span></div>
       <div class="fine">Utah addresses are coordinates: “400 S 200 E” = 4 blocks south and 2 east of ${esc(ga.g.origin)}. 8 blocks ≈ 1 mile.</div></div>` : ''}
-    ${tips.length ? `<div class="box"><h4>💬 From the community</h4>${tips.map(x => `<div class="fine" style="color:var(--ink)">${esc(x)}</div>`).join('')}
+    ${tips.length && !ENV_MODE ? `<div class="box"><h4>💬 From the community</h4>${tips.map(x => `<div class="fine" style="color:var(--ink)">${esc(x)}</div>`).join('')}
       <button class="btn small" id="dTip" style="margin-top:8px">Add a tip</button></div>` : ''}
     <p class="fine">Source: ${SOURCES[it.src] ? (SOURCES[it.src].url ? `<a style="color:var(--glacier)" href="${SOURCES[it.src].url}" target="_blank" rel="noopener">${esc(SOURCES[it.src].name)}</a>` : esc(SOURCES[it.src].name)) : '—'} · updated ${fmtTime(NOW)} · <span class="tag demo">demo data</span></p>`;
 }
@@ -1735,14 +1746,14 @@ function wire() {
     const q = $('#search').value.trim().toLowerCase(), box = $('#results');
     if (q.length < 2) { box.classList.remove('open'); return; }
     const cities = CITIES.map((c, i) => ({ c, i })).filter(({ c }) => c[0].toLowerCase().includes(q)).slice(0, 3);
-    const hits = Object.values(BYID).map(it => {
+    const hits = Object.values(BYID).filter(it => !LBYID[it.layer]?.hidden).map(it => {
       const hay = `${it.name} ${it.d || ''} ${it.cuisine || ''} ${it.venue || ''} ${it.cat || ''} ${LBYID[it.layer]?.name || ''}`.toLowerCase();
       const s = it.name.toLowerCase().startsWith(q) ? 3 : it.name.toLowerCase().includes(q) ? 2 : hay.includes(q) ? 1 : 0;
       return { it, s };
     }).filter(x => x.s).sort((a, b) => b.s - a.s).slice(0, 8);
     box.innerHTML = cities.map(({ c, i }) => `<button data-city-r="${i}">🏙 <span><b>${esc(c[0])}</b><br><span class="fine">City</span></span></button>`).join('')
       + hits.map(({ it }) => `<button data-gid="${it.gid}">${LBYID[it.layer].emoji} <span><b>${esc(it.name)}</b><br><span class="fine">${esc(LBYID[it.layer].name)} · ${esc(oneLiner(it))}</span></span></button>`).join('')
-      + `<button data-ask>💬 <span><b>Ask Utah: “${esc(q)}”</b><br><span class="fine">AI guide with web search — coming soon</span></span></button>`;
+      + (ENV_MODE ? '' : `<button data-ask>💬 <span><b>Ask Utah: “${esc(q)}”</b><br><span class="fine">AI guide with web search — coming soon</span></span></button>`);
     box.classList.add('open');
   }, 120);
   $('#search').addEventListener('input', doSearch);
