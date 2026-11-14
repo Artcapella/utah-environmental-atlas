@@ -1,8 +1,8 @@
-"""Fetch the live-source layers into static/atlas/ (run on a machine with normal internet).
+"""Fetch the live-source layers into public/atlas/data/ (run on a machine with normal internet).
 
-    python scripts/fetch_layers.py all              # everything that needs no key
-    python scripts/fetch_layers.py gbif tri basins  # pick steps
-    FIRMS_MAP_KEY=xxxx python scripts/fetch_layers.py firms
+    python scripts/atlas/fetch_layers.py all              # everything that needs no key
+    python scripts/atlas/fetch_layers.py gbif tri basins  # pick steps
+    FIRMS_MAP_KEY=xxxx python scripts/atlas/fetch_layers.py firms
 
 Steps: gbif, habitat, firms, perimeters, tri, basins. Each step is independent; a failure
 is logged and skipped (the engine's overlap rows ignore missing files). No dependencies
@@ -21,7 +21,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parents[1] / "static" / "atlas"
+OUT = Path(__file__).resolve().parents[2] / "public" / "atlas" / "data"
 BBOX = (-114.053, 36.998, -109.041, 42.002)          # Utah
 UA = {"User-Agent": "YOUtah-Environmental-Atlas/1.0"}
 
@@ -176,4 +176,4 @@ if __name__ == "__main__":
         except Exception as e:                     # keep going; report at the end
             print(f"  FAILED: {e}")
             failed.append(n)
-    print("done" if not failed else f"done, failed: {failed} (check data/sources.json URLs)")
+    print("done" if not failed else f"done, failed: {failed} (check scripts/atlas/sources.json URLs)")

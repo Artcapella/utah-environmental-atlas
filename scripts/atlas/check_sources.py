@@ -1,11 +1,11 @@
-"""Ping every URL in data/sources.json and report which respond. Run before a demo.
+"""Ping every URL in scripts/atlas/sources.json and report which respond. Run before a demo.
 
     python scripts/check_sources.py              # all
     python scripts/check_sources.py tiles api    # by kind
     FIRMS_MAP_KEY=xxxx python scripts/check_sources.py
 
 Tile templates are tested with a Utah tile (z6/x12/y24) and its 3857 bbox.
-Writes data/sources_status.json; set "verified": true by hand once a source is confirmed usable.
+Writes scripts/atlas/sources_status.json; set "verified": true by hand once a source is confirmed usable.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 UTAH_TILE = {"{z}": "6", "{x}": "12", "{y}": "24",
              "{bbox-epsg-3857}": "-12523442.7,4383204.9,-11897270.6,5009377.1"}
 
@@ -42,12 +42,12 @@ def check(src: dict) -> dict:
 
 
 if __name__ == "__main__":
-    sources = json.loads((ROOT / "data" / "sources.json").read_text())
+    sources = json.loads((ROOT / "sources.json").read_text())
     kinds = set(sys.argv[1:])
     sources = [s for s in sources if not kinds or s["kind"] in kinds]
     with ThreadPoolExecutor(12) as ex:
         res = list(ex.map(check, sources))
     for r in sorted(res, key=lambda r: (r["ok"], r["category"])):
         print(f"{'OK  ' if r['ok'] else 'FAIL'} {str(r['status'] or '-'):>4} {r['kind']:8} {r['name'][:60]:60} {r['hint'][:60]}")
-    (ROOT / "data" / "sources_status.json").write_text(json.dumps(res, indent=1))
+    (ROOT / "sources_status.json").write_text(json.dumps(res, indent=1))
     print(f"\n{sum(r['ok'] for r in res)}/{len(res)} reachable")

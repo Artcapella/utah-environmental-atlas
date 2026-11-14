@@ -82,3 +82,36 @@ def test_pages_run_in_environmental_mode_with_tourist_ui_hidden() -> None:
 def re_promoter_link_visible(html: str) -> bool:
     import re
     return any("tourist" not in tag for tag in re.findall(r'<a[^>]*href="/promoters"[^>]*>', html))
+
+
+def test_map_mounts_the_environmental_atlas() -> None:
+    html = (ROOT / "public" / "map.html").read_text(encoding="utf-8")
+    assert 'data-tab="impact"' in html and 'id="tab-impact"' in html
+    assert '<script type="module" src="/assets/map-atlas.js"></script>' in html
+    assert "/assets/atlas-panel.css" in html and "{ id:'atlas'" in html
+    assert html.index("/assets/map-guide.js") < html.index("/assets/map-atlas.js")
+    for asset in ("map-atlas.js", "atlas-layers.js", "atlas-panel.js", "atlas-panel.css", "atlas-basin-risk.js"):
+        assert (ROOT / "public" / "assets" / asset).is_file(), asset
+
+
+def test_atlas_static_layers_ship_and_are_not_gitignored() -> None:
+    data = ROOT / "public" / "atlas" / "data"
+    for name in ("projects.geojson", "permits.geojson", "basin_risk.json", "context.json", "manifest.json",
+                 "utah_counties.geojson", "gsl_reference.geojson", "gsl_playa_scenarios.geojson"):
+        assert (data / name).is_file(), name
+    assert (ROOT / "backend" / "atlas" / "data" / "gsl_reference.geojson").is_file()
+    # A bare "data/" rule matches at any depth and would keep the atlas layers out of git-based deploys.
+    rules = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert "data/" not in [r.strip() for r in rules], "anchor the root data folder as /data/"
+    basin = json.loads((data / "basin_risk.json").read_text(encoding="utf-8"))
+    assert basin["baseline_status"] == "placeholder" and "PLACEHOLDER" in basin["warning"]
+
+
+def test_briefing_is_served_and_routed() -> None:
+    client = TestClient(app)
+    page = client.get("/briefing")
+    assert page.status_code == 200 and 'id="levers"' in page.text and 'id="county"' in page.text
+    assert client.get("/atlas/pilots/stratos_who_pays.html").status_code == 200
+    assert client.get("/atlas/data/permits.geojson").status_code == 200
+    config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+    assert {"source": "/briefing", "destination": "/atlas/briefing.html"} in config["rewrites"]

@@ -5,6 +5,10 @@ POST /api/atlas/impact           ranges per project and in total, by basin, leve
 POST /api/atlas/overlays         GeoJSON: scenario project rings + illustrative playa band
 POST /api/atlas/extract/project  Gemini: proposal text -> project fields, each with its quote
 POST /api/atlas/extract/bill     Gemini: bill text -> closed lever list with quotes + "not modeled"
+GET  /api/atlas/bills            bill library: real measures and mock bills mapped onto levers
+POST /api/atlas/compare          four branches for one project: engine ranges + published figures by row
+POST /api/atlas/ask              atlas assistant: RAG answer with citations + map actions
+GET  /api/atlas/ask/status       which models and search mode the assistant has (no credentials)
 """
 from __future__ import annotations
 
@@ -17,8 +21,10 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.atlas import gemini as gb
+from backend.atlas import assistant, gemini as gb
 from backend.atlas import overlays as ov
+from backend.atlas.bills import list_bills
+from backend.atlas.comparison import compare_branches
 from backend.atlas.engine import BRANCHES, REGISTRY, REGISTRY_BY_ID, Levers, Project, rounded, run_scenario
 
 router = APIRouter(prefix="/api/atlas", tags=["environmental-atlas"])
@@ -54,6 +60,12 @@ class ImpactRequest(BaseModel):
     scale: float = Field(1.0, gt=0, le=1.0)   # used when branch == "scaled"
     sizes: dict[str, float] = {}   # {project_id: mw}, e.g. a phase from size_options_mw
     explain: bool = False
+
+
+class CompareRequest(BaseModel):
+    project_id: str = "stratos"
+    levers: dict = {}
+    scaled_mw: Optional[float] = Field(None, gt=0, le=50_000)
 
 
 class TextIn(BaseModel):
@@ -150,3 +162,31 @@ def extract_bill(body: TextIn) -> dict:
         raise HTTPException(502, f"Gemini returned an unknown lever: {e}")
     out["levers_dict"] = levers
     return out
+
+
+@router.get("/bills")
+def bills() -> list[dict]:
+    """Bill library for the Legislation tab; each bill carries its levers, map effect and source."""
+    return list_bills()
+
+
+@router.post("/compare")
+def compare(req: CompareRequest) -> dict:
+    """Four branches for one project. With no levers, 'with conditions' uses an example pair and says so."""
+    try:
+        return compare_branches(req.project_id, req.levers, req.scaled_mw)
+    except KeyError:
+        raise HTTPException(404, "unknown project id")
+    except TypeError as e:
+        raise HTTPException(422, f"unknown lever: {e}")
+
+
+@router.post("/ask")
+async def ask(req: assistant.AskRequest) -> dict:
+    """Atlas assistant. Always answers: Gemini agent, then OpenAI, then quoted source passages."""
+    return (await assistant.ask(req)).model_dump(mode="json")
+
+
+@router.get("/ask/status")
+def ask_status() -> dict:
+    return assistant.status()

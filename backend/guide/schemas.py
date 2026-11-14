@@ -47,6 +47,13 @@ class GuideCitation(BaseModel):
     source_name: str
     kind: Literal["place", "event", "advisory", "story", "web", "other"] = "other"
     freshness: str | None = None
+    # Environmental Atlas sources: gov | dev | ind | adv | der, whether a person has checked the
+    # link or figure, whether it rests on placeholder baselines, and where it is on the map.
+    source_type: str | None = None
+    verified: bool | None = None
+    placeholder: bool = False
+    lat: float | None = None
+    lng: float | None = None
 
 
 class GuideSearchResult(BaseModel):

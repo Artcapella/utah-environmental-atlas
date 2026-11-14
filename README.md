@@ -101,6 +101,18 @@ All providers return normalized Pydantic domain models from `backend/models.py`;
 
 **Places ingestion.** `ugrc`, `ridb` and `osm` each fetch statewide and upsert into `places` by `(source_id, external_id)`. Run one with `POST /api/admin/ingest {"source": "osm"}`, or all of them through the weekly cron (`GET /api/cron/ingest-places`, in `vercel.json`). The dashboard reads the nearest few places per category around its point through the `nearby_places` SQL function. Apply `supabase/migrations/*_place_sources.sql` first.
 
+## Environmental Atlas: data centers, water and legislation
+
+The map's **Impact** tab shows legislators how proposed data centers, and the bills that would regulate them, would affect Utah's water and the Great Salt Lake. The map carries the findings: rings sized by engine water estimate with labels, a ghost ring with a "was → now" label when a lever changes a project, permit-stage dots, the extra exposed lakebed, basin risk bubbles, and a headline card over the map. Decisions: [docs/atlas/decisions.md](docs/atlas/decisions.md) · design: [docs/atlas/design.md](docs/atlas/design.md).
+
+- **Engine** (`backend/atlas/engine.py`): a deterministic, sourced factor model; every output is a (low, central, high) range. Gemini (`backend/atlas/gemini.py`) only extracts bill levers and proposal fields with quotes, and narrates under a number guard. Without `GEMINI_API_KEY` those two features return 503; everything else works.
+- **API**: `GET /api/atlas/projects`; `POST /api/atlas/impact`, `/overlays`, `/extract/project`, `/extract/bill`.
+- **Panel tabs**: Projects · Legislation (manual levers, or paste a bill; shows with-levers vs built-as-planned) · Basins (water-risk model; **placeholder baselines**) · Permits (five-gate pipeline, events, open decisions) · Drop a project · Who decides.
+- **Share a scenario**: the URL updates as you work, e.g. `/?impact&projects=all&branch=conditions&levers={"power_cooling_required":"dry"}`.
+- **Briefing**: `/briefing` (one page, print to PDF; `?branch=` and `?county=` for a county drill-down). Watermarked "Draft" until `public/atlas/data/manifest.json` marks basin baselines as agency data.
+- **Stratos pilot**: `/atlas/pilots/stratos_who_pays.html` (unchanged).
+- **Data**: `public/atlas/data/` (static layers; `backend/atlas/data/` holds the lake outline for the API). Rebuild after editing the registry: `python scripts/atlas/build_static_layers.py`. Fetch biodiversity, wildfire and pollution overlap layers: `python scripts/atlas/fetch_layers.py all`. Check the 72 catalogued sources: `python scripts/atlas/check_sources.py`.
+
 ## Utah intelligence
 
 Two intentionally distinct products, served under `/api/intelligence` and shown in the hero card:

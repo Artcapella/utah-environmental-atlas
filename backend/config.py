@@ -41,6 +41,13 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-6-astra"
     openai_embedding_model: str = "text-embedding-3-small"
     openai_enable_web_search: bool = True
+    # Vercel AI Gateway: an OpenAI-compatible endpoint. Used for OpenAI models when no direct
+    # OPENAI_API_KEY is set (model ids gain an "openai/" prefix). Server-side only.
+    ai_gateway_api_key: str = ""
+    ai_gateway_base_url: str = "https://ai-gateway.vercel.sh/v1"
+    # Atlas knowledge index: vector size, and the Gemini embedding model used when OpenAI is unreachable.
+    atlas_embedding_dimensions: int = 256
+    gemini_embedding_model: str = "gemini-embedding-001"
     # Gemini powers the environmental guide (function-calling RAG over air, weather and
     # inversion tools). Server-side only; never use a NEXT_PUBLIC_* name for this key.
     gemini_api_key: str = Field(default="", validation_alias=AliasChoices("GEMINI_API_KEY", "GOOGLE_API_KEY"))
@@ -67,6 +74,18 @@ class Settings(BaseSettings):
     def gemini_models(self) -> list[str]:
         fallbacks = [model.strip() for model in self.gemini_fallback_models_raw.split(",") if model.strip()]
         return list(dict.fromkeys([self.gemini_model, *fallbacks]))
+
+    @property
+    def openai_route(self) -> tuple[str, str, str] | None:
+        """(base_url, api_key, model-id prefix) for OpenAI-compatible calls, or None when unconfigured.
+
+        A direct OpenAI key wins; otherwise the Vercel AI Gateway key is used with "openai/" ids.
+        """
+        if self.openai_api_key:
+            return "https://api.openai.com/v1", self.openai_api_key, ""
+        if self.ai_gateway_api_key:
+            return self.ai_gateway_base_url.rstrip("/"), self.ai_gateway_api_key, "openai/"
+        return None
 
     @property
     def supabase_read_configured(self) -> bool:

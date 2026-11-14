@@ -3,40 +3,47 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Data center water and environment: legislative briefing</title>
-<!-- Open from the running app: /atlas/briefing.html?api=/api/atlas&static=/static/atlas
-     Print to PDF (Letter, margins default) for the one-page export. -->
+<title>Data Center Water Briefing</title>
+<meta name="description" content="One-page legislative briefing: estimated water, Great Salt Lake and air effects of proposed Utah data centers, and what each legislative lever would change.">
+<!-- Served at /briefing (vercel.json rewrite; app.py route). Query: ?branch=built|conditions|scaled|not_built&county=Iron
+     Print to PDF (Letter) for the one-page export. Watermarked until manifest.json marks basin baselines as agency data. -->
 <style>
-:root{--ink:#12324a;--muted:#566b74;--line:#c5d0d4;--panel:#f7f9f9;--warn:#b4731a}
+:root{--ink:#12324a;--muted:#566b74;--line:#c5d0d4;--panel:#f2f5f6;--warn:#b4731a;--accent:#2b6f9e}
 *{box-sizing:border-box}
 body{margin:0;color:var(--ink);font:13px/1.4 "Avenir Next","Segoe UI",system-ui,sans-serif;background:#fff}
-.page{max-width:8in;margin:0 auto;padding:.4in .45in;position:relative}
+.page{max-width:8.5in;margin:0 auto;padding:.4in .45in;position:relative}
 h1{font:600 1.3rem/1.2 "Iowan Old Style",Georgia,serif;margin:0}
 h2{font:600 .95rem/1.2 "Iowan Old Style",Georgia,serif;margin:12px 0 4px}
 .sub{color:var(--muted);margin:2px 0 8px}
-table{width:100%;border-collapse:collapse;font-size:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
 th,td{border-bottom:1px solid var(--line);padding:2px 5px;text-align:left;vertical-align:top}
-#state td:first-child,#state th:first-child{width:30%}
-#projects{font-size:.72rem}
-#projects td:first-child{width:24%}
 th{font-weight:600;background:var(--panel)}
 td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
-.rng{color:var(--muted);font-size:.72rem}
-.limits{border:1.5px solid var(--ink);border-radius:4px;padding:6px 9px;margin-top:10px;font-size:.76rem}
-.limits ul{margin:3px 0 0;padding-left:16px}
+#projects{font-size:.7rem}
+#state td:first-child{min-width:1.9in}
+.rng{color:var(--muted);font-size:.7rem}
+.tag{display:inline-block;border:1px solid var(--muted);border-radius:8px;padding:0 5px;font-size:.6rem;color:var(--muted);white-space:nowrap}
+.tag.dev{border-style:dashed}.tag.adv{border-width:2px}.tag.ind{border-style:double;border-width:3px}.tag.der{border-style:dotted}
+.box{border:1.5px solid var(--ink);border-radius:4px;padding:6px 9px;margin-top:10px;font-size:.74rem}
+.box ul{margin:3px 0 0;padding-left:16px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
   font:700 2.6rem/1 system-ui;color:rgba(180,115,26,.16);transform:rotate(-24deg);text-align:center}
-.controls{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:.85rem}
-.foot{color:var(--muted);font-size:.7rem;margin-top:8px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0;font-size:.85rem}
+.controls select,.controls button{font:inherit}
+.controls a{color:var(--accent)}
+.foot{color:var(--muted);font-size:.66rem;margin-top:8px}
 .nq{color:var(--muted);font-style:italic}
-@media print{.controls{display:none}.page{padding:0}body{font-size:11.5px}h2{margin:8px 0 3px}@page{size:letter;margin:.4in}}
+.err{color:#8e1b3a}
+@media (max-width:640px){.page{padding:16px}.cols{grid-template-columns:1fr}table{font-size:.72rem}}
+@media print{.controls{display:none}.page{padding:0;max-width:none}body{font-size:9px}h1{font-size:1.15rem}h2{margin:5px 0 2px}.sub{margin:1px 0 4px}th,td{padding:1px 4px;line-height:1.25}.box{margin-top:6px;padding:4px 7px}.box ul{margin:2px 0 0}.foot{margin-top:4px}#state td:first-child{min-width:1.6in}@page{size:letter;margin:.3in}}
 </style>
 </head>
 <body>
 <div class="page">
   <div class="watermark" id="wm" hidden>DRAFT<br>placeholder baselines</div>
-  <h1>Proposed Utah data centers: water and environmental estimates</h1>
-  <p class="sub" id="sub"></p>
+  <h1>Proposed Utah data centers: water, Great Salt Lake and air estimates</h1>
+  <p class="sub" id="sub">Loading…</p>
   <div class="controls">
     <label>Scenario
       <select id="branch">
@@ -45,11 +52,16 @@ td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
         <option value="scaled">Delayed or scaled down (50%)</option>
         <option value="not_built">Not built here</option>
       </select></label>
+    <label>Scope <select id="county"><option value="">Statewide</option></select></label>
     <button onclick="window.print()">Print / save PDF</button>
+    <a href="/?impact">Open the interactive map ↗</a>
   </div>
 
-  <h2>Statewide</h2>
+  <h2 id="h-state">Statewide</h2>
   <table id="state"></table>
+
+  <h2>What each lever would change, alone</h2>
+  <table id="levers"></table>
 
   <h2>By basin</h2>
   <table id="basins"></table>
@@ -57,28 +69,76 @@ td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
   <h2>By project</h2>
   <table id="projects"></table>
 
-  <div class="limits" id="limits"></div>
+  <div class="cols">
+    <div class="box" id="limits"></div>
+    <div class="box" id="context"></div>
+  </div>
   <p class="foot" id="foot"></p>
 </div>
 <script type="module">
 const q = new URLSearchParams(location.search);
-const API = q.get('api') || '/api/atlas', STATIC = q.get('static') || '/static/atlas';
-const ALL_COND = { cooling_required: 'closed_loop', power_cooling_required: 'dry' };
+const API = q.get('api') || '/api/atlas', DATA = q.get('data') || '/atlas/data';
+const COND = { cooling_required: 'closed_loop', power_cooling_required: 'dry' };
+const TAGS = { gov: 'Government', dev: 'Developer', ind: 'Independent academic', adv: 'Advocacy-commissioned', der: 'Derived' };
+// Single levers, each run alone against "built as planned" (branch=conditions so design levers apply).
+const LEVERS = [
+  ['Require closed-loop cooling at data centers', { cooling_required: 'closed_loop' }],
+  ['Require dry-cooled on-site power plants', { power_cooling_required: 'dry' }],
+  ['Prohibit on-site gas power (moves load to the grid)', { onsite_gas_allowed: false }],
+  ['Cap water use effectiveness at 0.2 L/kWh', { max_wue: 0.2 }],
+  ['Deliver 1 AF to Great Salt Lake per AF consumed', { gsl_offset_ratio: 1 }],
+  ['Report use above 75 AF/yr (HB 76 style)', { reporting_threshold_af: 75 }],
+];
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 }));
 const rng = (r) => `${fmt(r[1])} <span class="rng">(${fmt(r[0])}–${fmt(r[2])})</span>`;
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const tag = (k) => `<span class="tag ${k}">${TAGS[k]}</span>`;
+const SHORT_TIER = { t1: 'Under construction / air-permitted', t2: 'Approved locally', t3: 'Proposed or on hold', t0: 'Not classified' };
 const NQ = '<span class="nq">Not published</span>';
 const $ = (id) => document.getElementById(id);
+const getJSON = (u) => fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: HTTP ${r.status}`))));
+const impact = (body) => fetch(`${API}/impact`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  .then((r) => (r.ok ? r.json() : r.text().then((t) => Promise.reject(new Error(t)))));
+
+let projects, manifest = {}, context = null, permits = null;
+
+async function load() {
+  [projects, manifest, context, permits] = await Promise.all([getJSON(`${API}/projects`), getJSON(`${DATA}/manifest.json`).catch(() => ({})),
+    getJSON(`${DATA}/context.json`).catch(() => null), getJSON(`${DATA}/permits.geojson`).catch(() => null)]);
+  const counties = [...new Set(projects.map((p) => p.county))].sort();
+  $('county').innerHTML += counties.map((c) => `<option value="${esc(c)}">${esc(c)} County</option>`).join('');
+  if (['built', 'conditions', 'scaled', 'not_built'].includes(q.get('branch'))) $('branch').value = q.get('branch');
+  if (counties.includes(q.get('county'))) $('county').value = q.get('county');
+}
+
+function sourceTagsFor(p, value) {
+  const f = (p.figures || []).find((x) => x.value_af === value);
+  return f ? f.source_types.map(tag).join('') : tag('dev');
+}
+function highestFigure(p) {
+  const f = [...(p.figures || [])].sort((a, b) => b.value_af - a.value_af)[0];
+  return f && f.value_af === p.published_high_af ? f : null;
+}
 
 async function run() {
-  const branch = $('branch').value;
-  const projects = await (await fetch(`${API}/projects`)).json();
-  const body = { project_ids: projects.map((p) => p.id), branch, scale: 0.5, levers: branch === 'conditions' ? ALL_COND : {} };
-  const r = await (await fetch(`${API}/impact`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).json();
-  let manifest = {};
-  try { manifest = await (await fetch(`${STATIC}/manifest.json`)).json(); } catch {}
+  const branch = $('branch').value, county = $('county').value;
+  const scope = county ? projects.filter((p) => p.county === county) : projects;
+  const ids = scope.map((p) => p.id);
+  const levers = branch === 'conditions' ? COND : {};
+  const url = new URL(location.href); url.searchParams.set('branch', branch); county ? url.searchParams.set('county', county) : url.searchParams.delete('county');
+  history.replaceState(null, '', url);
+
+  const [r, base, ...single] = await Promise.all([
+    impact({ project_ids: ids, branch, scale: 0.5, levers }),
+    impact({ project_ids: ids, branch: 'built' }),
+    ...LEVERS.map(([, lv]) => impact({ project_ids: ids, branch: 'conditions', levers: lv })),
+  ]);
   const placeholder = (manifest.layers?.baseline_status?.all_basins ?? 'placeholder') === 'placeholder';
+  const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
+  const permitBy = Object.fromEntries((permits?.features || []).filter((f) => f.properties.engine_id).map((f) => [f.properties.engine_id, f.properties]));
   $('wm').hidden = !placeholder;
-  $('sub').textContent = `${r.branch_label} · ${projects.length} proposed projects · generated ${new Date().toLocaleDateString()} · estimates, not measurements`;
+  $('h-state').textContent = county ? `${county} County` : 'Statewide';
+  $('sub').textContent = `${r.branch_label} · ${county ? `${county} County, ` : ''}${scope.length} proposed project${scope.length === 1 ? '' : 's'} · generated ${new Date().toLocaleDateString()} · estimates, not measurements`;
 
   if (branch === 'not_built') {
     $('state').innerHTML = `<tr><td>Water stays in its current use, which is not yet quantified. If projects relocate, their impacts move elsewhere: <b>unknown, not zero</b>. No source quantifies this for Utah.</td></tr>`;
@@ -86,32 +146,54 @@ async function run() {
   } else {
     const t = r.totals;
     const highs = r.projects.filter((p) => p.water_af?.published_high);
-    $('state').innerHTML = `<tr><th>Measure</th><th>Developer or agency says</th><th>Engine estimate (range)</th><th>Highest on record</th></tr>
-      <tr><td>Water consumed, AF/yr</td><td class="n">${fmt(t.stated_af)} <span class="rng">(sum of stated figures)</span></td><td class="n">${rng(t.water_af)}</td>
-        <td class="n">${highs.length ? highs.map((p) => `${fmt(p.water_af.published_high)} <span class="rng">(${p.name} only)</span>`).join('<br>') : NQ}</td></tr>
-      <tr><td>Water rights held or sought, AF</td><td class="n">${fmt(t.rights_af)}</td><td>n/a</td><td>n/a</td></tr>
+    $('state').innerHTML = `<tr><th>Measure</th><th>Developer or agency says</th><th>Engine estimate (range) ${tag('der')}</th><th>Highest on record</th></tr>
+      <tr><td>Water consumed, AF/yr</td><td class="n">${t.stated_af ? `${fmt(t.stated_af)} ${tag('dev')} <span class="rng">(sum of stated figures)</span>` : NQ}</td><td class="n">${rng(t.water_af)}</td>
+        <td class="n">${highs.length ? highs.map((p) => { const f = highestFigure(byId[p.project]); return `${fmt(p.water_af.published_high)} ${f ? f.source_types.map(tag).join('') : ''} <span class="rng">(${esc(p.name)} only)</span>`; }).join('<br>') : NQ}</td></tr>
+      <tr><td>Water rights held or sought, AF</td><td class="n">${t.rights_af ? fmt(t.rights_af) : NQ}</td><td>n/a</td><td>n/a</td></tr>
       <tr><td>Great Salt Lake, long-run level drop, ft</td><td>${NQ}</td><td class="n">${rng(t.gsl.level_drop_ft)}</td><td>${NQ}</td></tr>
       <tr><td>Extra exposed lakebed, acres</td><td>${NQ}</td><td class="n">${rng(t.gsl.playa_acres)}</td><td>${NQ}</td></tr>
       <tr><td>CO₂ from on-site gas, short tons/yr</td><td>${NQ}</td><td class="n">${rng(t.co2_tons)}</td><td>${NQ}</td></tr>
       <tr><td>NOx from on-site gas, short tons/yr</td><td>${NQ}</td><td class="n">${rng(t.nox_tons)}</td><td>${NQ}</td></tr>`;
     $('basins').innerHTML = `<tr><th>Basin</th><th>Projects</th><th>Stated, AF/yr</th><th>Engine, AF/yr</th><th>Baseline supply / junior share / storage</th></tr>` +
       Object.entries(r.by_basin).sort((a, b) => b[1].water_af[1] - a[1].water_af[1]).map(([b, d]) =>
-        `<tr><td>${b}</td><td>${d.projects.length}</td><td class="n">${fmt(d.stated_af)}</td><td class="n">${rng(d.water_af)}</td><td>${placeholder ? '<span class="nq">Placeholder: awaiting Division data</span>' : 'Agency data'}</td></tr>`).join('');
-    $('projects').innerHTML = `<tr><th>Project</th><th>County</th><th>MW</th><th>Stated</th><th>Engine, AF/yr</th><th>Rights</th><th>Status</th></tr>` +
-      r.projects.map((p) => `<tr><td>${p.name}</td><td>${p.county}</td><td class="n">${fmt(projects.find((x) => x.id === p.project)?.mw)}</td>
-        <td class="n">${p.water_af?.stated != null ? fmt(p.water_af.stated) : NQ}</td><td class="n">${p.water_af ? rng(p.water_af.total) : '—'}</td>
-        <td class="n">${fmt(p.water_af?.rights)}</td><td>${projects.find((x) => x.id === p.project)?.status || ''}</td></tr>`).join('');
+        `<tr><td>${esc(b)}</td><td>${d.projects.length}</td><td class="n">${d.stated_af ? fmt(d.stated_af) : NQ}</td><td class="n">${rng(d.water_af)}</td><td>${placeholder ? '<span class="nq">Placeholder: awaiting Division data</span>' : 'Agency data'}</td></tr>`).join('');
+    $('projects').innerHTML = `<tr><th>Project</th><th>County</th><th>MW</th><th>Says, AF/yr</th><th>Engine, AF/yr</th><th>Highest</th><th>Rights, AF</th><th>Permits</th></tr>` +
+      r.projects.map((p) => {
+        const reg = byId[p.project], pm = permitBy[p.project], w = p.water_af, hi = highestFigure(reg);
+        return `<tr><td>${esc(p.name)}</td><td>${esc(p.county || reg.county)}</td><td class="n">${fmt(reg.mw * (branch === 'scaled' ? 0.5 : 1))}</td>
+          <td class="n">${w?.stated != null ? `${fmt(w.stated)} ${sourceTagsFor(reg, w.stated)}` : NQ}</td><td class="n">${w ? rng(w.total) : '—'}</td>
+          <td class="n">${w?.published_high ? `${fmt(w.published_high)} ${hi ? hi.source_types.map(tag).join('') : ''}` : '—'}</td>
+          <td class="n">${fmt(w?.rights)}</td><td>${pm ? esc(SHORT_TIER[pm.tier]) : esc(reg.status)}</td></tr>`;
+      }).join('');
   }
+
+  // Each lever alone vs. built as planned (central estimates), same scope.
+  const bt = base.totals;
+  $('levers').innerHTML = `<tr><th style="width:38%">Lever (applied alone, all projects in scope at full size)</th><th>Water, AF/yr</th><th>Change, central</th><th>Lake, ft lower</th><th>CO₂ on site, tons/yr</th></tr>
+    <tr><td><i>Built as planned, no levers</i></td><td class="n">${rng(bt.water_af)}</td><td>—</td><td class="n">${fmt(bt.gsl.level_drop_ft[1])}</td><td class="n">${fmt(bt.co2_tons[1])}</td></tr>` +
+    LEVERS.map(([label, lv], i) => {
+      const t = single[i].totals, dw = t.water_af[1] - bt.water_af[1];
+      const note = 'reporting_threshold_af' in lv ? ' <span class="rng">Changes what the state knows, not use.</span>'
+        : 'onsite_gas_allowed' in lv ? ' <span class="rng">Grid emissions not modeled.</span>' : '';
+      return `<tr><td>${label}${note}</td><td class="n">${rng(t.water_af)}</td><td class="n">${dw > 0 ? '+' : ''}${fmt(dw)}</td><td class="n">${fmt(t.gsl.level_drop_ft[1])}</td><td class="n">${fmt(t.co2_tons[1])}</td></tr>`;
+    }).join('');
+
   $('limits').innerHTML = `<b>Data limits</b><ul>
-    <li>Engine values are factor-model estimates, not measured use. Ranges stack low or high inputs, so the high end is an upper bound, not a forecast.</li>
+    <li>Engine values are factor-model estimates, not measured use. The high end stacks every worst-case input: an upper bound, not a forecast.</li>
     <li>${placeholder ? '<b>Basin baselines are placeholders.</b> Supply headroom, junior-right share and storage await Division of Water Resources / Water Rights data.' : 'Basin baselines from agency data (see manifest).'}</li>
-    <li>"Developer or agency says" figures come from news coverage and filings (2026) and are not independently verified. Most projects publish no water figure.</li>
-    <li>Lake effect counts only projects draining to the Great Salt Lake; it is a long-run equilibrium estimate, larger at low lake levels.</li>
-    <li>Measured use under HB 76 reporting is expected from about September 2027. No health, economic or relocation effects are estimated on this page.</li></ul>`;
-  $('foot').textContent = `YOUtah Environmental Atlas · impact engine factors: UCS, EIA, EPA, LBNL/Green Grid WUE ranges, Utah GSL water-budget studies · project facts: 2026 news and county filings · layers built ${manifest.built_at || 'unknown'}`;
+    <li>Net change against current land use (EO 2026-03) cannot be tested until the consumptive use of the converted rights is known.</li>
+    <li>"Developer or agency says" figures come from 2026 news and filings and are not independently verified. Most projects publish no water figure.</li>
+    <li>Lake effect counts only projects draining to the Great Salt Lake; long-run equilibrium, larger at low lake levels. No health, economic or relocation effects are estimated. Measured use under HB 76 is expected from about September 2027.</li></ul>`;
+  $('context').innerHTML = context ? `<b>Decision context (as of ${esc(context.as_of)})</b><ul>
+    ${context.committees.map((c) => `<li><b>${esc(c.name)}</b>: ${esc(c.role)}</li>`).join('')}
+    ${context.legal_context.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    <div class="rng">Source types: ${Object.keys(TAGS).map(tag).join(' ')}. This page makes no recommendations and nets no costs against benefits.</div>` : '';
+  $('foot').textContent = `YOUtah Environmental Atlas · engine factors: UCS, EIA, EPA, LBNL/Green Grid WUE ranges, Utah GSL water-budget studies · project facts: 2026 news, county and agency filings · permit status as of ${permits?.as_of || 'n/a'} · layers built ${manifest.built_at || 'unknown'}`;
 }
-$('branch').onchange = run;
-run().catch((e) => ($('sub').textContent = `Could not reach the API at ${API}: ${e}`));
+
+$('branch').onchange = $('county').onchange = () => run().catch(fail);
+function fail(e) { $('sub').innerHTML = `<span class="err">Could not reach the impact engine at ${esc(API)}: ${esc(e.message || e)}</span>`; }
+load().then(run).catch(fail);
 </script>
 </body>
 </html>

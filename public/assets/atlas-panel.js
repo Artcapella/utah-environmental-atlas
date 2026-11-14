@@ -4,7 +4,8 @@
 // Design rules (docs/atlas/design.md): ranges always · developer/agency says vs engine estimate vs
 // highest on record side by side · every published figure carries a source-type tag with a distinct
 // outline (not color-only) · "not quantified" shown, never zero · no net score · "would", not "will".
-import { updateScenarioOverlays, setPlayaScenario } from './atlas-layers.js';
+import { updateScenarioOverlays, setPlayaScenario, TIER_COLORS } from './atlas-layers.js';
+import { loadBasinRisk, scoreBasins, pushBasinRisk, LENS_LABELS } from './atlas-basin-risk.js';
 
 const TAGS = { gov: 'Government', dev: 'Developer', ind: 'Independent academic', adv: 'Advocacy-commissioned', der: 'Derived' };
 const BRANCHES = { built: 'Built as planned', conditions: 'Built with conditions', scaled: 'Delayed or scaled down', not_built: 'Not built here' };
@@ -13,7 +14,8 @@ const LEVER_LABELS = {
   onsite_gas_allowed: 'On-site gas allowed', max_wue: 'Max WUE (L/kWh)', gsl_offset_ratio: 'GSL offset (AF delivered per AF used)',
   moratorium_counties: 'County moratoria', habitat_setback_km: 'Habitat setback (km)', reporting_threshold_af: 'Reporting threshold (AF/yr)',
 };
-const TABS = { proposed: 'Proposed', drop: 'Drop a project', legislation: 'Legislation', context: 'Who decides' };
+const TABS = { proposed: 'Projects', legislation: 'Legislation', basins: 'Basins', pipeline: 'Permits', drop: 'Drop a project', context: 'Who decides' };
+const GATE_NAMES = { land: 'Land use', water: 'Water right', air: 'Air permit', wq: 'Water quality', build: 'Construction' };
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 }));
 const rng = (r) => `${fmt(r[1])} <span class="ip-muted">(${fmt(r[0])}–${fmt(r[2])})</span>`;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -34,11 +36,12 @@ function inGeom(x, y, g) {
 }
 
 export class ImpactPanel {
-  constructor(el, { map = null, api = '/api/atlas', data = '/atlas/data', briefingUrl = '/briefing', isActive = () => true } = {}) {
-    Object.assign(this, { el, map, api, data, briefingUrl, isActive });
+  constructor(el, { map = null, api = '/api/atlas', data = '/atlas/data', briefingUrl = '/briefing', isActive = () => true, mapCard = null } = {}) {
+    Object.assign(this, { el, map, api, data, briefingUrl, isActive, mapCard });
     this.s = {
       tab: 'proposed', selected: new Set(['stratos']), branch: 'built', scale: 0.5, sizes: {},
-      levers: {}, custom: [], math: false, result: null, summary: null, bill: null, proposal: null, busy: false,
+      levers: {}, custom: [], math: false, result: null, baseline: null, summary: null, bill: null, proposal: null, busy: false,
+      basin: { lens: 'engine', dry: 100, year: 2032, includePaused: false }, rows: null, evFilter: 'up',
       drop: { name: '', mw: 300, cooling: 'evaporative', onsite_gas: false, gsl_basin: true },
     };
     el.classList.add('ip');
@@ -54,18 +57,68 @@ export class ImpactPanel {
       ]);
       this.projects = projects;
       this.context = context;
+      loadBasinRisk(`${this.data}/basin_risk.json`).then((d) => { this.basinData = d; this.updateBasins(); if (this.s.tab === 'proposed') this.renderTab(); }).catch(() => {});
+      fetch(`${this.data}/permits.geojson`).then((r) => r.json()).then((d) => { this.permits = d; if (this.s.tab === 'pipeline') this.renderTab(); }).catch(() => {});
     } catch (e) {
       this.el.innerHTML = `<p class="ip-err">The impact engine is unavailable (${esc(e.message)}). The map layers still show the precomputed "all built as planned" scenario.</p>`;
       return;
     }
     fetch(`${this.data}/utah_counties.geojson`).then((r) => r.json()).then((fc) => (this.counties = fc.features)).catch(() => {});
+    this.readUrl();
     if (this.map) this.map.on('click', (e) => this.onMapClick(e));
     this.render();
     this.compute();
   }
 
   /** Called by map-atlas.js when the Impact tab is shown or hidden. */
+  // Shareable scenario links: /?impact&projects=stratos,joule&branch=conditions&levers={"cooling_required":"closed_loop"}
+  readUrl() {
+    const q = new URLSearchParams(location.search), s = this.s;
+    if (!q.has('impact')) return;
+    const ids = q.get('projects');
+    if (ids) s.selected = new Set(ids === 'all' ? this.projects.map((p) => p.id) : ids.split(',').filter((id) => this.projects.some((p) => p.id === id)));
+    if (BRANCHES[q.get('branch')]) s.branch = q.get('branch');
+    if (+q.get('scale') > 0 && +q.get('scale') <= 1) s.scale = +q.get('scale');
+    try { const lv = JSON.parse(q.get('levers') || '{}'); if (lv && typeof lv === 'object' && !Array.isArray(lv)) s.levers = Object.fromEntries(Object.entries(lv).filter(([k]) => k in LEVER_LABELS)); } catch {}
+    if (TABS[q.get('tab')]) s.tab = q.get('tab');
+  }
+  writeUrl() {
+    if (!this.isActive()) return;
+    const s = this.s, q = new URLSearchParams(location.search);
+    q.set('impact', '');
+    q.set('projects', s.selected.size === this.projects.length ? 'all' : [...s.selected].join(','));
+    q.set('branch', s.branch);
+    s.branch === 'scaled' ? q.set('scale', s.scale) : q.delete('scale');
+    Object.keys(s.levers).length && s.branch !== 'built' ? q.set('levers', JSON.stringify(s.levers)) : q.delete('levers');
+    history.replaceState(null, '', `${location.pathname}?${q.toString().replace('impact=&', 'impact&').replace(/impact=$/, 'impact')}${location.hash}`);
+  }
+
+  /** The map's headline:the current scenario's findings, written on the map itself (map-first). */
+  renderMapCard() {
+    const card = this.mapCard, r = this.s.result;
+    if (!card) return;
+    card.hidden = !this.isActive() || !r || !!r.error;
+    if (card.hidden) return;
+    const n = r.projects.length, names = n === 1 ? esc(r.projects[0].name) : `${n} projects`;
+    const B = this.s.baseline?.totals, t = r.totals;
+    const chg = (a, b, unit, d = 0) => { const x = b - a; return `<span class="amc-chg">${x > 0 ? '+' : x < 0 ? '−' : '±'}${fmt(Math.abs(Math.round(x * 10 ** d) / 10 ** d))} ${unit} vs. built as planned</span>`; };
+    let body;
+    if (!n) body = '<div class="amc-k">Select a project or drop one on the map</div>';
+    else if (r.branch === 'not_built') body = '<div class="amc-k"><b>Not built here.</b> Water stays in current use. Relocation impacts: unknown, not zero.</div>';
+    else body = `
+      <div class="amc-grid">
+        <div><div class="amc-v">${fmt(t.water_af[1])}<small> AF/yr</small></div><div class="amc-k">water consumed · range ${fmt(t.water_af[0])}–${fmt(t.water_af[2])}</div>${B ? chg(B.water_af[1], t.water_af[1], 'AF/yr') : ''}</div>
+        <div><div class="amc-v">${fmt(t.gsl.level_drop_ft[1])}<small> ft</small></div><div class="amc-k">Great Salt Lake lower, long run · range ${fmt(t.gsl.level_drop_ft[0])}–${fmt(t.gsl.level_drop_ft[2])}</div>${B ? chg(B.gsl.level_drop_ft[1], t.gsl.level_drop_ft[1], 'ft', 2) : ''}</div>
+        <div><div class="amc-v">${t.stated_af ? fmt(t.stated_af) : '—'}<small> AF/yr</small></div><div class="amc-k">developer says${t.rights_af ? ` · rights ${fmt(t.rights_af)} AF` : ''}</div></div>
+      </div>`;
+    const levers = this.s.branch !== 'built' && Object.keys(this.s.levers).length
+      ? `<div class="amc-lv">Levers: ${esc(Object.entries(this.s.levers).map(([k, v]) => `${LEVER_LABELS[k] || k}${v === true || typeof v === 'string' ? '' : ` = ${Array.isArray(v) ? v.join(', ') : v}`}`).join(' · '))}${B ? ' · <span class="amc-ring">red ring</span> = without levers' : ''}</div>` : '';
+    card.innerHTML = `<div class="amc-head"><b>${esc(BRANCHES[r.branch])}</b> · ${names}</div>${body}${levers}
+      <div class="amc-foot">Engine estimates, not measurements · ring size = water use · <a href="${this.briefingUrl}?branch=${r.branch}" target="_blank" rel="noopener">Briefing ↗</a></div>`;
+  }
+
   setActive(on) {
+    this.renderMapCard();
     if (!this.map) return;
     this.map.__atlasDropMode = on && this.s.tab === 'drop';
     this.map.getCanvas().style.cursor = this.map.__atlasDropMode ? 'crosshair' : '';
@@ -91,11 +144,25 @@ export class ImpactPanel {
     this._t = setTimeout(async () => {
       const seq = (this._seq = (this._seq || 0) + 1);
       try {
-        const [result, overlays] = await Promise.all([this.post('/impact', this.body()), this.post('/overlays', this.body())]);
+        // With levers set, also run "Built as planned" so the panel can show what the levers would change.
+        const compare = this.s.branch !== 'built' && Object.keys(this.s.levers).length > 0;
+        const [result, overlays, baseline] = await Promise.all([this.post('/impact', this.body()), this.post('/overlays', this.body()),
+          compare ? this.post('/impact', this.body({ branch: 'built', levers: {}, scale: 1 })) : null]);
         if (seq !== this._seq) return;   // a newer request superseded this one
         this.s.result = result;
+        this.s.baseline = baseline;
+        this.updateBasins();
         this.s.summary = null;
+        if (baseline) {   // ghost ring + "was → now" label for every project a lever changed
+          const was = Object.fromEntries(baseline.projects.filter((p) => p.water_af).map((p) => [p.project, p.water_af.total[1]]));
+          for (const f of overlays.projects.features) {
+            const b = was[f.properties.id];
+            if (b != null && f.properties.water_central != null && Math.abs(b - f.properties.water_central) > 0.5) f.properties.baseline_central = b;
+          }
+        }
         if (this.map) { updateScenarioOverlays(this.map, overlays); setPlayaScenario(this.map, '__none__'); }
+        this.renderMapCard();
+        this.writeUrl();
       } catch (e) {
         if (seq === this._seq) this.s.result = { error: String(e.message || e) };
       }
@@ -130,6 +197,22 @@ export class ImpactPanel {
     } catch (e) { this.s.proposal = { error: String(e.message || e) }; }
     this.renderTab();
   }
+  /** Engine central AF/yr per registry project in the current scenario (0 when not built here). */
+  engineAF() {
+    const r = this.s.result, out = {};
+    if (!r || r.error) return out;
+    for (const p of r.projects) {
+      if (p.not_built) out[p.project] = 0;
+      else if (p.water_af) out[p.project] = p.water_af.total[1];
+    }
+    return out;
+  }
+  updateBasins() {
+    if (!this.basinData) return;
+    this.s.rows = scoreBasins(this.basinData, { ...this.s.basin, engineAF: this.engineAF() });
+    pushBasinRisk(this.map, this.s.rows);
+    if (this.s.tab === 'basins') this.renderTab();
+  }
   countyAt(lng, lat) {
     const f = (this.counties || []).find((c) => c.geometry && inGeom(lng, lat, c.geometry));
     return f ? f.properties.name : null;
@@ -156,7 +239,7 @@ export class ImpactPanel {
   render() {
     const s = this.s;
     this.el.innerHTML = `
-      <p class="ip-lede">Estimated water, Great Salt Lake and air effects of proposed Utah data centers. Ranges from a sourced factor model; nothing here is a measurement.</p>
+      <p class="ip-lede">How proposed data centers, and the bills that would regulate them, would affect Utah's water and the Great Salt Lake. Ranges from a sourced factor model; nothing here is a measurement.</p>
       <div class="ip-tabs" role="tablist">
         ${Object.entries(TABS).map(([k, v]) => `<button role="tab" data-tab="${k}" aria-selected="${s.tab === k}">${v}</button>`).join('')}
       </div>
@@ -197,10 +280,11 @@ export class ImpactPanel {
   renderTab() {
     const s = this.s, box = this.el.querySelector('.ip-tabbody');
     if (!box) return;
-    const html = { proposed: () => this.tabProposed(), drop: () => this.tabDrop(), legislation: () => this.tabLegislation(), context: () => this.tabContext() }[s.tab]();
+    const html = { proposed: () => this.tabProposed(), drop: () => this.tabDrop(), legislation: () => this.tabLegislation(),
+                   basins: () => this.tabBasins(), pipeline: () => this.tabPipeline(), context: () => this.tabContext() }[s.tab]();
     box.innerHTML = html;
     const on = (sel, ev, fn) => box.querySelectorAll(sel).forEach((n) => n.addEventListener(ev, fn));
-    on('[data-pid]', 'change', (e) => { const c = e.target; c.checked ? s.selected.add(c.dataset.pid) : s.selected.delete(c.dataset.pid); this.compute(); });
+    on('[data-pid]', 'change', (e) => { const c = e.target; c.checked ? s.selected.add(c.dataset.pid) : s.selected.delete(c.dataset.pid); this.renderTab(); this.compute(); });
     on('[data-size]', 'change', (e) => { const c = e.target; c.value ? (s.sizes[c.dataset.size] = +c.value) : delete s.sizes[c.dataset.size]; this.compute(); });
     on('[data-all]', 'click', () => { this.projects.forEach((p) => s.selected.add(p.id)); this.renderTab(); this.compute(); });
     on('[data-none]', 'click', () => { s.selected.clear(); this.renderTab(); this.compute(); });
@@ -223,6 +307,20 @@ export class ImpactPanel {
       this.setLever(k, v);
     });
     on('[data-clear-levers]', 'click', () => { s.levers = {}; this.render(); this.compute(); });
+    on('[data-b]', 'change', (e) => {
+      const c = e.target, k = c.dataset.b;
+      s.basin[k] = c.type === 'checkbox' ? c.checked : k === 'lens' ? c.value : +c.value;
+      this.updateBasins();
+    });
+    on('[data-b][type=range]', 'input', (e) => {
+      const c = e.target, o = box.querySelector(`[data-out="${c.dataset.b}"]`);
+      if (o) o.textContent = c.dataset.b === 'dry' ? `${c.value}%` : c.value;
+    });
+    on('[data-ev]', 'click', (e) => { s.evFilter = e.currentTarget.dataset.ev; this.renderTab(); });
+    on('[data-fly]', 'click', (e) => {
+      const [lon, lat] = e.currentTarget.dataset.fly.split(',').map(Number);
+      this.map?.flyTo({ center: [lon, lat], zoom: 8.5 });
+    });
   }
 
   setLever(k, v) {
@@ -241,7 +339,66 @@ export class ImpactPanel {
         <span>${esc(p.name)} <span class="ip-muted">${esc(p.county)} · ${fmt(p.mw)} MW · ${esc(p.status)}</span></span></label>
       ${Object.keys(p.size_options_mw || {}).length ? `<select data-size="${esc(p.id)}" class="ip-size" aria-label="Size for ${esc(p.name)}"><option value="">Size: as announced (${fmt(p.mw)} MW)</option>
         ${Object.entries(p.size_options_mw).map(([k, v]) => `<option value="${v}" ${s.sizes[p.id] == v ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select>` : ''}</div>`).join('')}</div>
-      <div class="ip-row-btns"><button data-all>All</button><button data-none>None</button><span class="ip-muted">Locations are approximate.</span></div>`;
+      <div class="ip-row-btns"><button data-all>All</button><button data-none>None</button><span class="ip-muted">Locations are approximate.</span></div>
+      ${this.capacityLine()}`;
+  }
+
+  capacityLine() {
+    const d = this.basinData;
+    if (!d) return '';
+    const mw = this.projects.filter((p) => this.s.selected.has(p.id)).reduce((a, p) => a + (this.s.sizes[p.id] ?? p.mw ?? 0), 0)
+      + this.s.custom.reduce((a, c) => a + c.mw, 0);
+    return `<p class="ip-muted">Selected: ${fmt(Math.round(mw))} MW announced, ${fmt(Math.round((mw / d.utah_capacity_mw) * 100))}% of Utah's ${fmt(d.utah_capacity_mw)} MW total generating capacity (${esc(d.utah_capacity_source)}).</p>`;
+  }
+
+  tabBasins() {
+    const b = this.s.basin, rows = this.s.rows, d = this.basinData;
+    if (!d || !rows) return '<p class="ip-muted">Loading basin model…</p>';
+    const sorted = [...rows].sort((x, y) => y.score - x.score);
+    const lensNote = b.lens === 'engine'
+      ? 'Uses the engine central estimate for the projects and levers selected in this panel, so a bill’s levers move these scores. Projects outside the engine registry are not counted.'
+      : d.lenses[b.lens]?.desc || '';
+    return `<div class="ip-note ip-warnbox"><b>Placeholder baselines.</b> Basin supply, junior-right share and storage are invented until Division of Water Rights / Water Resources data is loaded. Use this to see how levers and dry years shift relative risk, not as findings.</div>
+      <div class="ip-form">
+        <label>Count data center demand as<select data-b="lens">${Object.entries(LENS_LABELS).map(([k, v]) => `<option value="${k}" ${b.lens === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+        <p class="ip-muted">${esc(lensNote)}</p>
+        <label>Supply in a dry year: <b data-out="dry">${b.dry}%</b> of normal<input type="range" min="40" max="100" step="5" data-b="dry" value="${b.dry}"></label>
+        <label>Projects online by: <b data-out="year">${b.year}</b><input type="range" min="2026" max="2032" step="1" data-b="year" value="${b.year}"></label>
+        <label class="ip-check"><input type="checkbox" data-b="includePaused" ${b.includePaused ? 'checked' : ''}> Count paused projects</label>
+      </div>
+      <table class="ip-three"><tr><th>Basin</th><th>Score</th><th>Demand ÷ supply</th><th>Data centers, AF/yr</th></tr>
+        ${sorted.map((r) => `<tr><td><span class="ip-dot" style="background:${r.color}"></span><button class="ip-link" data-fly="${r.lon},${r.lat}">${esc(r.name)}</button>${r.curtail ? ' <b title="Demand exceeds supply and most rights are junior">J</b>' : ''}</td>
+          <td>${Math.round(r.score)} <span class="ip-muted">${esc(r.category)}</span></td><td>${r.ratio >= 9 ? 'no headroom' : r.ratio.toFixed(2)}</td>
+          <td>${fmt(Math.round(r.projects_af))}${r.unknown ? ` <span class="ip-muted">+${r.unknown} unknown</span>` : ''}</td></tr>`).join('')}</table>
+      <p class="ip-muted"><b>J</b> = demand exceeds supply and at least half of rights are junior, so junior rights would likely be curtailed first. Some project-to-basin assignments are uncertain. Turn on <b>Basin water risk</b> in Layers to see these on the map.</p>`;
+  }
+
+  tabPipeline() {
+    const d = this.permits;
+    if (!d) return '<p class="ip-muted">Loading permit pipeline…</p>';
+    const S = d.status_labels, Y = d.status_symbols, feats = d.features.map((f) => f.properties);
+    const coords = Object.fromEntries(d.features.map((f) => [f.properties.name, f.geometry.coordinates]));
+    const ev = d.events.filter(([day, txt]) => txt !== 'Today' && (this.s.evFilter === 'all' || (this.s.evFilter === 'up' ? day >= d.as_of : day < d.as_of)));
+    const cap = (c) => (c && (c.fullNote || c.phases?.length || c.full)
+      ? `<p><b>Capacity:</b> ${(c.phases || []).map((ph) => `${fmt(ph.mw)} MW by ${ph.y} (${esc(ph.basis)})`).join('; ')}${c.full ? `${c.phases?.length ? '; ' : ''}full ${fmt(c.full)} MW` : ''}. <span class="ip-muted">${esc(c.fullNote || '')}</span></p>` : '');
+    const item = (p) => `<details class="ip-permit"><summary><b>${esc(p.name)}</b> <span class="ip-muted">${esc(p.county)}${p.in_registry ? '' : ' · not in engine'}</span>
+        <span class="ip-gates">${Object.keys(GATE_NAMES).map((g) => `<span class="ip-gate ${esc(p.gates[g])}" title="${GATE_NAMES[g]}: ${esc(S[p.gates[g]])}">${esc(Y[p.gates[g]])}</span>`).join('')}</span></summary>
+        <p><b>Who decides:</b> ${esc(p.who_decides)}</p>
+        ${Object.entries(GATE_NAMES).map(([g, n]) => `<p><b>${n}: ${esc(S[p.gates[g]])}.</b> ${esc(p.notes[g])}</p>`).join('')}
+        <p><b>Not found:</b> ${esc(p.gaps)}</p>${cap(p.capacity)}
+        <p>${p.sources.length ? p.sources.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a>`).join(' · ') : 'No sources found.'}
+          <span class="ip-muted">Latest ${esc(p.as_of || 'n/a')} · ${esc(p.location)}</span> <button class="ip-link" data-fly="${coords[p.name].join(',')}">Show on map</button></p></details>`;
+    return `<p class="ip-muted">${esc(d.note)}</p>
+      ${['t1', 't2', 't3', 't0'].map((t) => {
+        const m = feats.filter((p) => p.tier === t);
+        return m.length ? `<h5><span class="ip-dot" style="background:${TIER_COLORS[t]}"></span>${esc(d.tiers[t])} (${m.length})</h5>${m.map(item).join('')}` : '';
+      }).join('')}
+      <p class="ip-muted">Gate order: ${Object.values(GATE_NAMES).join(' → ')}. ${Object.keys(S).map((k) => `${Y[k]} ${S[k]}`).join(' · ')}</p>
+      <h5>Dated events</h5>
+      <div class="ip-row-btns">${[['up', 'Upcoming'], ['past', 'Past'], ['all', 'All']].map(([k, v]) => `<button data-ev="${k}" aria-pressed="${this.s.evFilter === k}">${v}</button>`).join('')}</div>
+      <ul class="ip-timeline">${ev.map(([day, txt]) => `<li class="${day >= d.as_of ? 'future' : ''}"><span>${esc(day)}</span> ${esc(txt)}</li>`).join('') || '<li>None.</li>'}</ul>
+      <h5>Open decisions</h5>
+      <ul>${d.open_decisions.map(([what, when]) => `<li><b>${esc(what)}</b> <span class="ip-muted">${esc(when)}</span></li>`).join('')}</ul>`;
   }
 
   tabDrop() {
@@ -331,8 +488,17 @@ export class ImpactPanel {
     const sumKey = (k) => (ov.some((o) => k in o) ? ov.reduce((a, o) => a + (o[k] || 0), 0) : null);
     const nq = '<span class="ip-nq">Layer not loaded (run scripts/atlas/fetch_layers.py)</span>';
     const removed = r.lever_log.filter((l) => l.effect === 'removed').map((l) => l.project);
+    const B = this.s.baseline?.totals;
+    const delta = (label, a, b, unit) => `<tr><td>${label}</td><td>${rng(a)}</td><td>${rng(b)}</td><td>${b[1] - a[1] > 0 ? '+' : ''}${fmt(b[1] - a[1])} ${unit}</td></tr>`;
+    const leverText = Object.entries(this.s.levers).map(([k, v]) => `${LEVER_LABELS[k] || k} = ${Array.isArray(v) ? v.join(', ') : v}`).join('; ');
+    const compareHtml = B ? `<div class="ip-compare"><h5>What these levers would change (vs. built as planned at full size)</h5>
+      <table class="ip-three"><tr><th></th><th>Without</th><th>With levers</th><th>Change, central</th></tr>
+      ${delta('Water, AF/yr', B.water_af, t.water_af, 'AF/yr')}
+      ${delta('Great Salt Lake, ft lower', B.gsl.level_drop_ft, t.gsl.level_drop_ft, 'ft')}
+      ${delta('CO₂ on site, short tons/yr', B.co2_tons, t.co2_tons, 't')}</table>
+      <p class="ip-muted">Levers: ${esc(leverText)}.${r.lever_log.some((l) => l.lever === 'onsite_gas_allowed') ? ' Moving power to the grid shifts emissions off-site; that is not modeled, so a CO₂ drop here is not a statewide reduction.' : ''}${'reporting_threshold_af' in this.s.levers ? ' A reporting threshold changes what the state knows, not water use.' : ''}</p></div>` : '';
     const unsized = r.projects.filter((p) => p.error);
-    body.innerHTML = `
+    body.innerHTML = `${compareHtml}
       ${this.row('Water', 'acre-feet per year consumed', t.water_af, `
         <table class="ip-three"><tr><th>Developer or agency says</th><th>Engine estimate</th><th>Highest on record</th></tr>
         <tr><td>${t.stated_af ? `${fmt(t.stated_af)} ${tag('dev')}` : '<span class="ip-nq">Not published</span>'}</td><td>${rng(t.water_af)} ${tag('der')}</td><td>${highest ? fmt(highest) : '<span class="ip-nq">None published</span>'}</td></tr></table>
@@ -345,7 +511,8 @@ export class ImpactPanel {
         ${ok.some((p) => p.reporting_visible != null) ? `<h5>Reporting threshold</h5>${ok.map((p) => `<div class="ip-eo">${esc(p.name)}: ${p.reporting_visible ? 'would report' : 'below the threshold'}</div>`).join('')}<div class="ip-muted">Reporting changes what the state knows, not water use.</div>` : ''}`)}
       ${this.row('Great Salt Lake and dust', 'ft lower, long run', t.gsl.level_drop_ft, `
         <div>Extra exposed lakebed: ${rng(t.gsl.playa_acres)} acres</div>
-        <div class="ip-muted">${esc(t.gsl.note)} Counts only projects that drain to the lake. The map band has the estimated area, not the real shape.</div>`, 'ft')}
+        <div class="ip-muted">${esc(t.gsl.note)} Counts only projects that drain to the lake. The map band has the estimated area, not the real shape.</div>
+        ${this.basinData ? `<div class="ip-muted">For scale: the lake needs about ${fmt(this.basinData.gsl_need_af)} AF/yr more inflow (${esc(this.basinData.gsl_need_source)}) ${tag('gov')}. Lake-draining depletion in this scenario: about ${fmt(Math.round(r.projects.filter((p) => p.gsl_depletion_af).reduce((a, p) => a + p.gsl_depletion_af[1], 0)))} AF/yr.</div>` : ''}`, 'ft')}
       ${this.row('Air and climate', 'short tons CO₂ per year from on-site gas', t.co2_tons, `
         <div>NOx: ${rng(t.nox_tons)} short tons/yr</div>
         <div class="ip-muted">Grid power is not zero impact: grid-powered projects move emissions off-site, which is not modeled. Health damages are not computed here; the Stratos pilot shows published, contested figures with their sources.</div>`)}

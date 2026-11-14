@@ -1,0 +1,39 @@
+{
+  "as_of": "2026-11-14",
+  "note": "Decision context for the Environmental Atlas (docs/atlas/decisions.md). Facts only; the atlas makes no recommendations.",
+  "audiences": [
+    {"id": "legislature", "primary": true, "who": "Utah Legislature", "decides": "Statewide rules: caps, thresholds, incentives, MIDA authority", "view": "Legislative briefing (statewide, basin, project)", "output": "One-page print export with its data limits"},
+    {"id": "protestants", "primary": false, "who": "Protestants in State Engineer water-right proceedings", "decides": "State Engineer, on the legal record of each application", "view": "Project detail with Show the math", "output": "Citation export (inputs, factors, sources)"},
+    {"id": "counties", "primary": false, "who": "County commissions", "decides": "Zoning", "view": "County drill-down in the briefing", "output": "One-page export filtered to a county"},
+    {"id": "water_divisions", "primary": false, "who": "Divisions of Water Rights and Water Resources", "decides": "Data partners", "view": "None", "output": "Agency baselines replace the placeholders"}
+  ],
+  "committees": [
+    {"name": "Natural Resources, Agriculture and Environment Interim Committee", "role": "Owns the data center impact study on water, air and wildlife (approved May 20, 2026; the State Engineer presented Aug 19, 2026)."},
+    {"name": "Economic Development and Workforce Services Interim Committee", "role": "Opened a bill file defining a large-scale data center."},
+    {"name": "Revenue and Taxation Interim Committee", "role": "Role in data center incentives not yet confirmed.", "unconfirmed": true}
+  ],
+  "legal_context": [
+    "HB60 (2026) narrowed the factors the State Engineer can weigh on water-right applications; only the Legislature can change that.",
+    "County moratoria are capped at 180 days.",
+    "MIDA holds land-use jurisdiction at Stratos, so Box Elder County's moratorium does not cover it.",
+    "Net change against current land use (EO 2026-03 principle) needs the baseline consumptive use of the converted water rights. That is the first data request to the Division of Water Rights."
+  ],
+  "branches": {
+    "built": "Built as planned",
+    "conditions": "Built with conditions",
+    "scaled": "Delayed or scaled down",
+    "not_built": "Not built here (relocation impacts: unknown, not zero)"
+  },
+  "source_types": {
+    "gov": "Government",
+    "dev": "Developer",
+    "ind": "Independent academic",
+    "adv": "Advocacy-commissioned",
+    "der": "Derived"
+  },
+  "rules": [
+    "Ranges always; the engine high stacks every worst-case input and is an upper bound, not a forecast.",
+    "Every published figure carries a source-type tag.",
+    "No net score, and no netting of dollars against deaths."
+  ]
+}

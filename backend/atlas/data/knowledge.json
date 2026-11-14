@@ -1,0 +1,3277 @@
+{
+ "built_at": "2026-11-14T20:15:45+00:00",
+ "docs": [
+  {
+   "id": "source:gbif-occurrence-density-tiles",
+   "kind": "source",
+   "title": "GBIF occurrence density tiles",
+   "text": "GBIF occurrence density tiles. Category: tiles. Access: tiles. Notes: Raster tiles; style name may need adjusting. Used by the atlas for: frontend layers.js: gbif-density. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "tiles"
+   ]
+  },
+  {
+   "id": "source:fema-nfhl-flood-hazard-arcgis-export-as-tiles",
+   "kind": "source",
+   "title": "FEMA NFHL flood hazard (ArcGIS export as tiles)",
+   "text": "FEMA NFHL flood hazard (ArcGIS export as tiles). Category: tiles. Access: tiles. Used by the atlas for: frontend layers.js: fema-nfhl. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "tiles"
+   ]
+  },
+  {
+   "id": "source:usgs-watershed-boundary-dataset-arcgis-export-as-tiles",
+   "kind": "source",
+   "title": "USGS Watershed Boundary Dataset (ArcGIS export as tiles)",
+   "text": "USGS Watershed Boundary Dataset (ArcGIS export as tiles). Category: tiles. Access: tiles. Used by the atlas for: frontend layers.js: wbd-basins. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "tiles"
+   ]
+  },
+  {
+   "id": "source:nasa-firms-fire-detections-wms-needs-map-key",
+   "kind": "source",
+   "title": "NASA FIRMS fire detections WMS (needs MAP_KEY)",
+   "text": "NASA FIRMS fire detections WMS (needs MAP_KEY). Category: tiles. Access: tiles. Notes: Free MAP_KEY from FIRMS; layer name may need adjusting. Used by the atlas for: frontend layers.js: firms-wms. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "tiles"
+   ]
+  },
+  {
+   "id": "source:gbif-occurrence-search-api",
+   "kind": "source",
+   "title": "GBIF occurrence search API",
+   "text": "GBIF occurrence search API. Category: biodiversity. Access: api. Used by the atlas for: fetch_layers.py gbif. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://api.gbif.org/v1/occurrence/search?country=US&stateProvince=Utah&hasCoordinate=true&limit=1",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "biodiversity"
+   ]
+  },
+  {
+   "id": "source:usfws-critical-habitat-feature-service",
+   "kind": "source",
+   "title": "USFWS critical habitat feature service",
+   "text": "USFWS critical habitat feature service. Category: biodiversity. Access: api. Notes: Service path from earlier research; confirm. Used by the atlas for: fetch_layers.py habitat. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://services.arcgis.com/QVENGdaPbd4LUkLV/arcgis/rest/services/USFWS_Critical_Habitat/FeatureServer?f=json",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "biodiversity"
+   ]
+  },
+  {
+   "id": "source:nasa-firms-area-api-needs-map-key",
+   "kind": "source",
+   "title": "NASA FIRMS area API (needs MAP_KEY)",
+   "text": "NASA FIRMS area API (needs MAP_KEY). Category: wildfire. Access: api. Used by the atlas for: fetch_layers.py firms. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "wildfire"
+   ]
+  },
+  {
+   "id": "source:nifc-wfigs-interagency-fire-perimeters",
+   "kind": "source",
+   "title": "NIFC WFIGS interagency fire perimeters",
+   "text": "NIFC WFIGS interagency fire perimeters. Category: wildfire. Access: api. Notes: Service name from memory; confirm on data-nifc.opendata.arcgis.com. Used by the atlas for: fetch_layers.py perimeters. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters/FeatureServer/0?f=json",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "wildfire"
+   ]
+  },
+  {
+   "id": "source:nifc-open-data-portal",
+   "kind": "source",
+   "title": "NIFC Open Data portal",
+   "text": "NIFC Open Data portal. Category: wildfire. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://data-nifc.opendata.arcgis.com/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "wildfire"
+   ]
+  },
+  {
+   "id": "source:usfs-wildfire-hazard-potential",
+   "kind": "source",
+   "title": "USFS Wildfire Hazard Potential",
+   "text": "USFS Wildfire Hazard Potential. Category: wildfire. Access: page. Notes: Raster download; zonal stats per hex offline. Used by the atlas for: manual. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.fs.usda.gov/rmrs/datasets/wildfire-hazard-potential-united-states",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "wildfire"
+   ]
+  },
+  {
+   "id": "source:epa-envirofacts-tri-facilities-utah",
+   "kind": "source",
+   "title": "EPA Envirofacts TRI facilities (Utah)",
+   "text": "EPA Envirofacts TRI facilities (Utah). Category: pollution. Access: api. Used by the atlas for: fetch_layers.py tri. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://data.epa.gov/efservice/tri_facility/state_abbr/UT/JSON",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "pollution"
+   ]
+  },
+  {
+   "id": "source:epa-echo-web-services",
+   "kind": "source",
+   "title": "EPA ECHO web services",
+   "text": "EPA ECHO web services. Category: pollution. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://echo.epa.gov/tools/web-services",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "pollution"
+   ]
+  },
+  {
+   "id": "source:utah-division-of-air-quality",
+   "kind": "source",
+   "title": "Utah Division of Air Quality",
+   "text": "Utah Division of Air Quality. Category: air. Access: page. Notes: Existing YOUtah provider. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://air.utah.gov/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "air"
+   ]
+  },
+  {
+   "id": "source:usgs-wbd-mapserver-huc8-layer-4",
+   "kind": "source",
+   "title": "USGS WBD MapServer (HUC8 = layer 4)",
+   "text": "USGS WBD MapServer (HUC8 = layer 4). Category: water. Access: api. Used by the atlas for: fetch_layers.py basins. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/4?f=json",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:usgs-great-salt-lake-at-saltair-gauge-lake-elevation",
+   "kind": "source",
+   "title": "USGS Great Salt Lake at Saltair gauge (lake elevation)",
+   "text": "USGS Great Salt Lake at Saltair gauge (lake elevation). Category: water. Access: api. Notes: Site/parameter from memory; confirm. Used by the atlas for: live GSL elevation. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://waterservices.usgs.gov/nwis/iv/?sites=10010000&parameterCd=62614&format=json",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:usgs-water-data-apis",
+   "kind": "source",
+   "title": "USGS Water Data APIs",
+   "text": "USGS Water Data APIs. Category: water. Access: api. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://api.waterdata.usgs.gov/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:usgs-gsl-elevations-and-area-volume-tables",
+   "kind": "source",
+   "title": "USGS GSL elevations and area-volume tables",
+   "text": "USGS GSL elevations and area-volume tables. Category: water. Access: page. Notes: Bathymetry-based area tables would replace the illustrative playa band. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.usgs.gov/centers/utah-water-science-center/science/great-salt-lake-elevations",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:bureau-of-reclamation-rise",
+   "kind": "source",
+   "title": "Bureau of Reclamation RISE",
+   "text": "Bureau of Reclamation RISE. Category: water. Access: api. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://data.usbr.gov/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:utah-reservoir-conditions",
+   "kind": "source",
+   "title": "Utah reservoir conditions",
+   "text": "Utah reservoir conditions. Category: water. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://wre-rapps.utah.gov/Reservoir/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:utah-division-of-water-resources",
+   "kind": "source",
+   "title": "Utah Division of Water Resources",
+   "text": "Utah Division of Water Resources. Category: water. Access: page. Notes: Open Water Data: M&I use, water-related land use, water budgets. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://water.utah.gov/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:water-rights-points-of-diversion",
+   "kind": "source",
+   "title": "Water Rights points of diversion",
+   "text": "Water Rights points of diversion. Category: water. Access: download. Notes: Built nightly; confirm a priority-date field for junior-share math. Used by the atlas for: baseline: junior-right share. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://waterrights.utah.gov/gisinfo/wrpod.htm",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:utah-points-of-diversion-open-data-copy",
+   "kind": "source",
+   "title": "Utah points of diversion (open data copy)",
+   "text": "Utah points of diversion (open data copy). Category: water. Access: download. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://opendata.gis.utah.gov/datasets/utahDNR::utah-points-of-diversion/about",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:water-rights-gis-data-and-tables",
+   "kind": "source",
+   "title": "Water Rights GIS data and tables",
+   "text": "Water Rights GIS data and tables. Category: water. Access: download. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://waterrights.utah.gov/gisinfo/default.asp",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:water-rights-distribution-records",
+   "kind": "source",
+   "title": "Water Rights distribution records",
+   "text": "Water Rights distribution records. Category: water. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.waterrights.utah.gov/distinfo/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:large-data-center-water-use-reporting-hb-76",
+   "kind": "source",
+   "title": "Large Data Center Water Use Reporting (HB 76)",
+   "text": "Large Data Center Water Use Reporting (HB 76). Category: water. Access: page. Notes: First actual-use numbers expected ~Sept 2027. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://waterrights.utah.gov/data-centers/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:water-right-applications-and-protests-e-g-stratos-a55167",
+   "kind": "source",
+   "title": "Water right applications and protests (e.g. Stratos a55167)",
+   "text": "Water right applications and protests (e.g. Stratos a55167). Category: water. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://waterrights.utah.gov/protestOfApplication/protestOfApplication.asp",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:nrcs-utah-water-supply-outlook-may-2026",
+   "kind": "source",
+   "title": "NRCS Utah Water Supply Outlook, May 2026",
+   "text": "NRCS Utah Water Supply Outlook, May 2026. Category: water. Access: download. Notes: Basin forecasts, SWSI. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.nrcs.usda.gov/sites/default/files/2026-05/WSOR_May_2026.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:dwre-climate-change-report-2020",
+   "kind": "source",
+   "title": "DWRe climate change report (2020)",
+   "text": "DWRe climate change report (2020). Category: water. Access: download. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://water.utah.gov/wp-content/uploads/2020/11/Finaldraft_ClimateChangeUtah__March2020.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:utah-drought-update-apr-2026",
+   "kind": "source",
+   "title": "Utah drought update, Apr 2026",
+   "text": "Utah drought update, Apr 2026. Category: water. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://water.utah.gov/drought-update-04-23-26/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "source:national-inventory-of-dams-api-utah",
+   "kind": "source",
+   "title": "National Inventory of Dams API (Utah)",
+   "text": "National Inventory of Dams API (Utah). Category: usace. Access: api. Notes: Storage, hazard, condition. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://nid.sec.usace.army.mil/api/query?sy=@stateKey:UT",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "usace"
+   ]
+  },
+  {
+   "id": "source:cwms-data-api",
+   "kind": "source",
+   "title": "CWMS Data API",
+   "text": "CWMS Data API. Category: usace. Access: api. Notes: Filter office SPK; thin Utah coverage. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://cwms-data.usace.army.mil/cwms-data/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "usace"
+   ]
+  },
+  {
+   "id": "source:national-levee-database",
+   "kind": "source",
+   "title": "National Levee Database",
+   "text": "National Levee Database. Category: usace. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://levees.sec.usace.army.mil/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "usace"
+   ]
+  },
+  {
+   "id": "source:formerly-used-defense-sites-utah-sgid",
+   "kind": "source",
+   "title": "Formerly Used Defense Sites (Utah SGID)",
+   "text": "Formerly Used Defense Sites (Utah SGID). Category: usace. Access: api. Notes: Updated nightly. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/FUD/FeatureServer/0?f=json",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "usace"
+   ]
+  },
+  {
+   "id": "source:nrdc-stratos-health-impacts-empower-report",
+   "kind": "source",
+   "title": "NRDC: Stratos health impacts (EmPower report)",
+   "text": "NRDC: Stratos health impacts (EmPower report). Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.nrdc.org/press-releases/stratos-data-center-will-emit-air-pollution-linked-premature-deaths-and-health",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:ksl-health-study-and-developer-response",
+   "kind": "source",
+   "title": "KSL: health study and developer response",
+   "text": "KSL: health study and developer response. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.ksl.com/article/51642235/study-projects-health-impacts-from-proposed-stratos-data-center-kevin-olearys-team-disputes-findings",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:utah-clean-energy-stratos-emissions-and-water",
+   "kind": "source",
+   "title": "Utah Clean Energy: Stratos emissions and water",
+   "text": "Utah Clean Energy: Stratos emissions and water. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://utahcleanenergy.org/estimated-emissions-and-water-consumption-from-the-proposed-stratos-data-center/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:salt-lake-tribune-heat-island-estimates",
+   "kind": "source",
+   "title": "Salt Lake Tribune: heat island estimates",
+   "text": "Salt Lake Tribune: heat island estimates. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.sltrib.com/news/environment/2026/05/07/utahs-data-center-could-create/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:grist-cox-on-natural-gas-and-emissions",
+   "kind": "source",
+   "title": "Grist: Cox on natural gas and emissions",
+   "text": "Grist: Cox on natural gas and emissions. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://grist.org/accountability/data-center-natural-gas-utah-cox-box-elder-stratos/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:utah-news-dispatch-stratos-size-and-first-phase",
+   "kind": "source",
+   "title": "Utah News Dispatch: Stratos size and first phase",
+   "text": "Utah News Dispatch: Stratos size and first phase. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://utahnewsdispatch.com/2026/10/27/report-stratos-projects-emissions-could-cause-up-to-45-premature-deaths-illnesses-each-year/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:governor-s-executive-order-2026-03",
+   "kind": "source",
+   "title": "Governor's Executive Order 2026-03",
+   "text": "Governor's Executive Order 2026-03. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://governor.utah.gov/wp-content/uploads/2026.05.29-EO-Higher-Bar-for-Data-Center-Development-1.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:herald-journal-eo-details",
+   "kind": "source",
+   "title": "Herald Journal: EO details",
+   "text": "Herald Journal: EO details. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.hjnews.com/news/local/gov-cox-signs-order-creating-higher-bar-for-data-centers/article_073e0030-bf7e-42ac-b618-2cfac696bbf6.html",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:kutv-governor-s-answers-on-box-elder",
+   "kind": "source",
+   "title": "KUTV: governor's answers on Box Elder",
+   "text": "KUTV: governor's answers on Box Elder. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://kutv.com/news/local/utah-governor-posts-answers-to-questions-concerns-about-box-elder-county-data-center",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:kutv-dnr-director-on-stratos-water-1-900-af",
+   "kind": "source",
+   "title": "KUTV: DNR director on Stratos water (1,900 AF)",
+   "text": "KUTV: DNR director on Stratos water (1,900 AF). Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://kutv.com/newsletter-daily/utah-lawmakers-vote-to-study-impacts-of-box-elder-county-data-center",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:abc4-stratos-water-rights-application",
+   "kind": "source",
+   "title": "ABC4: Stratos water rights application",
+   "text": "ABC4: Stratos water rights application. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.abc4.com/news/northern-utah/stratos-project-new-water-rights-application/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:cnn-jobs-and-investment-claims",
+   "kind": "source",
+   "title": "CNN: jobs and investment claims",
+   "text": "CNN: jobs and investment claims. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.cnn.com/2026/05/09/tech/ai-data-center-utah-kevin-oleary-opposition",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:deseret-news-economic-benefits-and-tax-volatility",
+   "kind": "source",
+   "title": "Deseret News: economic benefits and tax volatility",
+   "text": "Deseret News: economic benefits and tax volatility. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.deseret.com/business/2026/09/02/utah-data-centers-face-scrutiny-from-state-officials-rural-communities/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:deseret-news-water-saving-data-centers-aug-2026-committee",
+   "kind": "source",
+   "title": "Deseret News: water-saving data centers (Aug 2026 committee)",
+   "text": "Deseret News: water-saving data centers (Aug 2026 committee). Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.deseret.com/politics/2026/08/19/water-saving-data-centers-in-utah/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:friends-of-great-salt-lake-protest-page",
+   "kind": "source",
+   "title": "Friends of Great Salt Lake: protest page",
+   "text": "Friends of Great Salt Lake: protest page. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://fogsl.org/newsroom/file-a-protest-against-the-box-elder-data-center-water-rights-application",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:kuer-drivers-of-great-salt-lake-decline",
+   "kind": "source",
+   "title": "KUER: drivers of Great Salt Lake decline",
+   "text": "KUER: drivers of Great Salt Lake decline. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.kuer.org/science-environment/2026-09-23/shrinking-great-salt-lake-climate-water-problems",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:kem-c-gardner-institute-gsl-summary-mar-2026",
+   "kind": "source",
+   "title": "Kem C. Gardner Institute: GSL summary, Mar 2026",
+   "text": "Kem C. Gardner Institute: GSL summary, Mar 2026. Category: research. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://d36oiwf74r1rap.cloudfront.net/wp-content/uploads/2026/03/GSL-Summary-Mar2026.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "research"
+   ]
+  },
+  {
+   "id": "source:kpcw-natural-resources-committee-opens-data-center-study",
+   "kind": "source",
+   "title": "KPCW: Natural Resources committee opens data center study",
+   "text": "KPCW: Natural Resources committee opens data center study. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.kpcw.org/state-regional/2026-05-27/utah-legislature-to-explore-impact-of-data-centers",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:ksl-lawmakers-to-study-data-center-impacts",
+   "kind": "source",
+   "title": "KSL: lawmakers to study data center impacts",
+   "text": "KSL: lawmakers to study data center impacts. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.ksl.com/article/51500330/utah-lawmakers-to-study-impact-of-data-centers-on-wildlife-environment",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:division-of-water-rights-data-centers-water-rights-aug-19-20",
+   "kind": "source",
+   "title": "Division of Water Rights: Data Centers & Water Rights (Aug 19, 2026)",
+   "text": "Division of Water Rights: Data Centers & Water Rights (Aug 19, 2026). Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://le.utah.gov/interim/2026/pdf/00003109.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:fox-13-economic-development-committee-opens-bill-file",
+   "kind": "source",
+   "title": "Fox 13: Economic Development committee opens bill file",
+   "text": "Fox 13: Economic Development committee opens bill file. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.fox13now.com/news/politics/utah-lawmakers-start-drafting-data-center-bills",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:utah-house-data-center-policy-summary",
+   "kind": "source",
+   "title": "Utah House: data center policy summary",
+   "text": "Utah House: data center policy summary. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://house.utleg.gov/?p=17362",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:utah-house-2026-data-center-regulations-incentive-caps",
+   "kind": "source",
+   "title": "Utah House: 2026 data center regulations (incentive caps)",
+   "text": "Utah House: 2026 data center regulations (incentive caps). Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://house.utleg.gov/2026-utah-data-center-regulations/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:utah-news-dispatch-hb60-water-right-law-change",
+   "kind": "source",
+   "title": "Utah News Dispatch: HB60 water-right law change",
+   "text": "Utah News Dispatch: HB60 water-right law change. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://utahnewsdispatch.com/2026/05/18/data-center-new-utah-law-gives-less-weight-to-pushback-citing-broad-impact/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:iron-county-ordinance-2026-13-moratorium",
+   "kind": "source",
+   "title": "Iron County Ordinance 2026-13 (moratorium)",
+   "text": "Iron County Ordinance 2026-13 (moratorium). Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://ironcountyut.gov/files/planning/data-center-solar-moratorium.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:cache-county-ordinance-2026-32",
+   "kind": "source",
+   "title": "Cache County Ordinance 2026-32",
+   "text": "Cache County Ordinance 2026-32. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.cachecounty.gov/assets/department/countycouncil/pr/dcmo.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:server-country-utah-policy-tracker",
+   "kind": "source",
+   "title": "Server Country: Utah policy tracker",
+   "text": "Server Country: Utah policy tracker. Category: policy. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://servercountry.org/policy/utah/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "policy"
+   ]
+  },
+  {
+   "id": "source:ucs-water-for-power-plant-cooling",
+   "kind": "source",
+   "title": "UCS: water for power plant cooling",
+   "text": "UCS: water for power plant cooling. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.ucs.org/resources/water-power-plant-cooling",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:eia-dry-cooling",
+   "kind": "source",
+   "title": "EIA: dry cooling",
+   "text": "EIA: dry cooling. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.eia.gov/TODAYINENERGY/detail.php?id=36773",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:introl-wue-guide",
+   "kind": "source",
+   "title": "Introl: WUE guide",
+   "text": "Introl: WUE guide. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://introl.com/blog/water-usage-efficiency-wue-ai-data-center-cooling-guide-2025",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:aquaray-wue-benchmarks",
+   "kind": "source",
+   "title": "aquaray: WUE benchmarks",
+   "text": "aquaray: WUE benchmarks. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.aquaray.com/en/blog/posts/environmental-impact-of-data-centers-understand-the-WUE",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:tetra-tech-data-center-water-power-modeling",
+   "kind": "source",
+   "title": "Tetra Tech: data center water/power modeling",
+   "text": "Tetra Tech: data center water/power modeling. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.tetratech.com/wp-content/uploads/2026/04/Sustainable-Data-Centers-Modeling-Water-and-Power-Demands-for-Cooling-MWAPDFDCIT-Insight.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:voxbooster-wue-by-cooling-architecture",
+   "kind": "source",
+   "title": "VoxBooster: WUE by cooling architecture",
+   "text": "VoxBooster: WUE by cooling architecture. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://voxbooster.com/blog/data-center-water-use-statistics-2026/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:turbomachinery-epa-ngcc-co2-rates",
+   "kind": "source",
+   "title": "Turbomachinery: EPA NGCC CO2 rates",
+   "text": "Turbomachinery: EPA NGCC CO2 rates. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.turbomachinerymag.com/view/co2-from-gas-turbines-is-the-same-as-co2-from-coal-plants",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:epa-table-3-29-state-power-regulations",
+   "kind": "source",
+   "title": "EPA Table 3-29: state power regulations",
+   "text": "EPA Table 3-29: state power regulations. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://www.epa.gov/system/files/documents/2024-04/table-3-29-state-power-regulations-included-in-epa-2023-reference-case.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:u-of-u-collections-gsl-depletion-vs-level",
+   "kind": "source",
+   "title": "U of U collections: GSL depletion vs level",
+   "text": "U of U collections: GSL depletion vs level. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://collections.lib.utah.edu/details?id=1140993",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:u-of-u-collections-gsl-area-at-record-low",
+   "kind": "source",
+   "title": "U of U collections: GSL area at record low",
+   "text": "U of U collections: GSL area at record low. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://collections.lib.utah.edu/details?id=1144923",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:slc-localwiki-gsl-minimum-healthy-level",
+   "kind": "source",
+   "title": "SLC LocalWiki: GSL minimum healthy level",
+   "text": "SLC LocalWiki: GSL minimum healthy level. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://localwiki.org/slc/Great_Salt_Lake",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "source:byu-great-salt-lake-emergency",
+   "kind": "source",
+   "title": "BYU: Great Salt Lake emergency",
+   "text": "BYU: Great Salt Lake emergency. Category: engine-factors. Access: page. Not yet wired into the atlas. Link not yet checked by a person.",
+   "source_name": "Atlas source catalog",
+   "url": "https://pws.byu.edu/great-salt-lake",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "engine-factors"
+   ]
+  },
+  {
+   "id": "project:stratos",
+   "kind": "project",
+   "title": "Stratos / Wonder Valley: project record and engine estimate",
+   "text": "Stratos / Wonder Valley, Box Elder County, basin: Bear River / GSL. Announced size 9,000 MW. Status: County approved May 2026. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: yes. Drains to the Great Salt Lake: yes. Engine estimate, built as planned: about 40,000 AF/yr (range 0 to 230,000), of which data-hall cooling 1,600 and on-site power plant 39,000. This is a factor-model estimate, not a measurement. Developer-stated use: 1,215 AF/yr. Water rights held or sought: 13,000 AF. Highest figure on record: 100,000 AF/yr. Great Salt Lake, long run: about 0.4 ft lower (range 0 to 3), about 12,000 acres more exposed lakebed. Size options: Full buildout, 9 GW = 9,000 MW; First phase, 3 GW (health report) = 3,000 MW; First phase, up to 1.5 GW (governor) = 1,500 MW. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Rights: ~3,000 AF purchase + ~10,000 AF under contract. Footprint reported down to ~20,000 ac. Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos",
+    "Box Elder",
+    "Bear River / GSL"
+   ]
+  },
+  {
+   "id": "figure:stratos:net-depletion-at-full-buildout",
+   "kind": "figure",
+   "title": "Stratos / Wonder Valley water figure: Net depletion at full buildout",
+   "text": "987 AF/yr. Net depletion at full buildout. Source type: Developer. Source: Developer engineering report via Salt Lake Tribune, Oct 2026. Shown beside the engine range, never merged into it.",
+   "source_name": "Developer engineering report via Salt Lake Tribune, Oct 2026",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "figure:stratos:diversion-at-full-buildout",
+   "kind": "figure",
+   "title": "Stratos / Wonder Valley water figure: Diversion at full buildout",
+   "text": "1,215 AF/yr. Diversion at full buildout. Source type: Developer. Source: Developer engineering report via Salt Lake Tribune, Oct 2026. Shown beside the engine range, never merged into it.",
+   "source_name": "Developer engineering report via Salt Lake Tribune, Oct 2026",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "figure:stratos:water-use-cited-by-dnr-director",
+   "kind": "figure",
+   "title": "Stratos / Wonder Valley water figure: Water use cited by DNR director",
+   "text": "1,900 AF/yr. Water use cited by DNR director. Source type: Government. Source: KUTV, May 2026. Shown beside the engine range, never merged into it.",
+   "source_name": "KUTV, May 2026",
+   "url": "https://kutv.com/newsletter-daily/utah-lawmakers-vote-to-study-impacts-of-box-elder-county-data-center",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "figure:stratos:gas-engines-2-billion-gal-yr-converted",
+   "kind": "figure",
+   "title": "Stratos / Wonder Valley water figure: Gas engines, ~2 billion gal/yr converted",
+   "text": "6,100 AF/yr. Gas engines, ~2 billion gal/yr converted. Source type: Advocacy-commissioned, Derived (our arithmetic). Source: Utah Clean Energy. Shown beside the engine range, never merged into it.",
+   "source_name": "Utah Clean Energy",
+   "url": "https://utahcleanenergy.org/estimated-emissions-and-water-consumption-from-the-proposed-stratos-data-center/",
+   "source_type": "adv",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "figure:stratos:combined-cycle-turbines",
+   "kind": "figure",
+   "title": "Stratos / Wonder Valley water figure: Combined-cycle turbines",
+   "text": "50,000 AF/yr. Combined-cycle turbines. Source type: Independent academic. Source: Independent estimate in project research notes. Shown beside the engine range, never merged into it.",
+   "source_name": "Independent estimate in project research notes",
+   "url": "",
+   "source_type": "ind",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "figure:stratos:byu-ecologist-estimate",
+   "kind": "figure",
+   "title": "Stratos / Wonder Valley water figure: BYU ecologist estimate",
+   "text": "100,000 AF/yr. BYU ecologist estimate. Source type: Independent academic. Source: Project research notes. Shown beside the engine range, never merged into it.",
+   "source_name": "Project research notes",
+   "url": "",
+   "source_type": "ind",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "project:joule",
+   "kind": "project",
+   "title": "Joule campus: project record and engine estimate",
+   "text": "Joule campus, Millard County, basin: Sevier River. Announced size 4,000 MW. Status: Phase 1 (455 MW) under construction. Cooling: closed_loop. On-site gas: yes. Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 18,000 AF/yr (range 0 to 36,000), of which data-hall cooling 700 and on-site power plant 17,000. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: 10,000 AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 39.36,
+   "lon": -112.58,
+   "tags": [
+    "joule",
+    "Millard",
+    "Sevier River"
+   ]
+  },
+  {
+   "id": "project:creekstone",
+   "kind": "project",
+   "title": "Creekstone Delta Gigasite: project record and engine estimate",
+   "text": "Creekstone Delta Gigasite, Millard County, basin: Sevier River. Announced size 10,000 MW. Status: Phase 1 (220 MW) under construction. Cooling: closed_loop. On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 45,000 AF/yr (range 0 to 89,000), of which data-hall cooling 1,700 and on-site power plant 43,000. This is a factor-model estimate, not a measurement. Developer-stated use: 200 AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Stated: up to 2 AF per 100 MW Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone",
+    "Millard",
+    "Sevier River"
+   ]
+  },
+  {
+   "id": "project:antelope",
+   "kind": "project",
+   "title": "Antelope (Pronghorn): project record and engine estimate",
+   "text": "Antelope (Pronghorn), Iron County, basin: Cedar/Beaver. Announced size 1,500 MW. Status: County permit June 2026. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: yes. Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 6,700 AF/yr (range 0 to 39,000), of which data-hall cooling 260 and on-site power plant 6,500. This is a factor-model estimate, not a measurement. Developer-stated use: 10.8 AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Basin water rights fully appropriated Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 37.9,
+   "lon": -113.3,
+   "tags": [
+    "antelope",
+    "Iron",
+    "Cedar/Beaver"
+   ]
+  },
+  {
+   "id": "project:red_butte",
+   "kind": "project",
+   "title": "Red Butte (BrightNight): project record and engine estimate",
+   "text": "Red Butte (BrightNight), Iron County, basin: Cedar/Beaver. Announced size 1,500 MW. Status: Held by county moratorium. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 6,700 AF/yr (range 0 to 39,000), of which data-hall cooling 260 and on-site power plant 6,500. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 37.85,
+   "lon": -113.2,
+   "tags": [
+    "red_butte",
+    "Iron",
+    "Cedar/Beaver"
+   ]
+  },
+  {
+   "id": "project:nine_mile",
+   "kind": "project",
+   "title": "Nine Mile (Energence): project record and engine estimate",
+   "text": "Nine Mile (Energence), Duchesne County, basin: Uinta (Colorado River). Announced size 400 MW. Status: County permits April 2026. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 1,800 AF/yr (range 0 to 10,000), of which data-hall cooling 70 and on-site power plant 1,700. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Paired with produced-water recycling (reWater LLC) Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 39.9,
+   "lon": -110.4,
+   "tags": [
+    "nine_mile",
+    "Duchesne",
+    "Uinta (Colorado River)"
+   ]
+  },
+  {
+   "id": "project:cyrusone_dugway",
+   "kind": "project",
+   "title": "CyrusOne at Dugway: project record and engine estimate",
+   "text": "CyrusOne at Dugway, Tooele County, basin: West Desert. Announced size 1,000 MW. Status: Proposed. Cooling: closed_loop. On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 4,500 AF/yr (range 0 to 8,900), of which data-hall cooling 170 and on-site power plant 4,300. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. CyrusOne committed to water-free cooling for new builds Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 40.22,
+   "lon": -112.75,
+   "tags": [
+    "cyrusone_dugway",
+    "Tooele",
+    "West Desert"
+   ]
+  },
+  {
+   "id": "project:tract_pole_canyon",
+   "kind": "project",
+   "title": "Tract Pole Canyon / Pony Express: project record and engine estimate",
+   "text": "Tract Pole Canyon / Pony Express, Utah County, basin: Utah Lake / Jordan. Announced size 1,820 MW. Status: First phase planned 2028. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: yes. Engine estimate, built as planned: about 8,100 AF/yr (range 0 to 47,000), of which data-hall cooling 320 and on-site power plant 7,800. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Great Salt Lake, long run: about 0.081 ft lower (range 0 to 0.62), about 2,500 acres more exposed lakebed. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 40.31,
+   "lon": -112.05,
+   "tags": [
+    "tract_pole_canyon",
+    "Utah",
+    "Utah Lake / Jordan"
+   ]
+  },
+  {
+   "id": "project:summit_ridge",
+   "kind": "project",
+   "title": "Summit Ridge (DCPC): project record and engine estimate",
+   "text": "Summit Ridge (DCPC), Utah County, basin: Utah Lake / Jordan. Announced size 500 MW. Status: 20 MW approved; 500 MW JV. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: yes. Engine estimate, built as planned: about 2,200 AF/yr (range 0 to 13,000), of which data-hall cooling 87 and on-site power plant 2,200. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Great Salt Lake, long run: about 0.022 ft lower (range 0 to 0.17), about 690 acres more exposed lakebed. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 39.97,
+   "lon": -111.78,
+   "tags": [
+    "summit_ridge",
+    "Utah",
+    "Utah Lake / Jordan"
+   ]
+  },
+  {
+   "id": "project:blusky_nephi",
+   "kind": "project",
+   "title": "BluSky Nephi: project record and engine estimate",
+   "text": "BluSky Nephi, Juab County, basin: Sevier River. Announced size 9.3 MW. Status: Smaller. Cooling: unknown (range spans closed-loop..evaporative). On-site gas: unknown (range spans grid..gas). Drains to the Great Salt Lake: no. Engine estimate, built as planned: about 42 AF/yr (range 0 to 240), of which data-hall cooling 1.6 and on-site power plant 40. This is a factor-model estimate, not a measurement. Developer-stated use: not published AF/yr. Water rights held or sought: not published AF. Highest figure on record: not published AF/yr. Net change against current land use (E.O. 2026-03): Cannot test: current consumptive use of the converted land/rights is unknown. Location is approximate (county level).",
+   "source_name": "Atlas project registry and impact engine (2026 news and county filings)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": 39.71,
+   "lon": -111.84,
+   "tags": [
+    "blusky_nephi",
+    "Juab",
+    "Sevier River"
+   ]
+  },
+  {
+   "id": "permit:stratos-wonder-valley",
+   "kind": "permit",
+   "title": "Stratos / Wonder Valley: permit pipeline",
+   "text": "Stratos / Wonder Valley, Box Elder County. Stage: Approved locally, state permits pending. Who decides: Military Installation Development Authority for land use; State Engineer for water; state agencies for air and water quality. Land use: Done. MIDA approved the project and the county consented to the project area. The governor said this decision covers land use only. A county moratorium does not apply because MIDA holds jurisdiction. Water right: Pending. Two earlier change applications (a54385 for 1,900 af; a54536 for 11 af) were withdrawn in May after thousands of protests. Protests do not carry over. A new application, a55167, was filed October 15; its protest window closed November 4. A hearing is the next step. Air permit: Not found. No application found. The state environmental quality commissioner said in May that air and water permitting were at least a year away. Water quality: Not found. No application found. Construction: Not found. No construction reported. Not found: Air and water-quality filings; hearing date for a55167; number of protests on a55167 (an advocacy newsletter reported 287 early on). Sources: ABC4: application a55167; Salt Lake Tribune: second application withdrawn; FOX 13: executive order and DEQ timing; Herald Journal: MIDA decision is land use only. Latest source 2026-10-15. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.abc4.com/news/northern-utah/stratos-project-new-water-rights-application/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos",
+    "Box Elder"
+   ]
+  },
+  {
+   "id": "permit:joule-campus",
+   "kind": "permit",
+   "title": "Joule campus: permit pipeline",
+   "text": "Joule campus, Millard (near Delta) County. Stage: Under construction or air-permitted. Who decides: Millard County for land use; Utah Division of Air Quality for air. Land use: Done. County rezoned about 4,000 acres to heavy industrial in August 2025 and said a conditional use permit was also required. I did not confirm the permit's issuance, but the project is reported under construction. Water right: Not found. No water-right filing found. Your notes list about 10,000 af of rights. Air permit: Partly done. Approval orders issued, including DAQE-AN162810001-26 (69 gas engines, 69 diesel emergency generators, 69 chillers) and DAQE-AN162920001-26 (Site 4, a new major source). A draft permit for Power Station 4 (up to 175 MW) was proposed August 5 with comments to September 4. The campus plans six such plants. Water quality: Not found. No filing found. Construction: In progress. Reported under construction. Not found: Final decision on the Site 4 draft; permits for the other plants; water rights; conditional use permit document. Sources: DAQ approval order DAQE-AN162810001-26; DAQ approval order DAQE-AN162920001-26; Oil & Gas Watch: draft permit alert; Deseret News: county rezoning. Latest source 2026-08-05. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://daqpermitting.utah.gov/DocViewer?IntDocID=160548&contentType=application%2Fpdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.36,
+   "lon": -112.58,
+   "tags": [
+    "joule",
+    "Millard (near Delta)"
+   ]
+  },
+  {
+   "id": "permit:creekstone-delta-gigasite",
+   "kind": "permit",
+   "title": "Creekstone Delta Gigasite: permit pipeline",
+   "text": "Creekstone Delta Gigasite, Millard County. Stage: Under construction or air-permitted. Who decides: Millard County for land use; Utah Division of Air Quality for air. Land use: Done. About 1,143 acres zoned heavy industrial, with a conditional use permit covering the data center and on-site power generation. Water right: Not found. No filing found. The developer claims a technology that would generate water; your notes say large-scale water generation is likely years away. Air permit: Not found. No air permit found. The first power block is reported as 29 gas engines of about 230 MW, with power planned for 2027. Water quality: Not found. No filing found. Construction: In progress. Phase 1 reported under construction. Not found: Air approval order; water filings. Sources: CompressorTech: gas capacity and permit status. Latest source 2026-07-24. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.compressortech2.com/news/creekstone-secures-gas-capacity-for-utah-data-center-power-project/8127663.article",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone",
+    "Millard"
+   ]
+  },
+  {
+   "id": "permit:antelope-pronghorn",
+   "kind": "permit",
+   "title": "Antelope (Pronghorn): permit pipeline",
+   "text": "Antelope (Pronghorn), Iron County. Stage: Approved locally, state permits pending. Who decides: Iron County planning commission; hearing officer on appeal; Utah Division of Air Quality. Land use: Appealed. Conditional use permit approved June 4 for about a 250-acre footprint of 640 acres. Residents appealed to a hearing officer. I could not confirm the outcome. The county planner said the permit is not a permit to build. Water right: Not found. No water-right filing found. The application hopes to use Cedar Valley Water Conservancy supply, else acquire rights. The area is a managed groundwater basin. Air permit: Not found. Required as a condition. No air application found. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: Appeal outcome; air permit application; water source. Sources: St. George News: permit approval; New Project Media: appeal; Salt Lake Tribune: water context. Latest source 2026-07-07. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.stgeorgeutah.com/news/planning-commission-approves-conditional-use-permit-for-proposed-iron-county-data-center/article_0a818ae9-8496-4e3e-87e0-53a09ee256c5.html",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 37.9,
+   "lon": -113.3,
+   "tags": [
+    "antelope",
+    "Iron"
+   ]
+  },
+  {
+   "id": "permit:red-butte-brightnight",
+   "kind": "permit",
+   "title": "Red Butte (BrightNight): permit pipeline",
+   "text": "Red Butte (BrightNight), Iron County. Stage: Proposed, on hold or in negotiation. Who decides: Iron County. Land use: On hold. Application submitted May 4, deemed incomplete May 22, and put on hold under the moratorium. The moratorium was repealed October 26, so the developer can refile under the new overlay rules. Water right: Not found. The application estimates about 1,900 af/yr (this is an estimate, not a water-right filing). The site is in a groundwater management area. Your notes said no figure was published, so this updates them. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: Whether a new application has been filed since October 26. Sources: Salt Lake Tribune: open house and water area; Policy tracker: dates; Project listing: 1,900 af/yr (secondary). Latest source 2026-10-26. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.sltrib.com/news/2026/05/15/iron-county-residents-raise/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 37.85,
+   "lon": -113.2,
+   "tags": [
+    "red_butte",
+    "Iron"
+   ]
+  },
+  {
+   "id": "permit:nine-mile-energence",
+   "kind": "permit",
+   "title": "Nine Mile (Energence): permit pipeline",
+   "text": "Nine Mile (Energence), Duchesne County. Stage: Approved locally, state permits pending. Who decides: Duchesne County; EPA and state agencies for the power plant; Tri-County Health Department. Land use: Done. Complete application March 11 (960 acres). Planning commission approved conditional use permits April 2 for the data center, a gas plant (Wells Draw Energy), solar, and a reWater expansion. County commission denied appeals April 27, one for lack of standing. Water right: Not found. County materials say the final operating volume, water-right chain and priority dates are not established. Air permit: Pending. County staff said EPA permitting and emission controls are prerequisites to operating the gas plant. No application found. Water quality: Not found. On-site septic planned through the health department. No filing found. Construction: Not found. Construction not begun as of May. Not found: Air application; water rights; any further appeal. Sources: County findings report; Project timeline; Open questions page. Latest source 2026-07-18. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://duchesne.utah.gov/wp-content/uploads/2026/03/Findings-Report-Nine-Mile-Data-LLC-040226.pdf",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.9,
+   "lon": -110.4,
+   "tags": [
+    "nine_mile",
+    "Duchesne"
+   ]
+  },
+  {
+   "id": "permit:cyrusone-at-dugway",
+   "kind": "permit",
+   "title": "CyrusOne at Dugway: permit pipeline",
+   "text": "CyrusOne at Dugway, Tooele County. Stage: Proposed, on hold or in negotiation. Who decides: U.S. Army (Enhanced Use Lease); Army Corps of Engineers for environmental review. Land use: Pending. The Army conditionally selected CyrusOne on March 26 to enter exclusive negotiations for about 1,201 acres. No final lease signed in the sources I found. An environmental review by the Army Corps of Engineers comes before work begins. First operating capability is projected for fiscal 2029. Water right: Not found. No filing found. The Army says developers will build their own power and water solutions. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: Lease status; environmental review documents; state permits. Sources: Army announcement; KSL: Goshute opposition. Latest source 2026-09-12. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.army.mil/article/291360/army_reaches_conditional_agreement_with_private_industry_for_hyperscaled_data_centers",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.22,
+   "lon": -112.75,
+   "tags": [
+    "cyrusone_dugway",
+    "Tooele"
+   ]
+  },
+  {
+   "id": "permit:tract-pole-canyon-pony-express",
+   "kind": "permit",
+   "title": "Tract Pole Canyon / Pony Express: permit pipeline",
+   "text": "Tract Pole Canyon / Pony Express, Utah (Eagle Mountain) County. Stage: Proposed, on hold or in negotiation. Who decides: Eagle Mountain (not confirmed); Utah Division of Air Quality. Land use: Not found. No filing found. A tracker lists two campuses on 844 and 225 acres. Your notes say the first phase is planned for 2028. Water right: Not found. No filing found. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: All approvals. Sources: Utah data center tracker. Latest source 2026-07-28. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://utahjunction.com/news/politics/every-data-center-in-utah-map/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.31,
+   "lon": -112.05,
+   "tags": [
+    "tract_pole_canyon",
+    "Utah (Eagle Mountain)"
+   ]
+  },
+  {
+   "id": "permit:qts-eagle-mountain",
+   "kind": "permit",
+   "title": "QTS Eagle Mountain: permit pipeline",
+   "text": "QTS Eagle Mountain, Utah (Eagle Mountain) County. Stage: Under construction or air-permitted. Who decides: Eagle Mountain (not confirmed). Land use: Inferred. Inferred from construction; I found no approval document. Water right: Not found. No filing found. The company says it uses closed-loop cooling. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: In progress. A five-building, 193-acre campus is under construction. Sources disagree on completion (2026 versus 2029). Not found: Approval documents; air permits for any on-site power. Sources: Community Digital Technologies; Utah data center tracker. Latest source 2026-10-09. Not in the impact engine; town-level: Eagle Mountain",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://communitydigitaltech.com/projects/qts-eagle-mountain-campus",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.33,
+   "lon": -112.01,
+   "tags": [
+    "",
+    "Utah (Eagle Mountain)"
+   ]
+  },
+  {
+   "id": "permit:summit-ridge-dcpc",
+   "kind": "permit",
+   "title": "Summit Ridge (DCPC): permit pipeline",
+   "text": "Summit Ridge (DCPC), Utah (Santaquin) County. Stage: Approved locally, state permits pending. Who decides: Santaquin city; Utah Division of Air Quality. Land use: Done. A tracker says the city approved it in 2024; many residents said they learned of it in early 2026. Water right: Not found. No filing found. The developer says water and sewer use will be low (a developer claim relayed by the city). Air permit: Not found. A tracker lists whether the gas engines have an air permit as unanswered. I found none. Water quality: Not found. No filing found. Construction: Not found. Trackers conflict on whether it is under construction. Not found: Air permit; size (your notes say 20 MW, a tracker says 100 MW). Sources: Tracker: Summit Ridge; Tracker: status and open questions. Latest source 2026-10-23. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://suedatacenters.org/data-centers/summit-ridge-santaquin-ut",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.97,
+   "lon": -111.78,
+   "tags": [
+    "summit_ridge",
+    "Utah (Santaquin)"
+   ]
+  },
+  {
+   "id": "permit:blusky",
+   "kind": "permit",
+   "title": "BluSky: permit pipeline",
+   "text": "BluSky, Juab (Nephi) County. Stage: Approved locally, state permits pending. Who decides: Nephi (not confirmed). Land use: Done. A tracker lists a 4 MW Nephi site as permitted. Your notes say 9.3 MW. A separate BluSky agreement at the Creekstone campus exists. Water right: Not found. No filing found. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not reported. Not found: Permit documents; reconcile size. Sources: Tracker listing; Deseret News: Creekstone and BluSky. Latest source 2026-08-15. In the impact engine.",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://suedatacenters.org/data-centers/summit-ridge-santaquin-ut",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.71,
+   "lon": -111.84,
+   "tags": [
+    "blusky_nephi",
+    "Juab (Nephi)"
+   ]
+  },
+  {
+   "id": "permit:tooele-valley",
+   "kind": "permit",
+   "title": "Tooele Valley: permit pipeline",
+   "text": "Tooele Valley, Tooele County. Stage: Proposed, on hold or in negotiation. Who decides: Tooele County. Land use: On hold. Your notes say paused. The county directed staff to draft data center rules and an energy excise tax in June, per a tracker. I could not identify the specific project. Water right: Not found. No filing found. Air permit: Not found. No filing found. Water quality: Not found. See the separate Tooele Valley Public Infrastructure District row. I cannot confirm it is the same project. Construction: Not found. Not started. Not found: Which project this refers to. Sources: Policy tracker. Latest source 2026-07-17. Not in the impact engine; town-level: Tooele Valley",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://servercountry.org/policy/utah/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.6,
+   "lon": -112.35,
+   "tags": [
+    "",
+    "Tooele"
+   ]
+  },
+  {
+   "id": "permit:novva-and-aligned-expansions",
+   "kind": "permit",
+   "title": "Novva and Aligned expansions: permit pipeline",
+   "text": "Novva and Aligned expansions, Salt Lake County. Stage: Not classified. Who decides: Not confirmed. Land use: Not searched. I did not search for these. Water right: Not searched. Not searched. Air permit: Not searched. Not searched. Water quality: Not searched. Not searched. Construction: Not searched. Not searched. Not found: Everything. Sources: none found. Latest source n/a. Not in the impact engine; town-level: West Jordan / Salt Lake Valley",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.62,
+   "lon": -111.99,
+   "tags": [
+    "",
+    "Salt Lake"
+   ]
+  },
+  {
+   "id": "permit:tooele-valley-public-infrastructure-district-about-500-mw",
+   "kind": "permit",
+   "title": "Tooele Valley Public Infrastructure District (about 500 MW): permit pipeline",
+   "text": "Tooele Valley Public Infrastructure District (about 500 MW), Tooele County. Stage: Proposed, on hold or in negotiation. Who decides: Utah Inland Port Authority financing; Division of Water Quality for the discharge permit. Land use: Not found. Land-use approvals not found. The district is financed with over $240 million from the port authority, per an advocacy group. Water right: Not found. The site sits in a basin an advocacy group says was declared over-appropriated in 1996. No filing found. Air permit: Not found. Not found. Water quality: Pending. A draft discharge permit (UT0026409) would allow up to 260,000 gallons a day of reverse-osmosis brine into a channel flowing to wetlands near Great Salt Lake. A public hearing was held July 27. I did not find a decision. Construction: Not found. Not reported. Not found: Decision on the discharge permit; land-use approvals; air. Sources: Utah Physicians for a Healthy Environment (advocacy). Latest source 2026-08-05. Not in the impact engine; town-level: Tooele Valley (Lake Point area)",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.uphe.org/2026/06/16/help-stop-another-data-center-proposal-tooele/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.67,
+   "lon": -112.3,
+   "tags": [
+    "",
+    "Tooele"
+   ]
+  },
+  {
+   "id": "permit:nebo-north-mona",
+   "kind": "permit",
+   "title": "Nebo North (Mona): permit pipeline",
+   "text": "Nebo North (Mona), Juab County. Stage: Approved locally, state permits pending. Who decides: Juab County; Williams gas line; state agencies. Land use: Appealed. Planning commission approved the conditional use permit April 15 after a four-minute hearing. Neighbors filed an appeal in mid-September. County commissioners said they were unsure they could reverse it. Water right: Not found. No filing found. Air permit: Not found. No filing found. A gas pipeline was reportedly planned for on-site power. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: Appeal outcome; water and air filings. Sources: Salt Lake Tribune: appeal; KSL: appeal filed. Latest source 2026-09-16. Not in the impact engine; town-level: Mona",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.sltrib.com/news/2026/09/16/utah-residents-challenge-juab/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.83,
+   "lon": -111.86,
+   "tags": [
+    "",
+    "Juab"
+   ]
+  },
+  {
+   "id": "permit:dcpc-north-of-mona",
+   "kind": "permit",
+   "title": "DCPC north of Mona: permit pipeline",
+   "text": "DCPC north of Mona, Juab County. Stage: Approved locally, state permits pending. Who decides: Juab County. Land use: Done. Conditional use permits approved November 2024 and, for a reconfigured site, November 2025. Water right: Not found. A tracker reports about 300 af/yr consumptive use from leased well water. No water-right filing found. Air permit: Not found. Island power with natural gas noted in minutes. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not reported. Not found: Water-right and air documents. Sources: Tracker: DCPC campus. Latest source 2026-10-17. Not in the impact engine; town-level: north of Mona",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://signaldata.org/ut/data-centers/projects/dcpc-north-of-mona/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.86,
+   "lon": -111.85,
+   "tags": [
+    "",
+    "Juab"
+   ]
+  },
+  {
+   "id": "permit:project-juniper",
+   "kind": "permit",
+   "title": "Project Juniper: permit pipeline",
+   "text": "Project Juniper, Iron County. Stage: Proposed, on hold or in negotiation. Who decides: Iron County and Utah Inland Port Authority. Land use: Pending. A proposed industrial campus of over 830 acres that could include data centers. The port authority was scheduled November 5 to consider adding the land to a project area. I did not find the outcome. A formal county application could not be filed during the moratorium. Water right: Not found. No filing found. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: Outcome of the November 5 consideration; any application since October 26. Sources: St. George News: ordinance and Juniper; Real estate blog summary (secondary). Latest source 2026-11-05. Not in the impact engine; town-level: Iron County (Cedar City area)",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://www.stgeorgeutah.com/news/iron-county-approves-data-center-ordinance-ends-moratorium-despite-calls-for-delay/article_cc7c0141-e96b-4f21-aa30-b6b225fd4595.html",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 37.72,
+   "lon": -113.12,
+   "tags": [
+    "",
+    "Iron"
+   ]
+  },
+  {
+   "id": "permit:goldmine-fairfield",
+   "kind": "permit",
+   "title": "GoldMine (Fairfield): permit pipeline",
+   "text": "GoldMine (Fairfield), Utah (Fairfield) County. Stage: Proposed, on hold or in negotiation. Who decides: Fairfield town. Land use: Not found. The town had received no development application as of September 25. A 933-acre business park that could include data centers. Water right: Not found. No filing found. Developers told commissioners they want closed-loop, air-cooled systems. Air permit: Not found. No filing found. Water quality: Not found. No filing found. Construction: Not found. Not started. Not found: Any application since September. Sources: Utah News Dispatch. Latest source 2026-09-25. Not in the impact engine; town-level: Fairfield",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "https://utahnewsdispatch.com/2026/09/25/developer-eyes-goldmine-data-center-project-in-fairfield/",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 40.26,
+   "lon": -112.09,
+   "tags": [
+    "",
+    "Utah (Fairfield)"
+   ]
+  },
+  {
+   "id": "permit:events-upcoming",
+   "kind": "permit",
+   "title": "Permit pipeline: upcoming dated events",
+   "text": "As of 2026-11-14. 2026-11-19: Box Elder planning commission expected to take up draft data center ordinance 2026-12-15: Box Elder County Commission vote on ordinance expected in December (date not found) 2026-12-31: Final 2026 State Water Plan due 2027-09-15: First HB 76 actual-use reports expected around September (per your notes) 2027-12-31: Creekstone first on-site power planned for 2027 2028-12-31: Tract first phase planned 2028; Antelope first 500 MW targeted 2028 2029-12-31: Dugway first operating capability projected fiscal 2029",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "permit:events-past-1",
+   "kind": "permit",
+   "title": "Permit pipeline: past dated events",
+   "text": "2026-03-11: Nine Mile: complete land-use application filed (Duchesne)\n2026-03-26: Army conditionally selects CyrusOne for Dugway\n2026-04-02: Nine Mile conditional use permits approved (Duchesne)\n2026-04-15: Nebo North conditional use permit approved after a four-minute hearing (Juab)\n2026-04-27: Nine Mile appeals denied\n2026-04-28: Stratos second water change application (a54536) filed\n2026-05-04: Red Butte application submitted (Iron)\n2026-05-05: Stratos first change application (a54385) withdrawn\n2026-05-22: Red Butte deemed incomplete; a54536 withdrawal notice filed\n2026-05-26: Iron County adopts 180-day moratorium\n2026-05-27: a54536 formally canceled\n2026-05-29: Governor signs Executive Order 2026-03 (Data Center Framework)\n2026-06-04: Antelope conditional use permit approved (Iron)\n2026-06-10: Box Elder County adopts moratorium (does not cover Stratos)",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "permit:events-past-2",
+   "kind": "permit",
+   "title": "Permit pipeline: past dated events",
+   "text": "2026-06-23: Cache County adopts moratorium\n2026-07-01: HB 76 data center water reporting takes effect\n2026-07-23: Draft 2026 State Water Plan released\n2026-07-27: Public hearing on Tooele Valley brine discharge permit UT0026409\n2026-08-05: Draft air permit proposed for Joule Power Station 4\n2026-09-04: Comment period on Joule Power Station 4 draft closes\n2026-09-15: Mona neighbors file appeal of Nebo North permit\n2026-10-15: Stratos new water application (a55167) filed\n2026-10-26: Iron County adopts data center overlay and repeals moratorium\n2026-11-04: Protest window on a55167 closes\n2026-11-05: Port authority scheduled to consider Project Juniper land (outcome not found)",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "permit:open-decisions",
+   "kind": "permit",
+   "title": "Permit pipeline: open decisions",
+   "text": "Stratos a55167: hearing before the State Engineer (date not found). Antelope: hearing officer decision on the residents' appeal (date not found). Nebo North: county response to the Mona appeal (date not found). Joule Power Station 4: final decision on the draft air permit (date not found; comments closed September 4). Tooele Valley brine discharge permit UT0026409: decision (date not found; hearing held July 27). Box Elder data center ordinance: planning commission (expected November 19). Project Juniper: port authority consideration of the land (scheduled November 5; outcome not found). Red Butte: whether the developer refiles under Iron County's new rules (not found). Dugway: Army lease terms and environmental review (no dates found).",
+   "source_name": "Permit pipeline: news, county and agency records",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "basin:bear-river",
+   "kind": "basin",
+   "title": "Bear River basin: water risk view",
+   "text": "Bear River basin. Data centers assigned to it: Stratos / Wonder Valley (approved). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 41.6,
+   "lon": -112,
+   "tags": [
+    "Bear River"
+   ]
+  },
+  {
+   "id": "basin:weber-river",
+   "kind": "basin",
+   "title": "Weber River basin: water risk view",
+   "text": "Weber River basin. Data centers assigned to it: none. The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 41.05,
+   "lon": -111.5,
+   "tags": [
+    "Weber River"
+   ]
+  },
+  {
+   "id": "basin:jordan-salt-lake",
+   "kind": "basin",
+   "title": "Jordan / Salt Lake basin: water risk view",
+   "text": "Jordan / Salt Lake basin. Data centers assigned to it: Novva and Aligned expansions (small). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 40.7,
+   "lon": -112,
+   "tags": [
+    "Jordan / Salt Lake"
+   ]
+  },
+  {
+   "id": "basin:utah-lake-provo",
+   "kind": "basin",
+   "title": "Utah Lake / Provo basin: water risk view",
+   "text": "Utah Lake / Provo basin. Data centers assigned to it: Tract Pole Canyon / Pony Express (proposed, basin assignment uncertain); QTS Eagle Mountain (construction, basin assignment uncertain); Summit Ridge (DCPC) (approved, basin assignment uncertain). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 40.15,
+   "lon": -111.5,
+   "tags": [
+    "Utah Lake / Provo"
+   ]
+  },
+  {
+   "id": "basin:uintah-basin",
+   "kind": "basin",
+   "title": "Uintah Basin basin: water risk view",
+   "text": "Uintah Basin basin. Data centers assigned to it: Nine Mile (Energence) (approved, basin assignment uncertain). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 40.4,
+   "lon": -109.9,
+   "tags": [
+    "Uintah Basin"
+   ]
+  },
+  {
+   "id": "basin:west-desert",
+   "kind": "basin",
+   "title": "West Desert basin: water risk view",
+   "text": "West Desert basin. Data centers assigned to it: CyrusOne at Dugway (proposed); Tooele Valley projects (paused, basin assignment uncertain). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 40,
+   "lon": -113.3,
+   "tags": [
+    "West Desert"
+   ]
+  },
+  {
+   "id": "basin:sevier-river",
+   "kind": "basin",
+   "title": "Sevier River basin: water risk view",
+   "text": "Sevier River basin. Data centers assigned to it: Joule campus (construction); Creekstone Delta Gigasite (construction); BluSky (small, basin assignment uncertain). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 38.9,
+   "lon": -112.3,
+   "tags": [
+    "Sevier River"
+   ]
+  },
+  {
+   "id": "basin:southeast-colorado",
+   "kind": "basin",
+   "title": "Southeast Colorado basin: water risk view",
+   "text": "Southeast Colorado basin. Data centers assigned to it: none. The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 38.4,
+   "lon": -109.8,
+   "tags": [
+    "Southeast Colorado"
+   ]
+  },
+  {
+   "id": "basin:cedar-beaver",
+   "kind": "basin",
+   "title": "Cedar / Beaver basin: water risk view",
+   "text": "Cedar / Beaver basin. Data centers assigned to it: Antelope (Pronghorn) (approved, basin assignment uncertain); Red Butte (BrightNight) (paused, basin assignment uncertain). The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 38.2,
+   "lon": -112.9,
+   "tags": [
+    "Cedar / Beaver"
+   ]
+  },
+  {
+   "id": "basin:virgin-kanab",
+   "kind": "basin",
+   "title": "Virgin / Kanab basin: water risk view",
+   "text": "Virgin / Kanab basin. Data centers assigned to it: none. The basin risk score mixes counted demand against supply headroom, junior-right share, storage buffer and growth trend. The baselines for supply, junior-right share, storage and trend are invented placeholders until the Division of Water Rights or Water Resources supplies data, so no baseline number or score is a finding.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": 37.25,
+   "lon": -113.4,
+   "tags": [
+    "Virgin / Kanab"
+   ]
+  },
+  {
+   "id": "basinproject:stratos-wonder-valley",
+   "kind": "project",
+   "title": "Stratos / Wonder Valley: water figures and notes",
+   "text": "Stratos / Wonder Valley, Bear River basin. Status: approved; expected online 2028 (assumed). Developer-stated use: 1,215 AF/yr. Water rights: 13,000 AF. Highest independent estimate: 100,000 AF/yr. Developer's October engineering report projects about 1,215 af diverted at full buildout, with about 987 af net depletion after return flows. Rights: about 3,000 af to be purchased plus about 10,000 af under contract. Independent estimates run far higher: about 50,000 af if it uses combined-cycle gas turbines, and a BYU ecologist estimates closer to 100,000. Per the notes, Stratos has changed its water filings several times.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "basinproject:joule-campus",
+   "kind": "project",
+   "title": "Joule campus: water figures and notes",
+   "text": "Joule campus, Sevier River basin. Status: construction; expected online 2026 (assumed). Developer-stated use: not published AF/yr. Water rights: 10,000 AF. Highest independent estimate: not published AF/yr. About 10,000 af in rights. The developer has published no annual figure. The data halls use closed-loop cooling, but the gas generators will use some freshwater for cooling.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "joule"
+   ]
+  },
+  {
+   "id": "basinproject:creekstone-delta-gigasite",
+   "kind": "project",
+   "title": "Creekstone Delta Gigasite: water figures and notes",
+   "text": "Creekstone Delta Gigasite, Sevier River basin. Status: construction; expected online 2026 (assumed). Developer-stated use: 200 AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. Developer says up to 2 af per 100 MW, so up to 200 af at a full 10 GW. It also claims a technology that could produce about 4,000 af/yr, but large-scale water generation is likely several years away. That possible supply is not counted here.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "basinproject:antelope-pronghorn",
+   "kind": "project",
+   "title": "Antelope (Pronghorn): water figures and notes",
+   "text": "Antelope (Pronghorn), Cedar / Beaver basin (assignment uncertain). Status: approved; expected online 2027 (assumed). Developer-stated use: 10.8 AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. Filings show 10 to 20 af/yr during construction, a one-time fill of 8 af, and 10.8 af/yr once operating. Other filings gave 3.1 to 12.75 af/yr. The basin's water rights are fully appropriated, so new users must obtain existing rights.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "antelope"
+   ]
+  },
+  {
+   "id": "basinproject:red-butte-brightnight",
+   "kind": "project",
+   "title": "Red Butte (BrightNight): water figures and notes",
+   "text": "Red Butte (BrightNight), Cedar / Beaver basin (assignment uncertain). Status: paused; expected online 2029 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published. Currently held by the Iron County moratorium.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "red_butte"
+   ]
+  },
+  {
+   "id": "basinproject:nine-mile-energence",
+   "kind": "project",
+   "title": "Nine Mile (Energence): water figures and notes",
+   "text": "Nine Mile (Energence), Uintah Basin basin (assignment uncertain). Status: approved; expected online 2027 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published. Paired with a produced-water recycling facility (reWater LLC).",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "nine_mile"
+   ]
+  },
+  {
+   "id": "basinproject:cyrusone-at-dugway",
+   "kind": "project",
+   "title": "CyrusOne at Dugway: water figures and notes",
+   "text": "CyrusOne at Dugway, West Desert basin. Status: proposed; expected online 2029 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published. CyrusOne has committed to water-free cooling for all its new builds.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "cyrusone_dugway"
+   ]
+  },
+  {
+   "id": "basinproject:tract-pole-canyon-pony-express",
+   "kind": "project",
+   "title": "Tract Pole Canyon / Pony Express: water figures and notes",
+   "text": "Tract Pole Canyon / Pony Express, Utah Lake / Provo basin (assignment uncertain). Status: proposed; expected online 2028 (published). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published. First phase is planned for 2028.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "tract_pole_canyon"
+   ]
+  },
+  {
+   "id": "basinproject:qts-eagle-mountain",
+   "kind": "project",
+   "title": "QTS Eagle Mountain: water figures and notes",
+   "text": "QTS Eagle Mountain, Utah Lake / Provo basin (assignment uncertain). Status: construction; expected online 2026 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No annual figure. Closed-loop cooling that needs a one-time fill.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    ""
+   ]
+  },
+  {
+   "id": "basinproject:summit-ridge-dcpc",
+   "kind": "project",
+   "title": "Summit Ridge (DCPC): water figures and notes",
+   "text": "Summit Ridge (DCPC), Utah Lake / Provo basin (assignment uncertain). Status: approved; expected online 2027 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published. The developer says consumption will be \"hardly anything\".",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "summit_ridge"
+   ]
+  },
+  {
+   "id": "basinproject:blusky",
+   "kind": "project",
+   "title": "BluSky: water figures and notes",
+   "text": "BluSky, Sevier River basin (assignment uncertain). Status: small; expected online 2027 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "blusky_nephi"
+   ]
+  },
+  {
+   "id": "basinproject:tooele-valley-projects",
+   "kind": "project",
+   "title": "Tooele Valley projects: water figures and notes",
+   "text": "Tooele Valley projects, West Desert basin (assignment uncertain). Status: paused; expected online 2029 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published. Currently paused.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    ""
+   ]
+  },
+  {
+   "id": "basinproject:novva-and-aligned-expansions",
+   "kind": "project",
+   "title": "Novva and Aligned expansions: water figures and notes",
+   "text": "Novva and Aligned expansions, Jordan / Salt Lake basin. Status: small; expected online 2027 (assumed). Developer-stated use: not published AF/yr. Water rights: not published AF. Highest independent estimate: not published AF/yr. No water figures published.",
+   "source_name": "Project research notes (2026 news and filings)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    ""
+   ]
+  },
+  {
+   "id": "context:gsl-need",
+   "kind": "context",
+   "title": "Great Salt Lake: additional inflow needed",
+   "text": "The Great Salt Lake needs about 800,000 AF/yr more inflow (Great Salt Lake Strike Team estimate, as cited in project research notes).",
+   "source_name": "Great Salt Lake Strike Team estimate, as cited in project research notes",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.1,
+   "lon": -112.5,
+   "tags": []
+  },
+  {
+   "id": "context:utah-capacity",
+   "kind": "context",
+   "title": "Utah generating capacity, for scale",
+   "text": "Utah's total electric generating capacity is about 10,277 MW (EIA, Utah net summer generating capacity 2024, as cited in a legislative policy brief). Announced data center sizes are compared against it.",
+   "source_name": "EIA, Utah net summer generating capacity 2024, as cited in a legislative policy brief",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "basin:lenses",
+   "kind": "basin",
+   "title": "Basin view: ways to count data center demand",
+   "text": "Developer says: Counts only the annual water use each developer has published. Most projects have not published one, so this understates demand. Water rights: Counts the water rights each developer holds or is seeking. Per the research notes, unused rights can be sold or leased, so this can show risk the stated use does not. Highest on record: Counts the highest figure on record for each project, including independent estimates that account for on-site gas power plants. This is the cautious view. Engine estimate: uses the impact engine's central estimate for the current scenario, so a bill's levers move the basin scores.",
+   "source_name": "Atlas basin water-risk model (placeholder baselines)",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "bill:hb76_2026",
+   "kind": "bill",
+   "title": "H.B. 76 (2026): Data Center Water Transparency Amendments",
+   "text": "H.B. 76 (2026), Data Center Water Transparency Amendments. Real measure. Status: Enacted; in effect July 1, 2026. Large data centers submit projected water use, discharge, treatment and reuse plans before construction. Those using 75 acre-feet or more a year report use and conservation efforts annually to the Division of Water Rights, which publishes the reports online. Data centers already operating or under construction on July 1, 2026 are exempt. The first actual-use numbers are expected around September 2027. Engine levers: reporting_threshold_af = 75. On the map: Reporting changes what the state knows, not water use: the map's water and lake estimates stay the same, and each project is marked as reporting or below the threshold. Not modeled: nothing further Basis: Summary of an agency presentation, not the bill text. (bill_id hb76_2026)",
+   "source_name": "Division of Water Rights presentation to the Natural Resources, Agriculture and Environment Interim Committee, Aug 19, 2026",
+   "url": "https://le.utah.gov/interim/2026/pdf/00003109.pdf",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "hb76_2026"
+   ]
+  },
+  {
+   "id": "bill:hb60_2026",
+   "kind": "bill",
+   "title": "H.B. 60 (2026): Limits on factors in water-right decisions",
+   "text": "H.B. 60 (2026), Limits on factors in water-right decisions. Real measure. Status: Enacted; in effect May 6, 2026. Limits the factors the State Engineer can weigh when deciding water-right applications. Only the Legislature can change those limits. Engine levers: none (not modeled by the engine). On the map: No change on the map: the law affects what can be argued in a water-right proceeding, not how much water a project would use. Not modeled: Narrows the factors the State Engineer may weigh on a water-right application. Basis: News coverage of the law; the bill text is the primary source and was not checked. (bill_id hb60_2026)",
+   "source_name": "Utah News Dispatch, May 18, 2026",
+   "url": "https://utahnewsdispatch.com/2026/05/18/data-center-new-utah-law-gives-less-weight-to-pushback-citing-broad-impact/",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "hb60_2026"
+   ]
+  },
+  {
+   "id": "bill:eo_2026_03",
+   "kind": "bill",
+   "title": "E.O. 2026-03: Executive order: water consumption principle",
+   "text": "E.O. 2026-03, Executive order: water consumption principle. Real measure. Status: Governor's executive order. The governor's office describes one principle of the order as ensuring water consumption is not increased. The atlas turns that into a test: a project's estimated use against the current consumptive use of the land and water rights it would convert. Engine levers: none (not modeled by the engine). On the map: No change on the map. The test appears in the Water row for each project and reads \"cannot test\" until the Division of Water Rights supplies current consumptive use. Not modeled: The net-change test is the atlas's own reading of the principle; how agencies apply the order is up to them. Basis: Description of one principle; the order's text was not checked. (bill_id eo_2026_03)",
+   "source_name": "Governor's office description, via 2026 news coverage",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "eo_2026_03"
+   ]
+  },
+  {
+   "id": "bill:sb132",
+   "kind": "bill",
+   "title": "S.B. 132: Electricity cost protection cited for large loads",
+   "text": "S.B. 132, Electricity cost protection cited for large loads. Real measure. Status: Cited by the governor; not verified here. The governor said power for Stratos must not negatively affect electricity costs under S.B. 132. Engine levers: none (not modeled by the engine). On the map: No change on the map: ratepayer effects are not modeled. Not modeled: Ratepayer protection for large electric loads. Basis: A statement reported in the news; the bill and its year were not checked. (bill_id sb132)",
+   "source_name": "KUTV coverage of the governor's statement, 2026",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "sb132"
+   ]
+  },
+  {
+   "id": "bill:iron_2026_13",
+   "kind": "bill",
+   "title": "Iron Co. Ord. 2026-13: Iron County data center and solar moratorium",
+   "text": "Iron Co. Ord. 2026-13, Iron County data center and solar moratorium. Real measure. Status: County ordinance; moratoria are capped at 180 days. A temporary county moratorium on new data center and solar approvals in Iron County. Engine levers: moratorium_counties = ['Iron']. On the map: Iron County is outlined and its projects (Antelope, Red Butte) are removed from the scenario. Not modeled: The lever removes every Iron County project in the registry. The ordinance may not reach projects permitted earlier: Antelope received a county permit in June 2026. Not verified. A moratorium lasts at most 180 days; the engine treats it as permanent. Basis: County document link from the research notes; the ordinance was not read in full. (bill_id iron_2026_13)",
+   "source_name": "Iron County Ordinance 2026-13",
+   "url": "https://ironcountyut.gov/files/planning/data-center-solar-moratorium.pdf",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "iron_2026_13"
+   ]
+  },
+  {
+   "id": "bill:cache_2026_32",
+   "kind": "bill",
+   "title": "Cache Co. Ord. 2026-32: Cache County data center moratorium",
+   "text": "Cache Co. Ord. 2026-32, Cache County data center moratorium. Real measure. Status: County ordinance; moratoria are capped at 180 days. A temporary county moratorium on data center approvals in Cache County. Engine levers: moratorium_counties = ['Cache']. On the map: Cache County is outlined. No project in the registry is in Cache County, so the estimates do not change. Not modeled: A moratorium lasts at most 180 days; the engine treats it as permanent. Basis: County document link from the research notes; the ordinance was not read in full. (bill_id cache_2026_32)",
+   "source_name": "Cache County Ordinance 2026-32",
+   "url": "https://www.cachecounty.gov/assets/department/countycouncil/pr/dcmo.pdf",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "cache_2026_32"
+   ]
+  },
+  {
+   "id": "bill:mock_dry_cooling",
+   "kind": "bill",
+   "title": "Mock H.B. 9999: Data Center Cooling Standards (mock)",
+   "text": "Mock H.B. 9999, Data Center Cooling Standards (mock). MOCK bill for illustration, not real legislation. Status: Illustration only. Not real legislation. Would require closed-loop cooling for data halls and dry or air-cooled condensers for on-site gas power, with no wet cooling towers. Engine levers: cooling_required = closed_loop; power_cooling_required = dry. On the map: Project circles and the exposed-lakebed band shrink. Air emissions do not change: that is the trade-off. Not modeled: An annual public summary of data center electricity generation. Basis: Written for this atlas to demonstrate the levers. (bill_id mock_dry_cooling)",
+   "source_name": "docs/atlas/samples/bills/MOCK_dry_cooling_bill.txt",
+   "url": "",
+   "source_type": "der",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "mock_dry_cooling"
+   ]
+  },
+  {
+   "id": "bill:mock_gsl_offset",
+   "kind": "bill",
+   "title": "Mock: lake offset: Great Salt Lake offset requirement (mock)",
+   "text": "Mock: lake offset, Great Salt Lake offset requirement (mock). MOCK bill for illustration, not real legislation. Status: Illustration only. Not real legislation. Would require a data center in a basin that drains to the Great Salt Lake to deliver one acre-foot to the lake for each acre-foot it consumes. Engine levers: gsl_offset_ratio = 1.0. On the map: The exposed-lakebed band disappears; project water use is unchanged. Not modeled: Where the offset water would come from, and what its current use is. Basis: Written for this atlas to demonstrate the levers. (bill_id mock_gsl_offset)",
+   "source_name": "Written for this atlas",
+   "url": "",
+   "source_type": "der",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "mock_gsl_offset"
+   ]
+  },
+  {
+   "id": "bill:mock_grid_only",
+   "kind": "bill",
+   "title": "Mock: no on-site gas: Grid-only power for data centers (mock)",
+   "text": "Mock: no on-site gas, Grid-only power for data centers (mock). MOCK bill for illustration, not real legislation. Status: Illustration only. Not real legislation. Would prohibit on-site natural gas generation at large data centers. Engine levers: onsite_gas_allowed = False. On the map: Project circles shrink because on-site power plants no longer use cooling water. Not modeled: The power would come from the grid instead. Water use and emissions at grid power plants, and effects on electricity rates, are not modeled, so this is not a statewide reduction. Basis: Written for this atlas to demonstrate the levers. (bill_id mock_grid_only)",
+   "source_name": "Written for this atlas",
+   "url": "",
+   "source_type": "der",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": [
+    "mock_grid_only"
+   ]
+  },
+  {
+   "id": "factor:wue_evap",
+   "kind": "factor",
+   "title": "Engine factor: wue_evap",
+   "text": "Factor wue_evap: low 1.5, central 1.8, high 3.0. Source: Introl / aquaray: evaporative WUE, US avg 1.8 L/kWh.",
+   "source_name": "Introl / aquaray: evaporative WUE, US avg 1.8 L/kWh",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:wue_closed",
+   "kind": "factor",
+   "title": "Engine factor: wue_closed",
+   "text": "Factor wue_closed: low 0.0, central 0.04, high 0.2. Source: LBNL via VoxBooster; preprints.org WUE review.",
+   "source_name": "LBNL via VoxBooster; preprints.org WUE review",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:pue",
+   "kind": "factor",
+   "title": "Engine factor: pue",
+   "text": "Factor pue: low 1.1, central 1.3, high 1.4. Source: Tetra Tech 2026 (US avg ~1.40); hyperscale low end assumed.",
+   "source_name": "Tetra Tech 2026 (US avg ~1.40); hyperscale low end assumed",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:load_factor",
+   "kind": "factor",
+   "title": "Engine factor: load_factor",
+   "text": "Factor load_factor: low 0.6, central 0.8, high 0.95. Source: Assumption (UI adjustable).",
+   "source_name": "Assumption (UI adjustable)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:gal_mwh_wet",
+   "kind": "factor",
+   "title": "Engine factor: gal_mwh_wet",
+   "text": "Factor gal_mwh_wet: low 130, central 200, high 300. Source: UCS: NGCC recirculating consumption, gal/MWh.",
+   "source_name": "UCS: NGCC recirculating consumption, gal/MWh",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:gal_mwh_dry",
+   "kind": "factor",
+   "title": "Engine factor: gal_mwh_dry",
+   "text": "Factor gal_mwh_dry: low 0, central 2, high 4. Source: UCS: NGCC dry cooling, gal/MWh.",
+   "source_name": "UCS: NGCC dry cooling, gal/MWh",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:co2_lb_mwh",
+   "kind": "factor",
+   "title": "Engine factor: co2_lb_mwh",
+   "text": "Factor co2_lb_mwh: low 771, central 800, high 832. Source: EPA Clean Power Plan NGCC rates.",
+   "source_name": "EPA Clean Power Plan NGCC rates",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:nox_lb_mmbtu",
+   "kind": "factor",
+   "title": "Engine factor: nox_lb_mmbtu",
+   "text": "Factor nox_lb_mmbtu: low 0.0178, central 0.0178, high 0.0178. Source: EPA Table 3-29: 4 ppm NGCC limit.",
+   "source_name": "EPA Table 3-29: 4 ppm NGCC limit",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:heat_rate",
+   "kind": "factor",
+   "title": "Engine factor: heat_rate",
+   "text": "Factor heat_rate: low 6.5, central 7.0, high 7.5. Source: Assumption, MMBtu/MWh.",
+   "source_name": "Assumption, MMBtu/MWh",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:gsl_ft_per_100k",
+   "kind": "factor",
+   "title": "Engine factor: gsl_ft_per_100k",
+   "text": "Factor gsl_ft_per_100k: low 0.7, central 1.0, high 1.3. Source: Utah GSL water-budget study; +/-30% band assumed.",
+   "source_name": "Utah GSL water-budget study; +/-30% band assumed",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:playa_ac_per_ft",
+   "kind": "factor",
+   "title": "Engine factor: playa_ac_per_ft",
+   "text": "Factor playa_ac_per_ft: low 25000, central 31000, high 35000. Source: Derived: 610,200 ac @4191.3 ft, ~817k ac @4198 ft.",
+   "source_name": "Derived: 610,200 ac @4191.3 ft, ~817k ac @4198 ft",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "factor:formulas",
+   "kind": "factor",
+   "title": "Impact engine formulas",
+   "text": "Site water, AF = (MW / PUE) x 8,760 h x load factor x 1,000 x WUE / 1,233,482 L per AF. Gas plant water, AF = MW x 8,760 x load factor x gal per MWh / 325,851 gal per AF. Great Salt Lake level, ft = net depletion / 100,000 x ft per 100,000 AF; exposed lakebed = ft x acres per ft; only projects in basins that drain to the lake count. Unknown cooling: central closed-loop, high evaporative. Unknown on-site gas: low grid, central and high gas. Unknown power cooling: low dry, central and high wet. The low end uses all-low inputs and the high end all-high inputs.",
+   "source_name": "Atlas impact engine (backend/atlas/engine.py)",
+   "url": "",
+   "source_type": "der",
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "comparison:stratos:state_revenue",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: State revenue by branch",
+   "text": "Built as planned: Not published The governor has said new revenue should support schools, services and military infrastructure; no amount is published.. Not built here: No project revenue here What the land and water earn in their current use is not quantified.. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Atlas four-branch comparison",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:county_revenue",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: County revenue after incentives by branch",
+   "text": "Built as planned: Not published A development authority (MIDA) created incentives for the project; their size is unknown.. Built as planned: Property-tax incentives are generally capped at 60% of new county revenue and cannot exceed 80%. [Government; Utah House data center page, 2026] University of Utah research finds the tax base can fluctuate as equipment depreciates.. Built with conditions: Not quantified. Built with conditions: Property-tax incentives are generally capped at 60% of new county revenue and cannot exceed 80%. [Government; Utah House data center page, 2026] University of Utah research finds the tax base can fluctuate as equipment depreciates.. Delayed or scaled down: Not quantified. Delayed or scaled down: Property-tax incentives are generally capped at 60% of new county revenue and cannot exceed 80%. [Government; Utah House data center page, 2026] University of Utah research finds the tax base can fluctuate as equipment depreciates.. Not built here: No project revenue here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Utah House data center page, 2026",
+   "url": "https://house.utleg.gov/2026-utah-data-center-regulations/",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:jobs_construction",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Construction jobs by branch",
+   "text": "Built as planned: About 10,000 at the construction peak [Developer; Developer claim, 2026 news coverage] Duration, local hiring share and wages are not published.. Not built here: None here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Developer claim, 2026 news coverage",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:jobs_permanent",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Permanent jobs by branch",
+   "text": "Built as planned: About 2,000 [Developer; Developer claim, 2026 news coverage] For scale: state officials projected 106 full-time jobs for Creekstone, a different project.. Not built here: None here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Developer claim, 2026 news coverage",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:ratepayer",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Electricity ratepayers by branch",
+   "text": "Built as planned: Developer says it generates power on site and adds no load or cost to the Utah grid [Developer; Developer statement, 2026 news coverage]. Built as planned: Governor: power for Stratos must not negatively affect electricity costs (S.B. 132) [Government; KUTV, 2026] Reported statement; the bill was not checked.. Not built here: No change from this project. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Developer statement, 2026 news coverage",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:water",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Water consumed by branch",
+   "text": "Built as planned: 987 AF/yr net depletion (1,215 diverted) at full buildout [Developer; Developer engineering report via Salt Lake Tribune, Oct 2026] The developer's application claims less water use than the land's current agriculture.. Built as planned: Up to about 100,000 AF/yr [Independent academic; BYU ecologist estimate, project research notes] Highest figure on record. A combined-cycle estimate is about 50,000 AF/yr.. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Developer engineering report via Salt Lake Tribune, Oct 2026",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:air_health",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Air and health by branch",
+   "text": "Built as planned: 5 to 45 premature deaths and $75 million to $690 million in health damages a year, at 9 GW [Advocacy-commissioned; EmPower Analytics for NRDC, 2026] Modeled, advocacy-commissioned and not peer-reviewed. The developer disputes it: equipment has not been selected and permitting would model the real plant. The authors say the scenarios are not predictions. More than 80% of the damages would occur outside Utah.. Delayed or scaled down: 1.6 to 15 premature deaths and $25 million to $230 million a year, for a 3 GW first phase [Advocacy-commissioned; EmPower Analytics for NRDC, 2026] Modeled, advocacy-commissioned and not peer-reviewed. The developer disputes it: equipment has not been selected and permitting would model the real plant. The authors say the scenarios are not predictions. More than 80% of the damages would occur outside Utah. The report did not model 1.5 GW.. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "EmPower Analytics for NRDC, 2026",
+   "url": "https://www.nrdc.org/press-releases/stratos-data-center-will-emit-air-pollution-linked-premature-deaths-and-health",
+   "source_type": "adv",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:emissions",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Climate emissions by branch",
+   "text": "Built as planned: Would raise Utah's climate emissions by 55% to 75% at full buildout [Advocacy-commissioned; Utah Clean Energy, 2026] Depends on gas technology. The governor said the project will never run solely on natural gas, with only the first phase on gas; the power plan is unsettled.. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Utah Clean Energy, 2026",
+   "url": "https://utahcleanenergy.org/estimated-emissions-and-water-consumption-from-the-proposed-stratos-data-center/",
+   "source_type": "adv",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:heat",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Local heat by branch",
+   "text": "Built as planned: Local temperatures could rise 5°F by day and up to 28°F at night [Independent academic; USU physics professor via Salt Lake Tribune, May 2026] A back-of-the-envelope estimate its author says could be wrong. Not peer-reviewed.. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "USU physics professor via Salt Lake Tribune, May 2026",
+   "url": "https://www.sltrib.com/news/environment/2026/05/07/utahs-data-center-could-create/",
+   "source_type": "ind",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:stratos:wildlife",
+   "kind": "comparison",
+   "title": "Stratos / Wonder Valley: Wildlife and springs by branch",
+   "text": "Built as planned: Project effect not quantified. Built as planned: A nearby state wetland has already lost 80% of its spring flow to groundwater pumping [Advocacy-commissioned; Friends of Great Salt Lake] An existing condition, not an effect of this project.. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Friends of Great Salt Lake",
+   "url": "https://fogsl.org/newsroom/file-a-protest-against-the-box-elder-data-center-water-rights-application",
+   "source_type": "adv",
+   "verified": false,
+   "placeholder": false,
+   "lat": 41.7,
+   "lon": -112.55,
+   "tags": [
+    "stratos"
+   ]
+  },
+  {
+   "id": "comparison:creekstone:state_revenue",
+   "kind": "comparison",
+   "title": "Creekstone Delta Gigasite: State revenue by branch",
+   "text": "Built as planned: $344 million in state revenue [Government; State officials' projection, Aug 2026 (Deseret News)]. Not built here: No project revenue here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "State officials' projection, Aug 2026 (Deseret News)",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "comparison:creekstone:county_revenue",
+   "kind": "comparison",
+   "title": "Creekstone Delta Gigasite: County revenue after incentives by branch",
+   "text": "Built as planned: $333 million in county wages [Government; State officials' projection, Aug 2026 (Deseret News)] Wages, not county tax revenue. Net revenue after incentives is not published.. Built as planned: Property-tax incentives are generally capped at 60% of new county revenue and cannot exceed 80%. [Government; Utah House data center page, 2026] University of Utah research finds the tax base can fluctuate as equipment depreciates.. Not built here: No project revenue here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "State officials' projection, Aug 2026 (Deseret News)",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "comparison:creekstone:jobs_permanent",
+   "kind": "comparison",
+   "title": "Creekstone Delta Gigasite: Permanent jobs by branch",
+   "text": "Built as planned: 106 full-time jobs [Government; State officials' projection, Aug 2026 (Deseret News)]. Not built here: None here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "State officials' projection, Aug 2026 (Deseret News)",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "comparison:creekstone:jobs_construction",
+   "kind": "comparison",
+   "title": "Creekstone Delta Gigasite: Construction jobs by branch",
+   "text": "Not built here: None here. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Atlas four-branch comparison",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "comparison:creekstone:ratepayer",
+   "kind": "comparison",
+   "title": "Creekstone Delta Gigasite: Electricity ratepayers by branch",
+   "text": "Not built here: No change from this project. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Atlas four-branch comparison",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "comparison:creekstone:water",
+   "kind": "comparison",
+   "title": "Creekstone Delta Gigasite: Water consumed by branch",
+   "text": "Built as planned: Up to 2 AF per 100 MW, about 200 AF/yr at 10 GW [Developer; Developer statement, 2026 news coverage]. Branches with no entry are not quantified. Rows are never added into a net score.",
+   "source_name": "Developer statement, 2026 news coverage",
+   "url": "",
+   "source_type": "dev",
+   "verified": false,
+   "placeholder": false,
+   "lat": 39.4,
+   "lon": -112.5,
+   "tags": [
+    "creekstone"
+   ]
+  },
+  {
+   "id": "context:audiences",
+   "kind": "context",
+   "title": "Who the atlas is for",
+   "text": "Utah Legislature (primary audience): decides Statewide rules: caps, thresholds, incentives, MIDA authority; view: Legislative briefing (statewide, basin, project); output: One-page print export with its data limits. Protestants in State Engineer water-right proceedings: decides State Engineer, on the legal record of each application; view: Project detail with Show the math; output: Citation export (inputs, factors, sources). County commissions: decides Zoning; view: County drill-down in the briefing; output: One-page export filtered to a county. Divisions of Water Rights and Water Resources: decides Data partners; view: None; output: Agency baselines replace the placeholders.",
+   "source_name": "Atlas decision context",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "context:committees",
+   "kind": "context",
+   "title": "Legislative committees studying data centers",
+   "text": "Natural Resources, Agriculture and Environment Interim Committee: Owns the data center impact study on water, air and wildlife (approved May 20, 2026; the State Engineer presented Aug 19, 2026). Economic Development and Workforce Services Interim Committee: Opened a bill file defining a large-scale data center. Revenue and Taxation Interim Committee: Role in data center incentives not yet confirmed. (unconfirmed) Bills would come in the 2027 General Session.",
+   "source_name": "Atlas decision context",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "context:legal",
+   "kind": "context",
+   "title": "Legal context for data center water decisions",
+   "text": "HB60 (2026) narrowed the factors the State Engineer can weigh on water-right applications; only the Legislature can change that. County moratoria are capped at 180 days. MIDA holds land-use jurisdiction at Stratos, so Box Elder County's moratorium does not cover it. Net change against current land use (EO 2026-03 principle) needs the baseline consumptive use of the converted water rights. That is the first data request to the Division of Water Rights.",
+   "source_name": "Atlas decision context",
+   "url": "",
+   "source_type": "gov",
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "context:rules",
+   "kind": "context",
+   "title": "Display rules the atlas follows",
+   "text": "Ranges always; the engine high stacks every worst-case input and is an upper bound, not a forecast. Every published figure carries a source-type tag. No net score, and no netting of dollars against deaths. Source types: Government, Developer, Independent academic, Advocacy-commissioned, Derived.",
+   "source_name": "Atlas decision context",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "context:data-status",
+   "kind": "context",
+   "title": "Data status: what is built, placeholder or not yet loaded",
+   "text": "Static map layers built 2026-11-14: utah_counties: US Census county boundaries via plotly/datasets (GitHub); utah_boundary: Dissolved from utah_counties; gsl_reference: Natural Earth 10m lakes (GitHub) (Generalized outline, not current shoreline); projects: impact_engine.REGISTRY (mid-2026 news/county filings) (Coordinates approximate, county-level); gsl_playa_scenarios: impact_engine + overlays.playa_band. Basin baselines: placeholder. Not yet loaded (optional fetch): GBIF species hexes, EPA TRI facilities, NASA FIRMS fire detections, NIFC fire perimeters, USFWS critical habitat and USGS HUC8 basins, so the Biodiversity, Wildfire and Pollution overlap flags read 'layer not loaded'. No link in the source catalog has been checked by a person yet.",
+   "source_name": "Atlas data manifest",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": true,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:usace-data-available-for-utah-first-chat-1",
+   "kind": "research",
+   "title": "Research notes: USACE data available for Utah (first chat)",
+   "text": "Most USACE work in Utah is handled by the Sacramento District (office SPK; Bountiful and St. George field offices). Most services filter by state code UT or FIPS 49.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:usace-data-available-for-utah-first-chat-2",
+   "kind": "research",
+   "title": "Research notes: USACE data available for Utah (first chat)",
+   "text": "- **National Inventory of Dams**: `https://nid.sec.usace.army.mil/api/query?sy=@stateKey:UT`. Location, size, purpose, hazard, inspection, storage. Also an ArcGIS feature service.\n- **National Structure Inventory**: building-level exposure data (GeoJSON by county or bbox; state GeoPackage).\n- **National Levee Database**: levees.sec.usace.army.mil; sparse in Utah.\n- **CWMS Data API**: time series, locations, ratings, forecasts; read without a key, filter office SPK; thin Utah coverage.\n- **FUDS**: Utah SGID copy at `services1.arcgis.com/99lidPhWCzftIe9K/.../FUD/FeatureServer/0` (HIFLD Open was deactivated Aug 26, 2025).\n- **RIBITS**: wetland mitigation banks and credits.\n- **Gap**: no public API for Section 404 permits or jurisdictional determinations. Use public notices or FOIA.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:water-use-and-new-demand-risk-views-second-chat-1",
+   "kind": "research",
+   "title": "Research notes: Water use and new-demand risk views (second chat)",
+   "text": "The use side comes from the Utah Division of Water Resources: M&I use, water-related land use, water budgets, and culinary supplier boundaries. Rights and distribution come from the Division of Water Rights: points of diversion, measurement stations, and the distribution network under prior appropriation. USACE supplies storage and exposure.\nFive views: (1) current-use map by water system, (2) basin water budget, (3) storage and stress overlay (NID), (4) new-demand risk map (pending applications vs headroom, junior-right share, storage buffer, M&I trend), (5) scenario tester. Gaps: bulk pending applications, a 1–2 year lag in M&I data, growth projections (Kem C. Gardner Institute), and no 404 API.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:proposed-data-centers-third-and-fourth-chats-1",
+   "kind": "research",
+   "title": "Research notes: Proposed data centers (third and fourth chats)",
+   "text": "| Project | County | Size / status | Water figures (AF/yr) |\n| --- | --- | --- | --- |\n| Stratos / Wonder Valley | Box Elder | 9 GW full; county approved May 2026; first phase reported as up to 1.5 GW (governor) or 3 GW (health report) | Dev: ~1,215 diverted, ~987 net depletion. Rights: ~3,000 purchase + ~10,000 contract. DNR director: ~1,900. UCE: ~6,100 (gas engines, converted). Independent: ~50,000 (combined cycle); BYU ecologist ~100,000 |\n| Joule campus | Millard | 455 MW Phase 1 under construction; 4,000+ MW | Rights ~10,000; closed-loop halls; gas generators use some water |\n| Creekstone Delta Gigasite | Millard | 220 MW Phase 1; 10 GW planned | Dev: up to 2 AF per 100 MW (≤200 at 10 GW) |\n| Antelope (Pronghorn) | Iron | 1.5 GW + gas plant; permit June 2026 | 10.8 operating (other filings 3.1–12.75); basin fully appropriated |\n| Red Butte (BrightNight) | Iron | 1.5 GW; held by county moratorium | None published |\n| Nine Mile (Energence) | Duchesne | ~400 MW; permits April 2026 | None; produced-water recycling |\n| CyrusOne at Dugway | Tooele | 1,000 MW proposed | None; water-free cooling commitment |\n| Tract Pole Canyon / Pony Express | Utah (Eagle Mountain) | 1,700 + 120 MW; 2028 | None published |\n| QTS Eagle Mountain | Utah | Under construction | Closed-loop, one-time fill (not in registry: size unknown) |\n| Summit Ridge (DCPC) | Utah (Santaquin) | 20 MW approved; 500 MW JV | None (\"hardly anything\") |\n| BluSky Nephi | Juab | 9.3 MW | None |",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:proposed-data-centers-third-and-fourth-chats-2",
+   "kind": "research",
+   "title": "Research notes: Proposed data centers (third and fourth chats)",
+   "text": "HB 76: data centers >10,000 sq ft drawing ≥75 AF/yr report to the Division of Water Rights; reports are published online and the first actual use is expected around Sept 2027. The Great Salt Lake Strike Team estimates the lake needs ~800,000 AF/yr more inflow.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:email-thread-guidance-madisyn-johnson-nov-14-2026-1",
+   "kind": "research",
+   "title": "Research notes: Email thread guidance (Madisyn Johnson, Nov 14, 2026)",
+   "text": "**Audience.** The Legislature is primary: its interim committees, with the Divisions of Water Rights and Water Resources as technical partners. HB60 (2026) limits what the State Engineer can weigh. Counties' moratoria are capped at 180 days, and MIDA holds jurisdiction at Stratos. Speaker Schultz asked for analysis of the appropriate scale and water impacts. Use neutral decision-support framing.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:email-thread-guidance-madisyn-johnson-nov-14-2026-2",
+   "kind": "research",
+   "title": "Research notes: Email thread guidance (Madisyn Johnson, Nov 14, 2026)",
+   "text": "**Comparison design.**\n- Four branches: built as planned, built with conditions, delayed or scaled down, not built here. \"Not built\" requires choosing what happens instead; relocation impacts are unknown, not zero.\n- Show net change against current land use: Stratos converts agricultural rights, and the developer claims less use than current agriculture. Diversion is not consumption. The baseline is the first data to get from Water Rights.\n- Source tags (government, developer, independent, advocacy-commissioned), ranges, \"not quantified\", and no single score or dollars-versus-deaths netting.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:email-thread-guidance-madisyn-johnson-nov-14-2026-3",
+   "kind": "research",
+   "title": "Research notes: Email thread guidance (Madisyn Johnson, Nov 14, 2026)",
+   "text": "**Stratos environmental figures (all contested).**\n- NRDC/EmPower: 5–45 premature deaths and $75–690M a year at 9 GW; 1.6–15 deaths and $25–230M a year at 3 GW; >80% of damages outside Utah. Not peer-reviewed, and the developer disputes it.\n- Utah Clean Energy: +55–75% to state climate emissions.\n- USU professor: heat +5°F by day and up to +28°F at night (rough).\n- FoGSL: a nearby wetland lost 80% of its spring flow to pumping (an existing condition, not a project effect).\n**Economics.**\n- Creekstone (government projection): $344M state revenue, $333M county wages, 106 jobs.\n- Stratos (developer claim): ~10,000 construction jobs, 2,000 permanent jobs.\n- Property tax incentives are capped around 60% of new county revenue (80% max). Depreciation makes the tax base volatile.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "research:email-thread-guidance-madisyn-johnson-nov-14-2026-4",
+   "kind": "research",
+   "title": "Research notes: Email thread guidance (Madisyn Johnson, Nov 14, 2026)",
+   "text": "**Data to obtain.** See `docs/source_catalog.csv`:\n- Water Rights POD (check for a priority-date field) and the Utah Water Use Program for M&I trends;\n- ask the Divisions whether basin water budgets exist;\n- HB 76 reports and water-right application records (e.g. a55167);\n- DAQ air permits (69 gas engines permitted for a Millard data center);\n- NRCS Water Supply Outlook, the DWRe climate report, the 2026 State Water Plan draft;\n- the Gardner Institute, U of U property-tax research, and Brookings via Sutherland;\n- county ordinances (Iron 2026-13, Cache 2026-32), the Server Country tracker and HB60 coverage.\nThe Stratos \"who pays\" pilot is in `frontend/atlas/pilots/stratos_who_pays.html`, unchanged.",
+   "source_name": "Project research notes (summaries, not independently re-verified)",
+   "url": "",
+   "source_type": null,
+   "verified": false,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "design:decisions-1",
+   "kind": "context",
+   "title": "Atlas design: Decisions",
+   "text": "Build one impact engine with three ways in, inside the existing YOUtah map. Every number comes from a sourced formula. Gemini only reads proposals or bills and explains the results.",
+   "source_name": "Atlas design document",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "design:decisions-2",
+   "kind": "context",
+   "title": "Atlas design: Decisions",
+   "text": "| Question | Decision | What it means for the build |\n| --- | --- | --- |\n| Audience | The Legislature first; protestants, county commissions and the Division of Water Rights second | Plain-language summary on top, \"show the math\" underneath, ranges rather than single numbers |\n| Time | 2 hours, map framework already built | Cached GeoJSON instead of live ingestion, a factor engine instead of a trained model, one panel |\n| Engine | Hybrid | Gemini turns text into parameters, Python computes the impacts, Gemini narrates only what Python returns |\n| Scenarios | Proposed data centers, drop a project, legislation | All three feed one engine |\n| Branches | Built as planned / built with conditions / delayed or scaled down / not built here | \"Not built\" is not zero: relocation impacts are unknown, and the panel says so |",
+   "source_name": "Atlas design document",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "design:audiences-and-goals-1",
+   "kind": "context",
+   "title": "Atlas design: Audiences and goals",
+   "text": "| Goal | Who decides | Who uses the tool | View | Output |\n| --- | --- | --- | --- | --- |\n| Statewide rule change (caps, thresholds, incentives, MIDA authority) | Legislature | Legislators, committee staff, the public | Legislative briefing | One-page PDF with its data limits |\n| Contest or shape one project's water right | State Engineer, on the legal record | Protestants and their consultants | Project detail with \"show the math\" | Citation export |\n| Protect one county from future projects | County commission, through zoning | Commissioners and residents | County/basin drill-down | One-page export filtered to the county |\n| Better baseline data | Divisions of Water Rights and Water Resources | Agency staff as data partners | — | Replaces placeholder baselines |",
+   "source_name": "Atlas design document",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "design:audiences-and-goals-2",
+   "kind": "context",
+   "title": "Atlas design: Audiences and goals",
+   "text": "The State Engineer is secondary: every water-right change passes through that office, even for MIDA projects, but each application is decided on its legal record, so a dashboard counts only if someone enters it as evidence. HB60 (2026) also narrowed the factors the State Engineer can weigh; only the Legislature can change that.\nCommittees: Natural Resources, Agriculture and Environment Interim owns the data center study on water, air and wildlife (passed unanimously May 20, 2026; the State Engineer presented to it Aug 19). Economic Development and Workforce Services opened a bill file to define a large-scale data center. Revenue and Taxation's role in incentives still needs checking. Bills would come in the 2027 General Session.",
+   "source_name": "Atlas design document",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "design:audiences-and-goals-3",
+   "kind": "context",
+   "title": "Atlas design: Audiences and goals",
+   "text": "Counties are the weakest audience for a statewide tool: moratoria are capped at 180 days, Box Elder's does not cover Stratos (MIDA holds jurisdiction), and basins cross county lines.",
+   "source_name": "Atlas design document",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "design:guardrails-1",
+   "kind": "context",
+   "title": "Atlas design: Guardrails",
+   "text": "Ranges always · stated vs computed vs rights side by side · overlaps are not harms · lake effect long-run and lake-draining only · grid power is not zero impact · GBIF shown only as hexes · coordinates approximate · no dollars-versus-deaths net total.",
+   "source_name": "Atlas design document",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:what-this-atlas-is",
+   "kind": "app",
+   "title": "What this atlas is",
+   "text": "The Utah Environmental Atlas shows on a map how proposed data centers, and the bills that would regulate them, would affect Utah's water and the Great Salt Lake. It is decision support for the Legislature, not advocacy: it gives ranges from a sourced factor model, shows developer, engine and highest-on-record figures side by side, tags every published figure by source type, and makes no recommendations. Ask for a tour to be shown around (action start_tour).",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:map-proposed-data-centers",
+   "kind": "app",
+   "title": "Map: proposed data centers",
+   "text": "Layer 'Proposed data centers' (layer id atlas-projects). Each circle is a proposed data center; its area is the engine's central water estimate in acre-feet per year. Blue circles drain to the Great Salt Lake, brown ones to other basins. Click a circle for its estimate, the developer's stated use, water rights and the highest figure on record. Locations are approximate. To show one: select_projects and fly_to with its project_id.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:impact-tab-projects",
+   "kind": "app",
+   "title": "Impact tab: Projects",
+   "text": "Impact tab, Projects sub-tab (impact_tab proposed). Tick the proposed data centers to include, choose a size for projects with phases, and the map and the result rows recompute. Results: Water, Great Salt Lake and dust, Air and climate (computed ranges), and Biodiversity, Wildfire, Pollution (overlap flags).",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:impact-tab-legislation-and-the-bill-library",
+   "kind": "app",
+   "title": "Impact tab: Legislation and the bill library",
+   "text": "Impact tab, Legislation sub-tab (impact_tab legislation). The bill library lists real measures (H.B. 76, H.B. 60, E.O. 2026-03, S.B. 132, Iron and Cache county moratoria) and mock bills. Applying a bill sets its levers and redraws the map (action apply_bill with a bill_id). You can also set levers by hand or paste bill text for Gemini to read into levers, each with its quote, confirmed before it applies.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:map-with-and-without-a-bill",
+   "kind": "app",
+   "title": "Map: with and without a bill",
+   "text": "When a bill or lever is applied, the map draws both cases at once: a dashed grey ring for each project built as planned (without the bill) and a solid ring for the scenario (with it), a dashed outline for the lakebed exposed without the bill and a filled band with it, and outlines for counties under a moratorium. A legend on the map gives the change in water use and lake level.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:map-four-branches-strip",
+   "kind": "app",
+   "title": "Map: four branches strip",
+   "text": "The four-branch strip docks over the map for one project (action open_compare with a project_id). Its cards are Built as planned, Built with conditions, Delayed or scaled down, and Not built here. Choosing a card redraws the map for that branch. Rows below compare economics and environment with source tags; cells with no figure read 'Not quantified'. There is no net score. Not built here is not zero: relocation impacts are unknown.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:impact-tab-basins",
+   "kind": "app",
+   "title": "Impact tab: Basins",
+   "text": "Impact tab, Basins sub-tab (impact_tab basins) and layer 'Basin water risk' (layer id atlas-basinrisk). It scores each basin from counted demand against supply headroom, junior-right share, storage and growth trend, with a dry-year slider. The basin baselines are invented placeholders until the Division of Water Rights or Water Resources supplies data, so the scores show how levers shift relative risk and are not findings.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:impact-tab-permits",
+   "kind": "app",
+   "title": "Impact tab: Permits",
+   "text": "Impact tab, Permits sub-tab (impact_tab pipeline) and layer 'Data center permit pipeline' (layer id atlas-permits). Each project shows five gates: land use, water right, air permit, water quality and construction, with who decides, sources, dated events and open decisions. 'Not found' means no filing was found, not that none exists.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:impact-tab-drop-a-project",
+   "kind": "app",
+   "title": "Impact tab: Drop a project",
+   "text": "Impact tab, Drop a project sub-tab (impact_tab drop). Set a size in MW, cooling type, on-site gas and whether it drains to the Great Salt Lake, then click the map to place a hypothetical data center. The county is detected from the click and the engine adds it to the scenario.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:impact-tab-who-decides",
+   "kind": "app",
+   "title": "Impact tab: Who decides",
+   "text": "Impact tab, Who decides sub-tab (impact_tab context). Lists the audiences, the interim committees studying data centers, the legal context and the source-type tags.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:map-layers-for-water",
+   "kind": "app",
+   "title": "Map layers for water",
+   "text": "Layers tab, group 'Data centers & water'. Layer ids: atlas-projects (proposed data centers), atlas-permits (permit pipeline), atlas-lake (Great Salt Lake outline and extra exposed lakebed), atlas-basinrisk (basin water risk, placeholder baselines), atlas-water (computed water use by county), atlas-reference (county lines), atlas-wbd-tiles (USGS watershed boundaries), atlas-fema-tiles (FEMA flood zones). Use set_layer to turn one on or off.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:great-salt-lake-on-the-map",
+   "kind": "app",
+   "title": "Great Salt Lake on the map",
+   "text": "Layer 'Great Salt Lake and extra exposed lakebed' (layer id atlas-lake). The tan band inside the lake outline has the area of lakebed the scenario would expose in the long run, counting only projects in basins that drain to the lake. The band has the estimated area but not the real shape, which follows the lake floor. To show it: fly_to place great_salt_lake.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:legislative-briefing",
+   "kind": "app",
+   "title": "Legislative briefing",
+   "text": "The briefing (action open_briefing, or /briefing) is a one-page print view: statewide totals, what each lever would change alone, then by basin and by project, with a fixed data-limits box. It is watermarked as a draft while basin baselines are placeholders.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:show-the-math-and-citations",
+   "kind": "app",
+   "title": "Show the math and citations",
+   "text": "At the bottom of the Impact tab: 'Show the math' lists the formulas, factor ranges with sources and per-project assumptions. 'Copy citation' and 'Download citation' export the scenario's inputs, factors and sources as text for a filing or a memo.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:how-to-read-the-ranges",
+   "kind": "app",
+   "title": "How to read the ranges",
+   "text": "Every engine output is a low, central and high value. Low uses every favourable input and high stacks every worst-case input, so the high end is an upper bound, not a forecast. Where a project has not said how it will be cooled or powered, the range spans the possibilities. Estimates are not measurements.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  },
+  {
+   "id": "app:air-quality-and-inversion-tools",
+   "kind": "app",
+   "title": "Air quality and inversion tools",
+   "text": "The Today tab and the Conditions layers show live Utah DAQ air monitors, National Weather Service forecasts and the winter inversion estimate. The assistant can also answer from these live readings for wherever the map is centred.",
+   "source_name": "Atlas user guide",
+   "url": "",
+   "source_type": null,
+   "verified": null,
+   "placeholder": false,
+   "lat": null,
+   "lon": null,
+   "tags": []
+  }
+ ]
+}

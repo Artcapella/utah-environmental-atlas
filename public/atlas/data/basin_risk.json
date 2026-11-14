@@ -1,0 +1,352 @@
+{
+ "baseline_status": "placeholder",
+ "warning": "Basin baselines (demand, headroom, junior share, storage, trend) are INVENTED PLACEHOLDERS from references/utah-water-planner-v3.html. Replace with Division of Water Rights / Water Resources data before showing results as findings.",
+ "basins": [
+  {
+   "name": "Bear River",
+   "lon": -112,
+   "lat": 41.6,
+   "demand": 9000,
+   "headroom": 40000,
+   "junior": 35,
+   "storage": 60,
+   "trend": 8
+  },
+  {
+   "name": "Weber River",
+   "lon": -111.5,
+   "lat": 41.05,
+   "demand": 12000,
+   "headroom": 15000,
+   "junior": 55,
+   "storage": 45,
+   "trend": 12
+  },
+  {
+   "name": "Jordan / Salt Lake",
+   "lon": -112,
+   "lat": 40.7,
+   "demand": 20000,
+   "headroom": 6000,
+   "junior": 70,
+   "storage": 25,
+   "trend": 15
+  },
+  {
+   "name": "Utah Lake / Provo",
+   "lon": -111.5,
+   "lat": 40.15,
+   "demand": 15000,
+   "headroom": 9000,
+   "junior": 62,
+   "storage": 35,
+   "trend": 18
+  },
+  {
+   "name": "Uintah Basin",
+   "lon": -109.9,
+   "lat": 40.4,
+   "demand": 6000,
+   "headroom": 30000,
+   "junior": 30,
+   "storage": 55,
+   "trend": 5
+  },
+  {
+   "name": "West Desert",
+   "lon": -113.3,
+   "lat": 40,
+   "demand": 7000,
+   "headroom": 3000,
+   "junior": 40,
+   "storage": 10,
+   "trend": 10
+  },
+  {
+   "name": "Sevier River",
+   "lon": -112.3,
+   "lat": 38.9,
+   "demand": 4000,
+   "headroom": 5000,
+   "junior": 50,
+   "storage": 50,
+   "trend": 6
+  },
+  {
+   "name": "Southeast Colorado",
+   "lon": -109.8,
+   "lat": 38.4,
+   "demand": 3000,
+   "headroom": 25000,
+   "junior": 25,
+   "storage": 20,
+   "trend": 4
+  },
+  {
+   "name": "Cedar / Beaver",
+   "lon": -112.9,
+   "lat": 38.2,
+   "demand": 5000,
+   "headroom": 2500,
+   "junior": 65,
+   "storage": 15,
+   "trend": 14
+  },
+  {
+   "name": "Virgin / Kanab",
+   "lon": -113.4,
+   "lat": 37.25,
+   "demand": 8000,
+   "headroom": 3500,
+   "junior": 68,
+   "storage": 30,
+   "trend": 20
+  }
+ ],
+ "projects": [
+  {
+   "name": "Stratos / Wonder Valley",
+   "engine_id": "stratos",
+   "basin": "Bear River",
+   "basin_uncertain": false,
+   "status": "approved",
+   "year": 2028,
+   "year_basis": "assumed",
+   "stated_af": 1215,
+   "rights_af": 13000,
+   "independent_high_af": 100000,
+   "other_high_af": null,
+   "note": "Developer's October engineering report projects about 1,215 af diverted at full buildout, with about 987 af net depletion after return flows. Rights: about 3,000 af to be purchased plus about 10,000 af under contract. Independent estimates run far higher: about 50,000 af if it uses combined-cycle gas turbines, and a BYU ecologist estimates closer to 100,000. Per the notes, Stratos has changed its water filings several times."
+  },
+  {
+   "name": "Joule campus",
+   "engine_id": "joule",
+   "basin": "Sevier River",
+   "basin_uncertain": false,
+   "status": "construction",
+   "year": 2026,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": 10000,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "About 10,000 af in rights. The developer has published no annual figure. The data halls use closed-loop cooling, but the gas generators will use some freshwater for cooling."
+  },
+  {
+   "name": "Creekstone Delta Gigasite",
+   "engine_id": "creekstone",
+   "basin": "Sevier River",
+   "basin_uncertain": false,
+   "status": "construction",
+   "year": 2026,
+   "year_basis": "assumed",
+   "stated_af": 200,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "Developer says up to 2 af per 100 MW, so up to 200 af at a full 10 GW. It also claims a technology that could produce about 4,000 af/yr, but large-scale water generation is likely several years away. That possible supply is not counted here."
+  },
+  {
+   "name": "Antelope (Pronghorn)",
+   "engine_id": "antelope",
+   "basin": "Cedar / Beaver",
+   "basin_uncertain": true,
+   "status": "approved",
+   "year": 2027,
+   "year_basis": "assumed",
+   "stated_af": 10.8,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": 20,
+   "note": "Filings show 10 to 20 af/yr during construction, a one-time fill of 8 af, and 10.8 af/yr once operating. Other filings gave 3.1 to 12.75 af/yr. The basin's water rights are fully appropriated, so new users must obtain existing rights."
+  },
+  {
+   "name": "Red Butte (BrightNight)",
+   "engine_id": "red_butte",
+   "basin": "Cedar / Beaver",
+   "basin_uncertain": true,
+   "status": "paused",
+   "year": 2029,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published. Currently held by the Iron County moratorium."
+  },
+  {
+   "name": "Nine Mile (Energence)",
+   "engine_id": "nine_mile",
+   "basin": "Uintah Basin",
+   "basin_uncertain": true,
+   "status": "approved",
+   "year": 2027,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published. Paired with a produced-water recycling facility (reWater LLC)."
+  },
+  {
+   "name": "CyrusOne at Dugway",
+   "engine_id": "cyrusone_dugway",
+   "basin": "West Desert",
+   "basin_uncertain": false,
+   "status": "proposed",
+   "year": 2029,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published. CyrusOne has committed to water-free cooling for all its new builds."
+  },
+  {
+   "name": "Tract Pole Canyon / Pony Express",
+   "engine_id": "tract_pole_canyon",
+   "basin": "Utah Lake / Provo",
+   "basin_uncertain": true,
+   "status": "proposed",
+   "year": 2028,
+   "year_basis": "published",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published. First phase is planned for 2028."
+  },
+  {
+   "name": "QTS Eagle Mountain",
+   "engine_id": null,
+   "basin": "Utah Lake / Provo",
+   "basin_uncertain": true,
+   "status": "construction",
+   "year": 2026,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No annual figure. Closed-loop cooling that needs a one-time fill."
+  },
+  {
+   "name": "Summit Ridge (DCPC)",
+   "engine_id": "summit_ridge",
+   "basin": "Utah Lake / Provo",
+   "basin_uncertain": true,
+   "status": "approved",
+   "year": 2027,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published. The developer says consumption will be \"hardly anything\"."
+  },
+  {
+   "name": "BluSky",
+   "engine_id": "blusky_nephi",
+   "basin": "Sevier River",
+   "basin_uncertain": true,
+   "status": "small",
+   "year": 2027,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published."
+  },
+  {
+   "name": "Tooele Valley projects",
+   "engine_id": null,
+   "basin": "West Desert",
+   "basin_uncertain": true,
+   "status": "paused",
+   "year": 2029,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published. Currently paused."
+  },
+  {
+   "name": "Novva and Aligned expansions",
+   "engine_id": null,
+   "basin": "Jordan / Salt Lake",
+   "basin_uncertain": false,
+   "status": "small",
+   "year": 2027,
+   "year_basis": "assumed",
+   "stated_af": null,
+   "rights_af": null,
+   "independent_high_af": null,
+   "other_high_af": null,
+   "note": "No water figures published."
+  }
+ ],
+ "lenses": {
+  "stated": {
+   "label": "Developer says",
+   "desc": "Counts only the annual water use each developer has published. Most projects have not published one, so this understates demand."
+  },
+  "rights": {
+   "label": "Water rights",
+   "desc": "Counts the water rights each developer holds or is seeking. Per the research notes, unused rights can be sold or leased, so this can show risk the stated use does not."
+  },
+  "high": {
+   "label": "Highest on record",
+   "desc": "Counts the highest figure on record for each project, including independent estimates that account for on-site gas power plants. This is the cautious view."
+  }
+ },
+ "factors": [
+  {
+   "k": "ratio",
+   "label": "Counted demand vs remaining supply",
+   "w": 35
+  },
+  {
+   "k": "junior",
+   "label": "Junior-right share",
+   "w": 25
+  },
+  {
+   "k": "storage",
+   "label": "Thin storage buffer",
+   "w": 20
+  },
+  {
+   "k": "trend",
+   "label": "Municipal and industrial growth",
+   "w": 20
+  }
+ ],
+ "categories": [
+  {
+   "name": "Low",
+   "min": 0,
+   "hex": "#5fae9f"
+  },
+  {
+   "name": "Watch",
+   "min": 40,
+   "hex": "#e2a43a"
+  },
+  {
+   "name": "High",
+   "min": 55,
+   "hex": "#d2622f"
+  },
+  {
+   "name": "Critical",
+   "min": 70,
+   "hex": "#8e1b3a"
+  }
+ ],
+ "gsl_need_af": 800000,
+ "gsl_need_source": "Great Salt Lake Strike Team estimate, as cited in project research notes",
+ "utah_capacity_mw": 10277,
+ "utah_capacity_source": "EIA, Utah net summer generating capacity 2024, as cited in a legislative policy brief"
+}

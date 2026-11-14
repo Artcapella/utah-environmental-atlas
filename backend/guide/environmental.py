@@ -314,9 +314,10 @@ TOOLS: dict[str, Callable[[_Run, dict[str, Any]], Awaitable[dict[str, Any]]]] = 
 }
 
 
-async def _execute(run: _Run, call: dict[str, Any]) -> dict[str, Any]:
+async def _execute(run: _Run, call: dict[str, Any], tools: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Run one model tool call. `tools` lets the atlas assistant add its own tools to this registry."""
     name = str(call.get("name") or "")
-    tool = TOOLS.get(name)
+    tool = (tools or TOOLS).get(name)
     if tool is None:
         result: dict[str, Any] = {"error": f"unknown tool {name}"}
     else:
@@ -360,10 +361,11 @@ def _retry_delay_s(response: httpx.Response) -> float | None:
 
 
 async def _generate_with_fallback(
-    client: httpx.AsyncClient, models: list[str], contents: list[dict[str, Any]]
+    client: httpx.AsyncClient, models: list[str], contents: list[dict[str, Any]],
+    instructions: str | None = None, declarations: list[dict[str, Any]] | None = None,
 ) -> tuple[str, dict[str, Any]] | None:
     """Retry an overloaded model once, then move to the next; None when every model is busy."""
-    body = _request_body(contents)
+    body = _request_body(contents, instructions, declarations)
     now = time.monotonic()
     available = [model for model in models if _benched_until.get(model, 0) <= now]
     for model in available:
@@ -391,11 +393,13 @@ async def _generate_with_fallback(
     return None
 
 
-def _request_body(contents: list[dict[str, Any]]) -> dict[str, Any]:
+def _request_body(
+    contents: list[dict[str, Any]], instructions: str | None = None, declarations: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
     return {
-        "systemInstruction": {"parts": [{"text": ENVIRONMENTAL_INSTRUCTIONS}]},
+        "systemInstruction": {"parts": [{"text": instructions or ENVIRONMENTAL_INSTRUCTIONS}]},
         "contents": contents,
-        "tools": [{"functionDeclarations": TOOL_DECLARATIONS}],
+        "tools": [{"functionDeclarations": declarations or TOOL_DECLARATIONS}],
         "toolConfig": {"functionCallingConfig": {"mode": "AUTO"}},
         "generationConfig": {"maxOutputTokens": 2048, "temperature": 0.3},
     }

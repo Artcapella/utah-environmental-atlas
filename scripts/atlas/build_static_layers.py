@@ -1,8 +1,8 @@
-"""Build the static overlay files in static/atlas/ from reference data + the impact engine.
+"""Build the static overlay files in public/atlas/data/ from reference data + the impact engine.
 
-Run from the repo root:  python scripts/build_static_layers.py
-Inputs:  data/reference/utah_counties_raw.geojson, data/reference/gsl_natural_earth.geojson
-Outputs: static/atlas/{utah_counties,utah_boundary,gsl_reference,projects,
+Run from the repo root:  python scripts/atlas/build_static_layers.py
+Inputs:  scripts/atlas/reference/utah_counties_raw.geojson, scripts/atlas/reference/gsl_natural_earth.geojson
+Outputs: public/atlas/data/{utah_counties,utah_boundary,gsl_reference,projects,
                        gsl_playa_scenarios}.geojson, by_basin.json, manifest.json
 """
 from __future__ import annotations
@@ -12,16 +12,16 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shapely.geometry import shape                                   # noqa: E402
 from shapely.ops import unary_union                                  # noqa: E402
-from backend.intelligence.impact_engine import (REGISTRY, REGISTRY_BY_ID, Levers,  # noqa: E402
+from backend.atlas.engine import (REGISTRY, REGISTRY_BY_ID, Levers,  # noqa: E402
                                                 rounded, run_scenario)
-from backend.intelligence import overlays as ov                      # noqa: E402
+from backend.atlas import overlays as ov                      # noqa: E402
 
-REF, OUT = ROOT / "data" / "reference", ROOT / "static" / "atlas"
+REF, OUT = ROOT / "scripts" / "atlas" / "reference", ROOT / "public" / "atlas" / "data"
 ALL = [p.id for p in REGISTRY]
 CONDITIONS = Levers(cooling_required="closed_loop", power_cooling_required="dry")
 
@@ -45,7 +45,7 @@ def main() -> None:
     results = {k: run_scenario(**v) for k, v in SCENARIOS.items()}
     base = results["all_built"]
 
-    print("Writing static/atlas:")
+    print("Writing public/atlas/data:")
     write("utah_counties.geojson", ov.counties_fc(counties, base, REGISTRY_BY_ID))
     boundary = unary_union([shape(f["geometry"]) for f in counties["features"]]).buffer(0)
     write("utah_boundary.geojson", ov.fc([ov.feature(boundary, {"name": "Utah"})]))
@@ -82,9 +82,11 @@ def main() -> None:
             "gsl_playa_scenarios": {"source": "impact_engine + overlays.playa_band", "kind": "illustrative"},
             "baseline_status": {"all_basins": "placeholder"},
         },
-        "to_fetch": "Run scripts/fetch_layers.py for GBIF, TRI, FIRMS, NIFC, critical habitat, WBD basins",
+        "to_fetch": "Run scripts/atlas/fetch_layers.py for GBIF, TRI, FIRMS, NIFC, critical habitat, WBD basins",
     }
     write("manifest.json", manifest)
+    # The API bundle (backend/atlas/data) needs the lake outline for the live playa band.
+    (ROOT / "backend" / "atlas" / "data" / "gsl_reference.geojson").write_text((OUT / "gsl_reference.geojson").read_text())
 
 
 if __name__ == "__main__":

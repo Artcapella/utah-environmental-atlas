@@ -1,0 +1,113 @@
+/* Environmental Atlas — Impact Panel inside the map's dark glass sheet (public/map.html tokens).
+   Source-type tags keep distinct outlines so their meaning never relies on colour alone. */
+.ip{--ip-ink:var(--ink,#e7efe9);--ip-muted:var(--ink-dim,#a9bdb6);--ip-line:var(--line,rgba(231,239,233,.12));
+  --ip-accent:var(--glacier,#6fa8bf);--ip-bad:var(--danger,#d9694a);--ip-warn:var(--warn,#e2b84b);--ip-well:rgba(255,255,255,.05);
+  color:var(--ip-ink);font-size:13.5px;line-height:1.45}
+.ip h4{margin:12px 0 4px;font-size:13px}
+.ip h5{margin:10px 0 4px;font-size:12.5px;color:var(--ip-ink)}
+.ip p{margin:6px 0}
+.ip ul{margin:4px 0;padding-left:18px}
+.ip a{color:var(--ip-accent)}
+.ip button{font:inherit;font-size:12.5px;padding:5px 10px;border:1px solid var(--ip-line);background:var(--ip-well);color:var(--ip-ink);border-radius:8px;cursor:pointer}
+.ip button:hover{background:rgba(255,255,255,.1)}
+.ip button[aria-pressed=true],.ip button[aria-selected=true]{background:var(--ip-accent);color:var(--deeper,#0a1c1e);border-color:transparent;font-weight:600}
+.ip button:focus-visible,.ip input:focus-visible,.ip select:focus-visible,.ip textarea:focus-visible,.ip summary:focus-visible{outline:2px solid var(--ip-warn);outline-offset:2px}
+.ip .ip-link{border:0;background:none;padding:0;color:var(--ip-accent);text-decoration:underline;font-size:inherit}
+.ip-lede{color:var(--ip-muted);margin:0 0 8px!important}
+.ip-tabs,.ip-branch,.ip-row-btns{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.ip-tabs button{border-radius:999px}
+.ip-branch{border-top:1px solid var(--ip-line);padding-top:8px;margin-top:10px}
+.ip-branch button{font-size:12px}
+.ip-row-btns{align-items:center}
+.ip-list{max-height:260px;overflow:auto;display:grid;gap:4px;padding-right:4px}
+.ip-proj label{display:flex;gap:6px;align-items:flex-start}
+.ip-proj .ip-size{margin:3px 0 2px 22px;width:calc(100% - 22px)}
+.ip input[type=number],.ip input[type=text],.ip select,.ip textarea{font:inherit;width:100%;padding:6px 8px;border:1px solid var(--ip-line);background:rgba(255,255,255,.06);color:var(--ip-ink);border-radius:8px}
+.ip select option{background:var(--deep,#0f2628);color:var(--ip-ink)}
+.ip input[type=range]{width:100%;accent-color:var(--ip-accent)}
+.ip-form{display:grid;gap:8px;margin:6px 0}
+.ip-form label{display:grid;gap:3px;font-size:12.5px;color:var(--ip-muted)}
+.ip-form .ip-check,.ip-check{display:flex!important;gap:6px;align-items:center;color:var(--ip-ink)}
+.ip-sub{border:1px solid var(--ip-line);border-radius:10px;padding:6px 9px;margin:8px 0}
+.ip-sub summary{cursor:pointer;font-weight:600}
+.ip-sub textarea{margin:6px 0}
+.ip-chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--ip-line);border-radius:999px;padding:2px 4px 2px 10px;margin:4px 4px 0 0;font-size:12px}
+.ip-chip button{padding:0 7px;border-radius:999px}
+.ip-muted{color:var(--ip-muted);font-size:12px}
+.ip-err{color:#f3b19d}
+.ip-nq{color:var(--ip-muted);font-style:italic}
+.ip-flash{background:rgba(226,184,75,.16);border-radius:8px;padding:5px 9px;margin:6px 0;font-size:12.5px}
+.ip-note{border:1px solid var(--ip-bad);border-left-width:5px;border-radius:8px;padding:8px 10px;background:var(--ip-well)}
+.ip-warnbox{border-color:var(--ip-warn);font-size:12.5px}
+.ip-hint{margin:2px 0 6px!important}
+.ip-scale{display:flex;gap:8px;align-items:center;font-size:12.5px;margin:4px 0}
+.ip-scale select{width:auto}
+.ip-summary p{background:var(--ip-well);border-left:3px solid var(--ip-accent);padding:7px 10px;margin:8px 0;border-radius:0 8px 8px 0}
+.ip-compare{border:1px solid var(--ip-accent);border-radius:10px;padding:4px 10px 6px;margin:8px 0;background:rgba(111,168,191,.08)}
+.ip-row{border-top:1px solid var(--ip-line);padding:7px 0}
+.ip-row summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:3px 8px;align-items:center}
+.ip-row summary::-webkit-details-marker{display:none}
+.ip-title{font-weight:650}
+.ip-val{font-weight:700;font-variant-numeric:tabular-nums}
+.ip-badge{font-size:10.5px;border:1px solid var(--ip-muted);border-radius:999px;padding:0 7px;color:var(--ip-muted)}
+.ip-bar{grid-column:1/-1;position:relative;height:8px;background:rgba(255,255,255,.08);border-radius:4px}
+.ip-span{position:absolute;top:0;height:8px;background:rgba(111,168,191,.45);border-radius:4px}
+.ip-mark{position:absolute;top:-3px;width:3px;height:14px;background:var(--ip-ink);transform:translateX(-1px);border-radius:2px}
+.ip-unit{grid-column:1/-1;font-size:11.5px;color:var(--ip-muted)}
+.ip-detail{padding:4px 0 2px;font-size:12.8px}
+.ip-flagrow{display:grid;grid-template-columns:1fr auto}
+.ip-flagrow .ip-detail{grid-column:1/-1}
+.ip-three{width:100%;border-collapse:collapse;font-size:12px;margin:5px 0;font-variant-numeric:tabular-nums}
+.ip-three th,.ip-three td{border:1px solid var(--ip-line);padding:4px 6px;text-align:left;vertical-align:top}
+.ip-three th{color:var(--ip-muted);font-weight:600}
+.ip-figs{padding-left:16px;margin:6px 0}
+.ip-figs li{margin:3px 0}
+.ip-eo{font-size:12.3px;margin-top:3px}
+.ip-lever{display:block;border:1px solid var(--ip-line);border-radius:8px;padding:6px 8px;margin:5px 0}
+.ip-lever q,.ip-quotes q{color:var(--ip-muted);font-size:12px}
+.ip-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-top:1px solid var(--ip-line);margin-top:10px;padding-top:9px;font-size:12.5px}
+.ip-math-box{font-size:11.5px;overflow:auto}
+.ip-math-box table{border-collapse:collapse}
+.ip-math-box td,.ip-math-box th{border:1px solid var(--ip-line);padding:2px 5px}
+.ip-ctx li{margin:4px 0}
+.ip-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:1px solid rgba(255,255,255,.5)}
+.ip-permit{border:1px solid var(--ip-line);border-radius:8px;padding:5px 8px;margin:4px 0}
+.ip-permit summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.ip-permit p{font-size:12.3px}
+.ip-gates{display:inline-flex;gap:2px;margin-left:auto}
+.ip-gate{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:5px;font-size:11px;border:1px solid var(--ip-line);color:var(--ip-muted)}
+.ip-gate.done{background:rgba(127,183,126,.25);color:#cfeccd;border-color:transparent}
+.ip-gate.inprogress,.ip-gate.partial,.ip-gate.inferred{background:rgba(111,168,191,.25);color:#cfe7f0;border-color:transparent}
+.ip-gate.pending,.ip-gate.onhold{background:rgba(226,184,75,.22);color:#f3dc9b;border-color:transparent}
+.ip-gate.appealed,.ip-gate.withdrawn{background:rgba(217,105,74,.25);color:#f6c0ae;border-color:transparent}
+.ip-gate.notfound,.ip-gate.notsearched{border-style:dashed}
+.ip-timeline{list-style:none;padding:0!important;font-size:12.3px}
+.ip-timeline li{padding:3px 0 3px 10px;border-left:2px solid var(--ip-line)}
+.ip-timeline li.future{border-left-color:var(--ip-accent)}
+.ip-timeline span{color:var(--ip-muted);font-variant-numeric:tabular-nums;margin-right:4px}
+/* source-type tags: distinct outlines (from the Stratos pilot) */
+.ip .ip-tag{display:inline-block;border:1px solid var(--ip-muted);border-radius:999px;padding:0 7px;font-size:10.5px;margin:1px 2px;color:var(--ip-muted);white-space:nowrap;vertical-align:1px}
+.ip .ip-tag.dev{border-style:dashed}.ip .ip-tag.adv{border-width:2px}.ip .ip-tag.ind{border-style:double;border-width:3px}.ip .ip-tag.der{border-style:dotted}
+
+/* Map headline card (map-first): scenario findings over the map while the Impact tab is open. */
+#atlasMapCard{position:fixed;z-index:15;top:70px;left:calc(var(--panel-w,380px) + 4px);width:min(560px,calc(100vw - var(--panel-w,380px) - 90px));
+  border-radius:var(--r,14px);padding:10px 14px;color:var(--ink,#e7efe9);font-size:13px;line-height:1.35}
+#atlasMapCard[hidden]{display:none}
+#atlasMapCard .amc-head{font-size:12.5px;color:var(--ink-dim,#a9bdb6);margin-bottom:6px}
+#atlasMapCard .amc-head b{color:var(--ink,#e7efe9)}
+#atlasMapCard .amc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+#atlasMapCard .amc-v{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1.1}
+#atlasMapCard .amc-v small{font-size:12px;font-weight:600;color:var(--ink-dim,#a9bdb6)}
+#atlasMapCard .amc-k{font-size:11.5px;color:var(--ink-dim,#a9bdb6)}
+#atlasMapCard .amc-chg{display:inline-block;margin-top:3px;font-size:11.5px;font-weight:650;color:var(--glacier,#6fa8bf)}
+#atlasMapCard .amc-lv{margin-top:7px;font-size:12px}
+#atlasMapCard .amc-ring{color:#f3a3b4;font-weight:650}
+#atlasMapCard .amc-foot{margin-top:6px;font-size:11px;color:var(--ink-dim,#a9bdb6)}
+#atlasMapCard a{color:var(--glacier,#6fa8bf)}
+@media (max-width:899px){
+  #atlasMapCard{top:calc(166px + env(safe-area-inset-top));left:8px;width:calc(100vw - 70px);padding:8px 10px}
+  #atlasMapCard .amc-v{font-size:17px}
+  #atlasMapCard .amc-grid{gap:6px}
+}
+
+body.atlas-impact #climate-card{display:none}

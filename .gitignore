@@ -24,7 +24,7 @@ supabase/.branches
 coverage/
 
 # Model training data: EPA AQS downloads and exported CSVs (regenerable, large)
-data/
+/data/
 
 .venv312/
 .venv312_backup/

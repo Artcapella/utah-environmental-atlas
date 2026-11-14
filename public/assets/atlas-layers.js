@@ -10,7 +10,7 @@ export const ATLAS_BASE = '/atlas/data';
 
 const C = {
   water: '#2b6f9e', lake: '#3d8fc4', playa: '#c8a165', habitat: '#3f7d4e', fire: '#d0461c',
-  perimeter: '#a33a1f', pollution: '#7a3f8f', ink: '#12324a', county: '#566b74',
+  perimeter: '#a33a1f', pollution: '#7a3f8f', ink: '#12324a', county: '#566b74', cost: '#8e1b3a',
 };
 
 // group -> layer ids (used by setGroupVisibility and the legend)
@@ -21,7 +21,7 @@ export const LAYER_GROUPS = {
   biodiversity: ['atlas-gbif-hex', 'atlas-gbif-tiles', 'atlas-habitat-fill', 'atlas-habitat-line'],
   wildfire: ['atlas-perimeters-fill', 'atlas-firms-points', 'atlas-firms-tiles'],
   pollution: ['atlas-tri-points'],
-  projects: ['atlas-projects-circle', 'atlas-projects-label', 'scenario-playa-fill', 'scenario-projects-circle'],
+  projects: ['atlas-projects-circle', 'atlas-projects-label', 'scenario-playa-fill', 'scenario-baseline-circle', 'scenario-projects-circle', 'scenario-projects-label'],
   permits: ['atlas-permits-circle', 'atlas-permits-symbol'],
   basinrisk: ['atlas-basinrisk-circle', 'atlas-basinrisk-label'],
 };
@@ -69,7 +69,7 @@ const EMPTY = { type: 'FeatureCollection', features: [] };
 
 // ---------------------------------------------------------------- main
 export async function addAtlasLayers(map, { base = ATLAS_BASE, firmsKey = null, beforeId, playaScenario = 'all_built',
-                                            visible = ['reference', 'lake', 'projects'], font = ['Noto Sans Regular'] } = {}) {
+                                            visible = ['reference', 'lake', 'projects'], font = ['Noto Sans Regular'], boldFont = ['Noto Sans Bold'] } = {}) {
   const f = (name) => `${base}/${name}`;
 
   // Reference + engine layers (always shipped)
@@ -168,15 +168,29 @@ export async function addAtlasLayers(map, { base = ATLAS_BASE, firmsKey = null, 
     'circle-color': ['step', ['get', 'score'], RISK_CATS[0][2], 40, RISK_CATS[1][2], 55, RISK_CATS[2][2], 70, RISK_CATS[3][2]],
     'circle-opacity': 0.55, 'circle-stroke-color': '#fff', 'circle-stroke-width': ['case', ['get', 'curtail'], 3, 1] } }, beforeId);
   addLayer(map, { id: 'atlas-basinrisk-label', type: 'symbol', source: 'atlas-basinrisk',
-    layout: { 'text-field': ['concat', ['get', 'name'], '
-', ['to-string', ['round', ['get', 'score']]], ['case', ['get', 'curtail'], ' · J', '']],
+    layout: { 'text-field': ['concat', ['get', 'name'], '\n', ['to-string', ['round', ['get', 'score']]], ['case', ['get', 'curtail'], ' · J', '']],
       'text-size': 11, 'text-font': font, 'text-allow-overlap': false },
     paint: { 'text-color': C.ink, 'text-halo-color': '#fff', 'text-halo-width': 1.4 } }, beforeId);
 
   // scenario overlays (filled by updateScenarioOverlays)
   addLayer(map, { id: 'scenario-playa-fill', type: 'fill', source: 'scenario-playa', paint: { 'fill-color': C.playa, 'fill-opacity': 0.85 } }, beforeId);
+  // Ghost ring: the same project's built-as-planned estimate, drawn only when levers changed it.
+  const baseRadius = ['interpolate', ['linear'], ['sqrt', ['max', ['coalesce', ['get', 'baseline_central'], 0], 1]], 0, 4, 100, 12, 250, 26];
+  addLayer(map, { id: 'scenario-baseline-circle', type: 'circle', source: 'scenario-projects', filter: ['has', 'baseline_central'], paint: {
+    'circle-radius': baseRadius, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': C.cost, 'circle-stroke-width': 1.5, 'circle-stroke-opacity': 0.8 } }, beforeId);
   addLayer(map, { id: 'scenario-projects-circle', type: 'circle', source: 'scenario-projects', paint: {
-    'circle-radius': radius, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': C.ink, 'circle-stroke-width': 2 } }, beforeId);
+    'circle-radius': radius, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': C.ink, 'circle-stroke-width': 2.5 } }, beforeId);
+  // The finding, written on the map: name + engine central water (and "was" when a lever changed it).
+  const af = (k) => ['number-format', ['get', k], { 'max-fraction-digits': 0 }];
+  addLayer(map, { id: 'scenario-projects-label', type: 'symbol', source: 'scenario-projects', layout: {
+    'text-field': ['case',
+      ['to-boolean', ['get', 'not_built']], ['concat', ['get', 'name'], '\nnot built here'],
+      ['has', 'baseline_central'], ['concat', ['get', 'name'], '\n', af('baseline_central'), ' → ', af('water_central'), ' AF/yr'],
+      ['has', 'water_central'], ['concat', ['get', 'name'], '\n', af('water_central'), ' AF/yr'],
+      ['get', 'name']],
+    'text-size': 12, 'text-font': boldFont, 'text-anchor': 'top', 'text-offset': [0, 1.2], 'text-optional': true, 'symbol-sort-key': ['-', 0, ['coalesce', ['get', 'water_central'], 0]] },
+    paint: { 'text-color': C.ink, 'text-halo-color': '#fff', 'text-halo-width': 1.6 } }, beforeId);
+  if (map.__atlasScenario) updateScenarioOverlays(map, map.__atlasScenario);   // restore after a style reload
 
   for (const g of Object.keys(LAYER_GROUPS)) setGroupVisibility(map, g, visible.includes(g));
   bindPopups(map);
@@ -202,6 +216,7 @@ export function setPlayaScenario(map, scenario) {
 
 // overlays = response of POST /api/atlas/overlays
 export function updateScenarioOverlays(map, overlays) {
+  map.__atlasScenario = overlays;
   map.getSource('scenario-projects')?.setData(overlays?.projects || EMPTY);
   map.getSource('scenario-playa')?.setData(overlays?.playa || EMPTY);
 }
@@ -235,12 +250,13 @@ function bindPopups(map) {
     map.on('mouseleave', layer, () => (map.getCanvas().style.cursor = ''));
   };
   // Scenario rings sit on top of the static circles, so they take the click when a scenario is drawn.
-  pop('scenario-projects-circle', projectPopup);
+  // Small permit dots sit inside the big water rings; a click on a dot shows its permit status.
+  pop('scenario-projects-circle', projectPopup, 'atlas-permits-circle');
   pop('atlas-projects-circle', projectPopup, 'scenario-projects-circle');
   pop('atlas-counties-fill', (p) => `<b>${esc(p.name)} County</b><br>${p.projects} proposed project(s), all built as planned<br>Engine water: ${fmt(p.water_central_af)} AF/yr<br>Stated: ${fmt(p.stated_af)} AF/yr`, 'atlas-projects-circle');
   const lakebed = (p) => `<b>Extra exposed lakebed</b><br>${esc(p.branch)}: ~${fmt(p.playa_acres_central)} acres, lake ~${p.level_drop_ft_central} ft lower (long run)<br><small>Illustrative band, not a mapped shoreline.</small>`;
   pop('scenario-playa-fill', lakebed);
-  pop('atlas-permits-circle', permitPopup, 'scenario-projects-circle');
+  pop('atlas-permits-circle', permitPopup);
   pop('atlas-basinrisk-circle', (p) => `<b>${esc(p.name)}</b> · risk score <b>${Math.round(p.score)}</b> (${esc(p.category)})<br>
     Counted demand ${fmt(p.demand)} AF/yr vs headroom ${fmt(p.headroom)} AF/yr<br>Data center demand counted: ${fmt(p.projects_af)} AF/yr${+p.unknown ? ` · ${p.unknown} project(s) with no figure` : ''}
     ${p.curtail === true || p.curtail === 'true' ? '<br><b>J</b>: demand exceeds headroom and most rights are junior; junior rights would likely be curtailed first.' : ''}

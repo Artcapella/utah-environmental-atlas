@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="/assets/env-mode.css" />
 <link rel="stylesheet" href="/assets/env-charts.css" />
 <link rel="stylesheet" href="/assets/map-climate.css" />
+<link rel="stylesheet" href="/assets/atlas-panel.css" />
 <style>
 /* ---------- Design tokens: swap these for the designer's palette ---------- */
 :root{
@@ -235,7 +236,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
     <div id="searchbox" class="glass">
       <a id="brand" href="/" title="YOUtah home" aria-label="YOUtah home">YU</a>
       <input id="search" type="search" autocomplete="off" data-i18n-ph="search" placeholder="Search Utah: places, events, trails…" aria-label="Search" />
-      <nav class="view-switch-m" aria-label="More environmental pages"><a href="/about#air">Trends</a><a href="/inversion">Inversion</a></nav>
+      <nav class="view-switch-m" aria-label="More environmental pages"><a href="/about#air">Trends</a><a href="/inversion">Inversion</a><a href="/briefing">Briefing</a></nav>
     </div>
     <div id="results" class="glass" role="listbox"></div>
   </div>
@@ -252,6 +253,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
   <nav id="viewSwitch" class="glass" aria-label="More environmental pages">
     <a href="/about#air" title="Air-quality trend charts">Trends</a>
     <a href="/inversion" title="Inversion map and clean-air trailheads">Inversion</a>
+    <a href="/briefing" title="One-page legislative briefing: data centers, water and the Great Salt Lake">Briefing</a>
   </nav>
   <button class="fab" id="fab3d" title="Toggle 2D / 3D terrain" aria-label="Toggle 3D terrain">3D</button>
   <button class="fab" id="fabLocate" title="My location" aria-label="My location">◎</button>
@@ -269,6 +271,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
     <div id="tabs" role="tablist">
       <button class="on" data-tab="today" data-i18n="today">Today</button>
       <button data-tab="layers" data-i18n="layers">Layers</button>
+      <button data-tab="impact" data-i18n="impact" title="Data center and legislation impacts on water and the Great Salt Lake">Impact</button>
       <button class="tourist" data-tab="plan" data-i18n="plan">Plan</button>
     </div>
   </div>
@@ -276,6 +279,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
     <section class="tab on" id="tab-today"></section>
     <section class="tab" id="tab-layers"></section>
     <section class="tab" id="tab-plan"></section>
+    <section class="tab" id="tab-impact" aria-label="Data center and legislation impacts"></section>
   </div>
 </aside>
 
@@ -344,21 +348,21 @@ const I18N = {
     fit:'Fit my budget', escape:'Escape the inversion', getThere:'Get there', addPlan:'Add to plan', directions:'Directions', share:'Share',
     promote:'Promote', suggest:'Suggest a spot', crowd:'Predicted crowd', budget:'Budget', total:'Total', lensFor:'Show me Utah as a…',
     visitor:'Visitor', student:'Student', newcomer:'New resident', outdoors:'Outdoors', remote:'Remote worker', cheap:'On a budget',
-    conditions:'Conditions', move:'Getting around', do:'Things to do', services:'Community & services', culture:'Culture & lore', context:'Context & predictions',
+    conditions:'Conditions', move:'Getting around', do:'Things to do', services:'Community & services', culture:'Culture & lore', context:'Context & predictions', atlas:'Data centers & water', impact:'Impact',
     applyPreset:'Turn on these layers', contextMap:'Background map (one at a time)', sources:'Data sources', emptyPlan:'Add places and events from their detail cards to build a day.' },
   es: { search:'Busca en Utah: lugares, eventos, senderos…', today:'Hoy', layers:'Capas', plan:'Plan', now:'Ahora', tonight:'Esta noche',
     tomorrow:'Mañana', weekend:'Fin de semana', happening:'Lo más interesante', beyond:'Más allá del folleto', beyondHint:'Oculta lo típico: esquí, parques nacionales, Temple Square',
     fit:'Dentro de mi presupuesto', escape:'Escapa de la inversión', getThere:'Cómo llegar', addPlan:'Añadir al plan', directions:'Ruta', share:'Compartir',
     promote:'Promocionar', suggest:'Sugerir un lugar', crowd:'Afluencia prevista', budget:'Presupuesto', total:'Total', lensFor:'Muéstrame Utah como…',
     visitor:'Visitante', student:'Estudiante', newcomer:'Nuevo residente', outdoors:'Aire libre', remote:'Trabajo remoto', cheap:'Con poco dinero',
-    conditions:'Condiciones', move:'Movilidad', do:'Qué hacer', services:'Comunidad y servicios', culture:'Cultura y leyendas', context:'Contexto y predicciones',
+    conditions:'Condiciones', move:'Movilidad', do:'Qué hacer', services:'Comunidad y servicios', culture:'Cultura y leyendas', context:'Contexto y predicciones', atlas:'Centros de datos y agua', impact:'Impacto',
     applyPreset:'Activar estas capas', contextMap:'Mapa de fondo (uno a la vez)', sources:'Fuentes de datos', emptyPlan:'Añade lugares y eventos desde sus tarjetas para armar tu día.' },
   zh: { search:'搜索犹他：地点、活动、步道…', today:'今天', layers:'图层', plan:'行程', now:'现在', tonight:'今晚',
     tomorrow:'明天', weekend:'周末', happening:'现在最有意思的', beyond:'超越宣传册', beyondHint:'隐藏常见的滑雪、国家公园、圣殿广场推荐',
     fit:'符合预算', escape:'逃离逆温层', getThere:'如何前往', addPlan:'加入行程', directions:'导航', share:'分享',
     promote:'推广', suggest:'推荐地点', crowd:'预测人流', budget:'预算', total:'合计', lensFor:'以…的身份看犹他',
     visitor:'游客', student:'学生', newcomer:'新居民', outdoors:'户外', remote:'远程办公', cheap:'省钱',
-    conditions:'实时状况', move:'出行', do:'活动与去处', services:'社区与服务', culture:'文化与传说', context:'背景与预测',
+    conditions:'实时状况', move:'出行', do:'活动与去处', services:'社区与服务', culture:'文化与传说', context:'背景与预测', atlas:'数据中心与水资源', impact:'影响',
     applyPreset:'开启这些图层', contextMap:'背景地图（一次一个）', sources:'数据来源', emptyPlan:'从地点或活动卡片中添加，规划你的一天。' }
 };
 const t = k => (I18N[state.lang] && I18N[state.lang][k]) || I18N.en[k] || k;
@@ -655,6 +659,7 @@ const SOURCES = {
    4. Layer registry — every feature lives here, grouped by category, tagged by persona
    ========================================================================= */
 const CATS = [
+  { id:'atlas', emoji:'🏭' },  // Environmental Atlas (assets/map-atlas.js): data centers, water, Great Salt Lake
   { id:'conditions', emoji:'🌤' }, { id:'move', emoji:'🚆' }, { id:'do', emoji:'🎟' },
   { id:'services', emoji:'🤝' }, { id:'culture', emoji:'🏛' }, { id:'context', emoji:'📊' }
 ];
@@ -739,7 +744,7 @@ const state = {
   t: 0, lang: store.get('lang', (navigator.language || 'en').slice(0, 2)), persona: null, offBrochure: false, fitBudget: false,
   three: store.get('3d', !lowSpec), layers: new Set(LAYERS.filter(l => l.on).map(l => l.id)), context: 'none',
   selected: null, plan: store.get('plan', []), budget: store.get('budget', 120), origin: { ...CONFIG.defaultOrigin },
-  pickMode: false, capOverride: null, openCats: new Set(['conditions', 'do']),
+  pickMode: false, capOverride: null, openCats: new Set(['atlas', 'conditions', 'do']),
   aqiOverride: null, invLive: null  // live inversion hook (set by /assets/map-live-inversion.js)
 };
 if (!I18N[state.lang]) state.lang = 'en';
@@ -1884,5 +1889,6 @@ window.YOUtah = {
 <script src="/assets/env-charts.js" defer></script>
 <script src="/assets/map-climate.js" defer></script>
 <script src="/assets/map-guide.js" defer></script>
+<script type="module" src="/assets/map-atlas.js"></script>
 </body>
 </html>

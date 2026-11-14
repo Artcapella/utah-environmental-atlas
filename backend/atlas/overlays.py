@@ -88,6 +88,8 @@ def projects_fc(result: dict, registry: dict) -> dict:
                 "co2_central_tons": r["air_tons"]["co2"][1], "nox_central_tons": r["air_tons"]["nox"][1],
                 "eo_test": w["eo_2026_03_test"],
             })
+            if r.get("reporting_visible") is not None:   # a reporting-threshold lever is set
+                props["would_report"] = bool(r["reporting_visible"])
         feats.append(point_feature(p.lon, p.lat, props))
     return fc(feats)
 
