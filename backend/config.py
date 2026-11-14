@@ -9,6 +9,10 @@ class Settings(BaseSettings):
 
     environment: str = "development"
 
+    # Master switch: SUPABASE_ENABLED=false runs fully local on built-in data, ignoring any
+    # Supabase credentials in .env.local (used by scripts/run-local.ps1).
+    supabase_enabled: bool = True
+
     # Supabase. The first alias is the current name; the second keeps older
     # .env.local / Vercel variable names working.
     supabase_url: str = Field(default="", validation_alias=AliasChoices("SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"))
@@ -37,6 +41,12 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-6-astra"
     openai_embedding_model: str = "text-embedding-3-small"
     openai_enable_web_search: bool = True
+    # Gemini powers the environmental guide (function-calling RAG over air, weather and
+    # inversion tools). Server-side only; never use a NEXT_PUBLIC_* name for this key.
+    gemini_api_key: str = Field(default="", validation_alias=AliasChoices("GEMINI_API_KEY", "GOOGLE_API_KEY"))
+    gemini_model: str = "gemini-3.5-flash"
+    # Tried in order when the primary model is overloaded (HTTP 429/503) or times out.
+    gemini_fallback_models_raw: str = Field(default="gemini-3.5-flash-lite", validation_alias="GEMINI_FALLBACK_MODELS")
     ingest_secret: str = ""
     # Vercel Cron sends `Authorization: Bearer $CRON_SECRET` to scheduled routes.
     cron_secret: str = ""
@@ -54,13 +64,18 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins_raw.split(",") if origin.strip()]
 
     @property
+    def gemini_models(self) -> list[str]:
+        fallbacks = [model.strip() for model in self.gemini_fallback_models_raw.split(",") if model.strip()]
+        return list(dict.fromkeys([self.gemini_model, *fallbacks]))
+
+    @property
     def supabase_read_configured(self) -> bool:
-        return bool(self.supabase_url and self.supabase_publishable_key)
+        return bool(self.supabase_enabled and self.supabase_url and self.supabase_publishable_key)
 
     @property
     def supabase_configured(self) -> bool:
         """True when the server can write (ingestion)."""
-        return bool(self.supabase_url and self.supabase_secret_key)
+        return bool(self.supabase_enabled and self.supabase_url and self.supabase_secret_key)
 
 
 @lru_cache

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Atlas demo: layers + Impact Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Standalone test page. Serve the repo root with the FastAPI app running, then open /frontend/atlas/demo.html.
+     In YOUtah, reuse your existing map instance instead of this one. -->
+<link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet">
+<link href="./impactPanel.css" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%}
+  #wrap{display:flex;height:100%}
+  #map{flex:1}
+  #toggles{position:absolute;top:10px;left:10px;background:#f7f9f9;border:1px solid #c5d0d4;border-radius:6px;padding:8px 10px;font:13px system-ui;z-index:2}
+  #toggles label{display:block}
+</style>
+<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+</head>
+<body>
+<div id="wrap"><div id="map"></div><aside id="impact-panel"></aside></div>
+<div id="toggles"></div>
+<script type="module">
+import { addAtlasLayers, setGroupVisibility, setTileOverlay, LAYER_GROUPS } from './layers.js';
+import { ImpactPanel } from './impactPanel.js';
+const STATIC = new URLSearchParams(location.search).get('static') || '/static/atlas';
+const map = new maplibregl.Map({ container: 'map', style: 'https://demotiles.maplibre.org/style.json', center: [-111.9, 39.6], zoom: 5.6 });
+map.on('load', async () => {
+  await addAtlasLayers(map, { base: STATIC, visible: ['reference', 'water', 'lake', 'projects'] });
+  const t = document.getElementById('toggles');
+  t.innerHTML = Object.keys(LAYER_GROUPS).map((g) => `<label><input type="checkbox" data-g="${g}" ${['reference','water','lake','projects'].includes(g) ? 'checked' : ''}> ${g}</label>`).join('') +
+    ['atlas-gbif-tiles', 'atlas-fema-tiles', 'atlas-wbd-tiles'].map((id) => `<label><input type="checkbox" data-t="${id}"> ${id.replace('atlas-', '').replace('-tiles', '')} tiles</label>`).join('');
+  t.querySelectorAll('[data-g]').forEach((c) => (c.onchange = () => setGroupVisibility(map, c.dataset.g, c.checked)));
+  t.querySelectorAll('[data-t]').forEach((c) => (c.onchange = () => setTileOverlay(map, c.dataset.t, c.checked)));
+  new ImpactPanel(document.getElementById('impact-panel'), { map, api: '/api/atlas' });
+});
+</script>
+</body>
+</html>

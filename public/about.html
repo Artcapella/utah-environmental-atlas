@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="/assets/styles.css" />
     <link rel="stylesheet" href="/assets/env-mode.css" />
+    <link rel="stylesheet" href="/assets/env-charts.css" />
     <style>
       .source-section { display:block; padding:56px 0; }
       .source-section h2 { font-size:clamp(26px,3vw,38px); margin:0; }
@@ -38,10 +39,11 @@
           <span>comprehensive<br /><strong>utah</strong></span>
         </a>
         <div class="nav-links">
-          <a class="nav-map" href="/map/simple">Map</a>
+          <a class="nav-map" href="/">Map</a>
           <a class="tourist" href="#discover">Discover</a>
           <a class="tourist" href="#events">Events</a>
-          <a href="/inversion">Air quality</a>
+          <a href="#air">Air trends</a>
+          <a href="/inversion">Inversion map</a>
           <a href="#sources">Data sources</a>
         </div>
       </nav>
@@ -52,7 +54,7 @@
           <h1>Know what's happening<br /><em>to Utah's air, water and land.</em></h1>
           <p class="hero-text">Live air quality, inversions, weather alerts and natural hazards from public sources, for residents and the legislators who represent them.</p>
           <div class="hero-actions">
-            <a class="button primary" href="/map/simple">Explore the map <span>↗</span></a>
+            <a class="button primary" href="/">Explore the map <span>↗</span></a>
           </div>
         </div>
         <aside class="pulse-card" aria-live="polite">
@@ -68,6 +70,43 @@
         </aside>
       </section>
 
+      <section class="shell air-section" id="air" aria-labelledby="air-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Live from Utah DAQ, NWS &amp; Open-Meteo</p><h2 id="air-title">Utah's air, in context.</h2></div>
+          <p>How today's particle pollution compares with the last few days, with every monitor in the state, and whether the coming week looks like inversion weather.</p>
+        </div>
+        <div class="air-filters" role="group" aria-label="Chart filters">
+          <label>Air monitor
+            <select id="air-station" aria-describedby="air-station-note"><option value="">Nearest to Salt Lake City</option></select>
+          </label>
+          <div class="segmented" role="group" aria-label="Time range">
+            <button class="seg" type="button" data-hours="24">24 hours</button>
+            <button class="seg active" type="button" data-hours="72" aria-pressed="true">3 days</button>
+            <button class="seg" type="button" data-hours="168">7 days</button>
+          </div>
+        </div>
+        <div class="air-grid">
+          <article class="chart-card wide">
+            <h3 id="trend-title">Fine particles (PM2.5)</h3>
+            <p class="chart-sub" id="trend-sub">Loading the monitor's recent readings…</p>
+            <div class="env-chart" id="trend-chart"></div>
+            <p class="chart-foot" id="air-station-note">Shaded bands are EPA PM2.5 levels. The AQI is based on the 24-hour average; hourly readings show what's happening right now. Readings are not quality-assured. <a id="trend-source" href="https://air.utah.gov/" target="_blank" rel="noreferrer">Source: Utah DAQ ↗</a></p>
+          </article>
+          <article class="chart-card">
+            <h3>Every monitor in the state</h3>
+            <p class="chart-sub">Latest hourly PM2.5, highest first. Dashed lines mark the top of EPA's Good and Moderate levels. <span id="monitors-mine"></span></p>
+            <div class="env-chart" id="monitor-chart"></div>
+          </article>
+          <article class="chart-card">
+            <h3>Will the valley get trapped?</h3>
+            <p class="chart-sub" id="outlook-sub">Seven-day inversion outlook. A low afternoon mixing height plus a warm layer aloft in the morning means pollution builds up.</p>
+            <div class="env-chart" id="outlook-chart"></div>
+            <p class="chart-foot">Estimate from the Open-Meteo forecast, not an official forecast. Days 4–7 are a trend only.</p>
+            <a class="chart-link" href="/inversion">Open the inversion map and clean-air trailheads →</a>
+          </article>
+        </div>
+      </section>
+
       <section class="map-section tourist" id="discover">
         <div class="shell map-head">
           <div><p class="eyebrow">Find your footing</p><h2>What feels alive today?</h2></div>
@@ -79,7 +118,7 @@
             <button class="filter" data-filter="art">Local lore</button>
           </div>
         </div>
-        <div class="map-frame shell"><div id="map" aria-label="Interactive map of nearby Utah places"></div><a class="button primary map-open" href="/map/simple">Open simple map <span>↗</span></a><div class="map-overlay"><span>●</span> Updated from live & public sources</div></div>
+        <div class="map-frame shell"><div id="map" aria-label="Interactive map of nearby Utah places"></div><a class="button primary map-open" href="/">Open the map <span>↗</span></a><div class="map-overlay"><span>●</span> Updated from live & public sources</div></div>
         <div class="shell place-grid" id="place-grid" aria-live="polite"></div>
       </section>
 
@@ -130,5 +169,7 @@
     <footer class="shell footer"><span>Comprehensive Utah · Environmental conditions for Utah residents and lawmakers.</span><a href="/api/health" target="_blank" rel="noreferrer">API health</a></footer>
     <script src="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.js"></script>
     <script src="/assets/app.js" defer></script>
+    <script src="/assets/env-charts.js" defer></script>
+    <script src="/assets/env-home.js" defer></script>
   </body>
 </html>

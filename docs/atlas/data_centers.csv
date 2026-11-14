@@ -1,0 +1,11 @@
+id,name,county,basin,lat_approx,lon_approx,mw_announced,status,cooling,onsite_gas,drains_to_gsl,stated_af,rights_af,highest_published_af,engine_low_af,engine_central_af,engine_high_af,published_figures,notes
+stratos,Stratos / Wonder Valley,Box Elder,Bear River / GSL,41.7,-112.55,9000,County approved May 2026,unknown,yes,True,1215,13000,100000,0,40000.0,230000.0,"987 (dev: Net depletion at full buildout); 1215 (dev: Diversion at full buildout); 1900 (gov: Water use cited by DNR director); 6100 (adv/der: Gas engines, ~2 billion gal/yr converted); 50000 (ind: Combined-cycle turbines); 100000 (ind: BYU ecologist estimate)","Rights: ~3,000 AF purchase + ~10,000 AF under contract. Footprint reported down to ~20,000 ac."
+joule,Joule campus,Millard,Sevier River,39.36,-112.58,4000,Phase 1 (455 MW) under construction,closed_loop,yes,False,,10000,,0,18000.0,36000.0,,
+creekstone,Creekstone Delta Gigasite,Millard,Sevier River,39.4,-112.5,10000,Phase 1 (220 MW) under construction,closed_loop,unknown,False,200,,,0,45000.0,89000.0,,Stated: up to 2 AF per 100 MW
+antelope,Antelope (Pronghorn),Iron,Cedar/Beaver,37.9,-113.3,1500,County permit June 2026,unknown,yes,False,10.8,,,0,6700.0,39000.0,,Basin water rights fully appropriated
+red_butte,Red Butte (BrightNight),Iron,Cedar/Beaver,37.85,-113.2,1500,Held by county moratorium,unknown,unknown,False,,,,0,6700.0,39000.0,,
+nine_mile,Nine Mile (Energence),Duchesne,Uinta (Colorado River),39.9,-110.4,400,County permits April 2026,unknown,unknown,False,,,,0,1800.0,10000.0,,Paired with produced-water recycling (reWater LLC)
+cyrusone_dugway,CyrusOne at Dugway,Tooele,West Desert,40.22,-112.75,1000,Proposed,closed_loop,unknown,False,,,,0,4500.0,8900.0,,CyrusOne committed to water-free cooling for new builds
+tract_pole_canyon,Tract Pole Canyon / Pony Express,Utah,Utah Lake / Jordan,40.31,-112.05,1820,First phase planned 2028,unknown,unknown,True,,,,0,8100.0,47000.0,,
+summit_ridge,Summit Ridge (DCPC),Utah,Utah Lake / Jordan,39.97,-111.78,500,20 MW approved; 500 MW JV,unknown,unknown,True,,,,0,2200.0,13000.0,,
+blusky_nephi,BluSky Nephi,Juab,Sevier River,39.71,-111.84,9.3,Smaller,unknown,unknown,False,,,,0,42.0,240.0,,

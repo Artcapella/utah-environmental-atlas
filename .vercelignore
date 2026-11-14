@@ -1,0 +1,16 @@
+# CLI deploys upload the working tree; keep them identical to git-based deploys
+# by excluding the same local-only paths that .gitignore excludes.
+# Patterns use gitignore syntax: a bare name matches at ANY depth, so local-only
+# paths are anchored with a leading "/" (a bare "router.py" would also drop
+# backend/intelligence/router.py, and a bare "data" would drop backend/inversion/data).
+.env*
+!.env.example
+.vercel
+.venv*
+.pytest_cache
+__pycache__
+**/__pycache__
+/Comprehensive_Utah_Intelligence_Prototype
+/data
+/supabase/.temp
+/environmental_shift_reference_docs

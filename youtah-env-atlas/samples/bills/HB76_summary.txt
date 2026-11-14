@@ -1,0 +1,10 @@
+SUMMARY (not bill text) of H.B. 76 (2026), Data Center Water Transparency Amendments, as presented by the
+Division of Water Rights to the Natural Resources, Agriculture, and Environment Interim Committee (Aug 19, 2026):
+
+- Large data centers must submit projected water use, discharge, treatment, and water reuse plans before construction.
+- Data centers using 75 acre-feet of water or more annually must report water use and conservation efforts each year.
+- Water use information is published online to support transparency and public awareness.
+- The Division of Water Rights is responsible for collecting reports and enforcement.
+
+Expected lever: reporting_threshold_af = 75 (changes what the state knows, not water use).
+Source: https://le.utah.gov/interim/2026/pdf/00003109.pdf

@@ -20,6 +20,8 @@
 -->
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
 <link rel="stylesheet" href="/assets/env-mode.css" />
+<link rel="stylesheet" href="/assets/env-charts.css" />
+<link rel="stylesheet" href="/assets/map-climate.css" />
 <style>
 /* ---------- Design tokens: swap these for the designer's palette ---------- */
 :root{
@@ -233,7 +235,7 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
     <div id="searchbox" class="glass">
       <a id="brand" href="/" title="YOUtah home" aria-label="YOUtah home">YU</a>
       <input id="search" type="search" autocomplete="off" data-i18n-ph="search" placeholder="Search Utah: places, events, trails…" aria-label="Search" />
-      <nav class="view-switch-m" aria-label="Map view"><a href="/map/simple" data-view="simple" data-i18n="simple">Simple</a><a class="active" href="/map" aria-current="page" data-i18n="advanced">Advanced</a></nav>
+      <nav class="view-switch-m" aria-label="More environmental pages"><a href="/about#air">Trends</a><a href="/inversion">Inversion</a></nav>
     </div>
     <div id="results" class="glass" role="listbox"></div>
   </div>
@@ -247,9 +249,9 @@ body.detail-open #inv{right:calc(var(--detail-w) + 24px)}
 </header>
 
 <div id="fabs">
-  <nav id="viewSwitch" class="glass" aria-label="Map view">
-    <a href="/map/simple">Simple</a>
-    <a class="active" href="/map" aria-current="page">Advanced</a>
+  <nav id="viewSwitch" class="glass" aria-label="More environmental pages">
+    <a href="/about#air" title="Air-quality trend charts">Trends</a>
+    <a href="/inversion" title="Inversion map and clean-air trailheads">Inversion</a>
   </nav>
   <button class="fab" id="fab3d" title="Toggle 2D / 3D terrain" aria-label="Toggle 3D terrain">3D</button>
   <button class="fab" id="fabLocate" title="My location" aria-label="My location">◎</button>
@@ -699,6 +701,8 @@ const TOURIST_LAYERS = new Set(['ski','transit','vehicles','roads','cams','parki
   'community','uni','libraries','wifi','outages','visitor','lore','landmarks','art','film','crowds','grid']);
 const TOURIST_CONTEXTS = new Set(['bb','age']);
 if (ENV_MODE) for (const L of LAYERS) if (TOURIST_LAYERS.has(L.id)) { L.on = false; L.hidden = true; }
+// Live NWS alerts (map-climate.js) replace the demo polygons; never show sample alerts as real ones.
+if (ENV_MODE) { DATA.alerts = []; LAYERS.find(l => l.id === 'alerts').on = true; }
 const LBYID = Object.fromEntries(LAYERS.map(l => [l.id, l]));
 const PRESETS = {
   visitor:['events','food','lore','landmarks','parks','visitor','transit','parking','rideshare','spaces','art','alerts'],
@@ -740,6 +744,7 @@ const state = {
 };
 if (!I18N[state.lang]) state.lang = 'en';
 const tAt = () => new Date(NOW.getTime() + state.t * 3600e3);
+const HOOKS = { time: [], detail: [] }; // plug-in callbacks (YOUtah.onTime / YOUtah.onDetail)
 
 /* =========================================================================
    6. Models: inversion, crowds (ML stand-in), feed ranking, get-there
@@ -967,6 +972,7 @@ function fc(layer) {
   if (layer === 'events') items = items.filter(e => e.end >= T && (e.start - T) / 3600e3 <= 30);
   return { type:'FeatureCollection', features: items.map(it => {
     const props = { gid: it.gid, name: it.name, brochure: !!it.brochure, sponsored: !!it.sponsored, level: it.level || '', danger: it.danger || '', color: it.color || '', verdict: it.verdict || '' };
+    if (it.geometry) return { type:'Feature', properties: props, geometry: it.geometry };
     if (it.coords) return { type:'Feature', properties: props, geometry: { type:'LineString', coordinates: it.coords } };
     if (it.ring) return { type:'Feature', properties: props, geometry: { type:'Polygon', coordinates: [it.ring] } };
     return { type:'Feature', properties: props, geometry: { type:'Point', coordinates: [it.lng, it.lat] } };
@@ -1166,6 +1172,7 @@ const layerIds = id => {
 function applyLayer(id) {
   if (!mapReady) return;
   const on = state.layers.has(id), L = LBYID[id];
+  if (L.apply) { L.apply(on); return; } // plug-in layers (YOUtah.addLayer) draw themselves
   if (L.kind === 'special') {
     const vis = (lid, v) => map.getLayer(lid) && map.setLayoutProperty(lid, 'visibility', v ? 'visible' : 'none');
     if (id === 'inversion') { vis('smog', on && !state.invLive); vis('aq-surface', on); /* live inversion hook */ vis('smog-line', on && state.layers.has('contours')); vis('smog-line-lb', on && state.layers.has('contours')); }
@@ -1380,7 +1387,8 @@ function renderLayers() {
         const n = DATA[l.id]?.length;
         return `<label class="layer ${p && l.personas.includes(p) ? 'persona-hit' : ''}"><span class="sw" style="background:${l.color}40">${l.emoji}</span>
           <span class="nm">${esc(l.name)}<small>${SOURCES[l.src]?.name || ''}${n ? ` · ${n}` : ''}${l.heavy ? ' · heavier' : ''}</small></span>
-          <span class="switch"><input type="checkbox" data-layer="${l.id}" ${state.layers.has(l.id) ? 'checked' : ''}><span></span></span></label>`;
+          <span class="switch"><input type="checkbox" data-layer="${l.id}" ${state.layers.has(l.id) ? 'checked' : ''}><span></span></span></label>
+          ${l.legend && state.layers.has(l.id) ? `<div class="layer-legend">${l.legend()}</div>` : ''}`;
       }).join('')}
       ${c.id === 'context' ? contextBlock() : ''}
     </details>`;
@@ -1494,7 +1502,9 @@ function renderDetail(it) {
       <div class="fine">Utah addresses are coordinates: “400 S 200 E” = 4 blocks south and 2 east of ${esc(ga.g.origin)}. 8 blocks ≈ 1 mile.</div></div>` : ''}
     ${tips.length && !ENV_MODE ? `<div class="box"><h4>💬 From the community</h4>${tips.map(x => `<div class="fine" style="color:var(--ink)">${esc(x)}</div>`).join('')}
       <button class="btn small" id="dTip" style="margin-top:8px">Add a tip</button></div>` : ''}
-    <p class="fine">Source: ${SOURCES[it.src] ? (SOURCES[it.src].url ? `<a style="color:var(--glacier)" href="${SOURCES[it.src].url}" target="_blank" rel="noopener">${esc(SOURCES[it.src].name)}</a>` : esc(SOURCES[it.src].name)) : '—'} · updated ${fmtTime(NOW)} · <span class="tag demo">demo data</span></p>`;
+    <div id="detailExtra"></div>
+    <p class="fine">Source: ${SOURCES[it.src] ? (SOURCES[it.src].url ? `<a style="color:var(--glacier)" href="${SOURCES[it.src].url}" target="_blank" rel="noopener">${esc(SOURCES[it.src].name)}</a>` : esc(SOURCES[it.src].name)) : '—'} · updated ${fmtTime(NOW)} · ${it.live ? '<span class="tag good">live</span>' : '<span class="tag demo">demo data</span>'}</p>`;
+  for (const fn of HOOKS.detail) fn(it, $('#detailExtra'));
 }
 
 function renderInversion() {
@@ -1572,6 +1582,7 @@ const onTime = debounce(() => {
   renderTimeChips(); renderToday(); renderInversion(); renderPulse();
   if (state.selected) renderDetail(BYID[state.selected]);
   if (!mapReady) return;
+  for (const fn of HOOKS.time) fn(state.t);
   map.setPaintProperty('smog', 'color-relief-color', smogColor(capHeight()));
   for (const l of ['smog-line', 'smog-line-lb']) if (map.getLayer(l)) map.setFilter(l, smogLineFilter(capHeight()));
   if (map.getSource('src-events')) map.getSource('src-events').setData(fc('events'));
@@ -1846,7 +1857,20 @@ window.YOUtah = {
   setCapHeight(m) { state.capOverride = m; onTime(); },   // feed real DAQ/ceilometer estimate here
   setValleyAQI(a) { state.aqiOverride = a; onTime(); },   // live inversion hook
   setInversionLive(info) { state.invLive = info; renderAll(); },   // live inversion hook
-  select, setLayer, setContext, set3D,
+  select, setLayer, setContext, set3D, tAt,
+  /** Register a plug-in layer: { id, cat, name, emoji, color, src, on, apply(on), legend() } */
+  addLayer(def) {
+    if (LBYID[def.id]) return;
+    const at = def.after ? LAYERS.findIndex(l => l.id === def.after) + 1 : LAYERS.length;
+    LAYERS.splice(at || LAYERS.length, 0, { kind:'special', personas:[], ...def });
+    LBYID[def.id] = LAYERS.find(l => l.id === def.id);
+    if (def.on && !state.layers.has(def.id)) state.layers.add(def.id);
+    applyLayer(def.id); renderLayers();
+  },
+  onTime(fn) { HOOKS.time.push(fn); },
+  onDetail(fn) { HOOKS.detail.push(fn); },
+  refreshLayers() { renderLayers(); },
+  get mapReady() { return mapReady; },
   setPersona(p) { state.persona = PERSONAS.includes(p) ? p : null; renderToday(); renderLayers(); },
   setTime(hoursFromNow) { state.t = Math.max(0, Math.min(72, hoursFromNow)); $('#timeRange').value = state.t; onTime(); },
   flyToCity(name) { const i = CITIES.findIndex(c => c[0].toLowerCase().includes(String(name).toLowerCase())); if (i >= 0) $(`#cities [data-city="${i}"]`).click(); },
@@ -1856,5 +1880,9 @@ window.YOUtah = {
 };
 </script>
 <script src="/assets/map-live-inversion.js" defer></script>
+<script src="/assets/guide-renderer.js" defer></script>
+<script src="/assets/env-charts.js" defer></script>
+<script src="/assets/map-climate.js" defer></script>
+<script src="/assets/map-guide.js" defer></script>
 </body>
 </html>

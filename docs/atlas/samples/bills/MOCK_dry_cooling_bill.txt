@@ -1,0 +1,9 @@
+MOCK BILL FOR DEMONSTRATION ONLY. NOT REAL LEGISLATION.
+
+H.B. 9999 Data Center Cooling Standards (mock)
+
+Section 1. A large data center that generates electricity on site using natural gas shall use dry or air-cooled condensers for any steam cycle, and may not use wet-recirculating cooling towers for power generation.
+
+Section 2. A large data center shall use closed-loop cooling for its data halls, with no continuous evaporative consumption after initial fill.
+
+Section 3. The Office of Energy Development shall publish an annual summary of large data center electricity generation.

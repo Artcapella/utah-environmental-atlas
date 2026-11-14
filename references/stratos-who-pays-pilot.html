@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stratos: who gets the benefits and who pays</title>
+<style>
+:root{
+  --bg:#e8edee; --panel:#f7f9f9; --ink:#12324a; --muted:#566b74; --line:#c5d0d4;
+  --ben:#2f7d6f; --cost:#8e1b3a; --warn:#b4731a; --accent:#12324a; --on:#fff; --hl:#fff4d6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#10181d; --panel:#18232a; --ink:#e3edf0; --muted:#9bb0b8; --line:#2c3d46; --ben:#6fc4b4; --cost:#f08aa3; --warn:#e2a43a; --accent:#9ccfe0; --on:#10181d; --hl:#3a3320; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 48px}
+header{padding:18px 0 4px}
+h1{font-size:1.65rem;line-height:1.2}
+h2{font-size:1.15rem;margin-bottom:6px}
+h3{font-size:1.02rem}
+header p{margin:4px 0 0;color:var(--muted);max-width:75ch}
+.note{border:1px solid var(--cost);border-left-width:5px;background:var(--panel);border-radius:4px;padding:8px 12px;font-size:.86rem;margin:10px 0 14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px 22px}
+.grp>span{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px}
+.segs{display:flex;flex-wrap:wrap}
+button{font:inherit;padding:6px 12px;border:1px solid var(--ink);background:var(--ink);color:var(--on);border-radius:4px;cursor:pointer}
+button.seg{border-radius:0;margin-left:-1px;font-size:.88rem}
+button.seg:first-child{border-radius:4px 0 0 4px;margin-left:0}
+button.seg:last-child{border-radius:0 4px 4px 0}
+button.seg[aria-pressed=true]{background:var(--ink);color:var(--on)}
+button.seg:not([aria-pressed=true]){background:transparent;color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.reading{margin:14px 0}
+.reading p{margin:4px 0}
+.tally{font-size:.88rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-top:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.card h3{margin-bottom:6px}
+.sec{margin-top:8px}
+.sec>b{font-size:.8rem}
+.sec.ben>b{color:var(--ben)} .sec.cost>b{color:var(--cost)}
+details.item{border-top:1px solid var(--line);padding:6px 0}
+details.item:first-of-type{border-top:0}
+details.item summary{cursor:pointer;list-style:none}
+details.item summary::-webkit-details-marker{display:none}
+.ititle{font-weight:600;font-size:.92rem}
+.ival{font-size:.9rem}
+.ival.nq{color:var(--muted);font-style:italic}
+.tag{display:inline-block;border:1px solid var(--muted);border-radius:10px;padding:0 7px;font-size:.7rem;margin:2px 4px 0 0;color:var(--muted);white-space:nowrap}
+.tag.dev{border-style:dashed}
+.tag.adv{border-width:2px}
+.tag.ind{border-style:double;border-width:3px}
+.tag.der{border-style:dotted}
+.inote{font-size:.82rem;color:var(--muted);margin:4px 0 2px}
+.lab{font-size:.72rem;font-weight:700;margin-right:6px}
+.lab.ben{color:var(--ben)} .lab.cost{color:var(--cost)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-top:14px}
+label{font-size:.82rem;color:var(--muted);display:block;margin-top:8px}
+select,input[type=number]{font:inherit;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px;width:100%}
+.verdict{margin-top:10px;padding:8px 10px;border-radius:4px;background:var(--hl);border:1px solid var(--warn);font-size:.9rem}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+td,th{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+ul.src{padding-left:18px;margin:6px 0 0;font-size:.84rem}
+ul.src li{margin:4px 0}
+a{color:var(--accent)}
+.small{font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Stratos: who gets the benefits and who pays</h1>
+  <p>A pilot for one project. It lists benefits and costs by who experiences them, shows ranges with their sources, and says plainly where nothing is published. It does not produce a net score.</p>
+</header>
+<div class="note"><strong>Read before using.</strong> Figures were gathered from news coverage, advocacy reports, government statements and developer claims in 2026, and have not been independently verified. Most environmental figures are modeled estimates, some disputed by the developer, and none are peer-reviewed as far as I could find. Items marked "my arithmetic" are my own conversions, not published numbers. Project size and power plans are still changing, so sources conflict. This is a framework for discussion, not a basis for a decision.</div>
+
+<div class="panel">
+  <div class="controls">
+    <div class="grp"><span>Scenario</span>
+      <div class="segs" id="gBranch" role="group" aria-label="Scenario"></div></div>
+    <div class="grp"><span>Project size (sources conflict)</span>
+      <div class="segs" id="gSize" role="group" aria-label="Project size"></div></div>
+    <div class="grp"><span>Gas power technology</span>
+      <div class="segs" id="gTech" role="group" aria-label="Power technology"></div></div>
+    <div class="grp"><span>Time view</span>
+      <div class="segs" id="gTime" role="group" aria-label="Time view"></div></div>
+  </div>
+</div>
+
+<div class="reading panel" id="reading"></div>
+<div class="grid" id="grid"></div>
+
+<div class="two">
+  <div class="panel" id="eo">
+    <h2>Water test from Executive Order 2026-03</h2>
+    <p class="small" style="margin:0 0 6px">The governor's office describes one principle of the order as ensuring water consumption is not increased. This test compares the project's estimated net water use with what the land uses today. I wrote the test myself to make the principle concrete. How the order is actually applied is up to the agencies.</p>
+    <label for="est">Project water estimate to test (acre-feet per year)</label>
+    <select id="est"></select>
+    <label for="base">Current consumptive use of the land and water rights being converted (acre-feet per year)</label>
+    <input type="number" id="base" min="0" step="100" placeholder="Not known. Enter a value from Water Rights data.">
+    <div class="verdict" id="verdict" role="status"></div>
+    <table style="margin-top:10px" id="rights"></table>
+  </div>
+  <div class="panel">
+    <h2>What conditions could change, and what is known</h2>
+    <table id="conds"></table>
+    <p class="small" style="margin-top:8px">If a condition has no measured effect here, I have not guessed one.</p>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:14px">
+  <h2>Source types</h2>
+  <p class="small" style="margin:0 0 6px">Each figure carries a tag with a distinct outline, so it does not depend on color. Government: statements or projections from officials. Developer: claims from the project's backers. Independent academic: a university researcher. Advocacy-commissioned: produced or funded by an advocacy group. My arithmetic: a conversion or division I did.</p>
+  <h2 style="margin-top:12px">Sources</h2>
+  <ul class="src" id="srcs"></ul>
+</div>
+</div>
+
+<script>
+const BRANCH={built:"Built as planned",cond:"Built with conditions",scaled:"Delayed or scaled down",none:"Not built"};
+const SIZE={full:"Full buildout, 9 GW",p3:"First phase, 3 GW",p15:"First phase, up to 1.5 GW"};
+const TECH={any:"Not specified",ccgt:"Combined-cycle gas",rice:"Gas engines"};
+const TIME={yr:"Per year at full build",y30:"Over 30 years"};
+const TAGS={gov:"Government",dev:"Developer",ind:"Independent academic",adv:"Advocacy-commissioned",der:"My arithmetic"};
+const STK=[
+ {id:"local",name:"Box Elder County and nearby residents"},
+ {id:"state",name:"State of Utah"},
+ {id:"lake",name:"Great Salt Lake and existing water users"},
+ {id:"down",name:"Downwind states"},
+ {id:"rate",name:"Utility ratepayers"},
+ {id:"dev",name:"Developer, tenants and investors"},
+ {id:"all",name:"Everyone (climate)"}
+];
+const S={branch:"built",size:"full",tech:"any",time:"yr",est:"987",base:""};
+
+const NQ="Not published or not quantified";
+function items(s){
+  const full=s.size==="full", p3=s.size==="p3", p15=s.size==="p15";
+  const annual=s.time==="yr";
+  // health values
+  let health, healthNote;
+  if(full){
+    if(s.tech==="ccgt") health=annual?"About 5 to 8 premature deaths and $77M to $127M per year":"About 145 to 253 premature deaths and $2.3B to $3.8B over 30 years";
+    else if(s.tech==="rice") health=annual?"About 29 to 45 premature deaths and $450M to $690M per year":"About 856 to 1,350 premature deaths and $13.5B to $20.7B over 30 years";
+    else health=annual?"5 to 45 premature deaths and $75M to $690M per year":"About 145 to 1,350 premature deaths and $2.3B to $20.7B over 30 years";
+    healthNote="Modeled by EmPower Analytics for NRDC, covering air pollution from on-site gas power only. The report assumes similar annual harm over 30 years, undiscounted, in 2023 dollars. "+(annual&&s.tech!=="any"?"Per-year figures by technology are my division of the report's 30-year totals by 30. ":"")+"The developer disputes the study: it says equipment has not been selected and permitting will model the real plant. The authors say the scenarios are not predictions.";
+  } else if(p3){
+    health=annual?"1.6 to 15 premature deaths and $25M to $230M per year":NQ+" for a 30-year view at this size";
+    healthNote="The report's 3 GW range spans both gas technologies, so the technology setting does not narrow it. Same caveats: modeled, advocacy-commissioned, disputed by the developer.";
+  } else { health=NQ+" (the report did not model 1.5 GW)"; healthNote="The governor said in May that the first phase would not exceed 1.5 GW. The health report modeled 3 GW and 9 GW only."; }
+  const hq=!(p15||(p3&&!annual));
+
+  const emis=full?"Raises Utah's climate emissions by about 55% to 75%, roughly 35 million metric tons of CO2 per year":NQ+" at this size";
+  const water="987 to 100,000 af/yr (a 100-fold spread across estimates)";
+
+  return [
+   {id:"B1",kind:"ben",who:["local","state"],title:"Construction jobs",val:"About 10,000 at the construction peak",q:true,tags:["dev"],note:"A developer claim from the project's lead backer. Duration, local hiring share and wages are not published."},
+   {id:"B2",kind:"ben",who:["local","state"],title:"Permanent jobs",val:"About 2,000",q:true,tags:["dev"],note:"A developer claim. The governor's economic office projected 106 permanent jobs for a different project (Creekstone), so per-project numbers vary widely."},
+   {id:"B3",kind:"ben",who:["local","state"],title:"State and county tax revenue",val:NQ,q:false,tags:["gov"],note:"The governor has said he supports Box Elder County using new revenue for schools, services and lower property taxes. No amount is published. A development authority created incentives for the project, and their size is unknown. University of Utah research on data centers generally finds property tax benefits can fluctuate as equipment depreciates."},
+   {id:"B4",kind:"ben",who:["state"],title:"Funding for military infrastructure",val:NQ,q:false,tags:["gov"],note:"The governor has said funds from the project must support infrastructure at Hill Air Force Base and Utah National Guard assets. No amount is published."},
+   {id:"B5",kind:"ben",who:["dev","state"],title:"Computing capacity and national security",val:"Qualitative",q:false,tags:["dev","gov"],note:"Backers and the governor have described large data centers as a national security priority. The governor has also said they are not the top source of economic development for the state. Not measurable with the data here."},
+   {id:"B6",kind:"ben",who:["dev"],title:"Private investment",val:"About $20M invested so far, per the developers (May 2026)",q:true,tags:["dev"],note:"Total planned investment is not in the sources I gathered."},
+
+   {id:"C1",kind:"cost",who:["lake","local"],title:"Water use (net depletion)",val:water,q:true,tags:["dev","adv","ind"],note:"Developer: about 987 af/yr net depletion (1,215 diverted) at full buildout. Utah Clean Energy: about 2 billion gallons a year for gas engines, which I convert to roughly 6,100 af/yr. Independent estimates in your notes: about 50,000 af/yr if combined-cycle turbines are used, and a BYU ecologist estimates closer to 100,000. The spread comes mostly from whether on-site power-plant cooling is counted. Estimates do not change with project size here because none of the sources give size-specific figures."},
+   {id:"C2",kind:"cost",who:["lake"],title:"Water rights the project says it will not use",val:"Up to about 11,800 af/yr (13,000 held or contracted, minus 1,215 diverted)",q:true,tags:["dev","der"],note:"By the developer's own figures most of its rights go unused. Your research notes say unused rights can be sold or leased. The governor said the executive order sends unused water from future projects to the Great Salt Lake. Which happens here is not established."},
+   {id:"C3",kind:"cost",who:["local","state"],title:"Health damages from air pollution",val:health,q:hq,tags:["adv"],note:healthNote+" Highest per-resident damages are in Box Elder County, and Salt Lake County has the highest total within Utah, per the report."},
+   {id:"C3b",kind:"cost",who:["down"],title:"Share of health damages outside Utah",val:(full||p3)?"More than 80%"+(full?"; $63M to $581M per year at 9 GW":""):NQ,q:(full||p3),tags:["adv"],note:"Pollution carries downwind to Idaho, Wyoming, Colorado and as far as Illinois, per the report. Same caveats as above."},
+   {id:"C4",kind:"cost",who:["all"],title:"Climate emissions",val:emis,q:full,tags:["adv"],note:"Estimates from Utah Clean Energy, which assumed gas power. The developer says it will evaluate renewables as the project grows, and the governor has said later phases should not be solely gas. The effect of that mix is not modeled."},
+   {id:"C5",kind:"cost",who:["local","lake"],title:"Local heat and ecosystem effects",val:"Possible +5°F by day and up to +28°F at night nearby",q:true,tags:["ind"],note:"A back-of-the-envelope estimate by a Utah State University physics professor, who said he may be wrong. A BYU ecologist reviewed it. I found no peer review. It assumes full buildout."},
+   {id:"C6",kind:"cost",who:["rate"],title:"Electricity costs for other ratepayers",val:NQ,q:false,tags:["dev","gov"],note:"The developer says on-site power adds no load or cost for Utah ratepayers. The governor directed the Public Service Commission to hold the project to a state law requiring no negative effect on electricity costs. No independent analysis was in the sources I gathered."},
+   {id:"C7",kind:"cost",who:["state","local"],title:"Incentive and fiscal-volatility costs",val:NQ,q:false,tags:["gov"],note:"The size of incentives is unknown. State law caps property tax incentives for data centers in general, but I did not confirm how that applies to a development authority project."},
+   {id:"C8",kind:"cost",who:["local"],title:"Land converted from ranching and farming",val:"About 20,000 acres now planned, down from 40,000",q:true,tags:["gov"],note:"Reported by Utah News Dispatch. The value of the current agricultural output is not published."},
+   {id:"C9",kind:"cost",who:["lake","local"],title:"Spring flow and wildlife near the site",val:NQ+" for the project's added effect",q:false,tags:["adv"],note:"An advocacy group says a nearby state wetland has already lost 80% of its spring flow to groundwater pumping. That is an existing condition, not an effect of this project. The project's added effect is unquantified."}
+  ];
+}
+
+function el(id){return document.getElementById(id)}
+function seg(id,map,key){
+  el(id).innerHTML=Object.entries(map).map(([k,v])=>`<button class="seg" data-k="${k}" aria-pressed="${S[key]===k}">${v}</button>`).join("");
+  el(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{S[key]=b.dataset.k;render()});
+}
+function itemHTML(it){
+  const none=S.branch==="none";
+  const label=none?(it.kind==="ben"?"Foregone":"Avoided if not relocated"):(it.kind==="ben"?"Benefit":"Cost");
+  let val=it.val, note=it.note;
+  if(none&&it.id==="C1"){val="Water stays in its current use. Current consumptive use is not known.";note="The land's rights are agricultural today. What happens to them if the project is not built depends on the owners. "+note;}
+  const tags=it.tags.map(t=>`<span class="tag ${t}">${TAGS[t]}</span>`).join("");
+  return `<details class="item"><summary><div class="ititle"><span class="lab ${it.kind}">${label}</span>${it.title}</div><div class="ival ${it.q?'':'nq'}">${val}</div>${tags}</summary><div class="inote">${note}</div></details>`;
+}
+function drawGrid(){
+  const its=items(S);
+  el('grid').innerHTML=STK.map(st=>{
+    const mine=its.filter(i=>i.who.includes(st.id));
+    const b=mine.filter(i=>i.kind==="ben"), c=mine.filter(i=>i.kind==="cost");
+    return `<section class="card" aria-label="${st.name}"><h3>${st.name}</h3>`+
+     (b.length?`<div class="sec ben"><b>${S.branch==="none"?"Benefits foregone":"Gets"}</b>${b.map(itemHTML).join("")}</div>`:"")+
+     (c.length?`<div class="sec cost"><b>${S.branch==="none"?"Costs avoided":"Bears"}</b>${c.map(itemHTML).join("")}</div>`:"")+
+     (!b.length?`<div class="small" style="margin-top:6px">No benefits to this group identified in the sources.</div>`:"")+`</section>`;
+  }).join("");
+}
+function drawReading(){
+  const its=items(S), q=its.filter(i=>i.q).length, devOnly=its.filter(i=>i.q&&i.tags.length===1&&i.tags[0]==="dev").length;
+  let line;
+  if(S.branch==="none") line="Nothing is built here. The ledger shows what would be given up and what would be avoided. It does not show where the project goes instead, which no source I found addresses. The governor said weeks before his executive order that if it could not be built in remote Box Elder County, it could not be built anywhere, as reported by KUTV.";
+  else if(S.branch==="cond") line="Two conditions have published effects here: power technology (a five- to sixfold difference in modeled health harm, per the report) and scale. Others are listed under \"What conditions could change.\"";
+  else if(S.branch==="scaled") line="Choose a smaller size above. Delay would shift when benefits and costs begin, but no source quantifies it. The state environmental quality commissioner said air and water permitting is at least a year away.";
+  else line="This shows the project as described, at the size and technology selected.";
+  el('reading').innerHTML=`<h2>${BRANCH[S.branch]}: ${SIZE[S.size]}${S.size==="full"&&S.tech!=="any"?", "+TECH[S.tech].toLowerCase():""}</h2><p>${line}</p><p class="tally">${q} of ${its.length} items have any published number. ${devOnly} of those rest only on the developer's word.</p>`;
+}
+const EST=[["987","About 987: developer's net depletion"],["1215","About 1,215: developer's diversion (overstates consumption if there are return flows)"],["6100","About 6,100: Utah Clean Energy, gas engines (my conversion)"],["50000","About 50,000: independent, combined-cycle turbines"],["100000","About 100,000: BYU ecologist's estimate"]];
+function drawEO(){
+  el('est').innerHTML=EST.map(([v,t])=>`<option value="${v}" ${S.est===v?"selected":""}>${t}</option>`).join("");
+  const est=+S.est, base=S.base===""?null:+S.base;
+  let v;
+  if(base===null) v="Cannot be tested yet. It needs the current consumptive use of the agricultural rights being converted, which I do not have. The developer's water application claims the project will use less than current agricultural use. That claim is not verified here.";
+  else if(est<=base) v=`Under this estimate, project use (${est.toLocaleString()} af/yr) is at or below the entered baseline (${base.toLocaleString()} af/yr), so water consumption would not increase.`;
+  else v=`Under this estimate, project use (${est.toLocaleString()} af/yr) exceeds the entered baseline (${base.toLocaleString()} af/yr) by about ${(est-base).toLocaleString()} af/yr, so water consumption would increase.`;
+  el('verdict').textContent=v;
+  const unused=Math.max(0,13000-est);
+  el('rights').innerHTML=`<tr><th>Water rights held or contracted (developer)</th><td>About 13,000 af/yr</td></tr><tr><th>Rights not used under this estimate</th><td>About ${unused.toLocaleString()} af/yr</td></tr><tr><td colspan="2" class="small">What happens to unused rights is open: your notes say rights can be sold or leased, and the governor said the order sends unused water from future projects to the Great Salt Lake.</td></tr>`;
+  el('est').onchange=e=>{S.est=e.target.value;drawEO()};
+  el('base').oninput=e=>{S.base=e.target.value;drawEO2()};
+}
+function drawEO2(){ // update verdict without re-rendering input (keeps focus)
+  const est=+S.est, base=S.base===""?null:+S.base;
+  let v;
+  if(base===null) v="Cannot be tested yet. It needs the current consumptive use of the agricultural rights being converted, which I do not have. The developer's water application claims the project will use less than current agricultural use. That claim is not verified here.";
+  else if(est<=base) v=`Under this estimate, project use (${est.toLocaleString()} af/yr) is at or below the entered baseline (${base.toLocaleString()} af/yr), so water consumption would not increase.`;
+  else v=`Under this estimate, project use (${est.toLocaleString()} af/yr) exceeds the entered baseline (${base.toLocaleString()} af/yr) by about ${(est-base).toLocaleString()} af/yr, so water consumption would increase.`;
+  el('verdict').textContent=v;
+}
+const CONDS=[
+ ["Power technology","Modeled health harm differs five- to sixfold between combined-cycle gas and gas engines.","adv"],
+ ["Scale (3 GW first phase vs 9 GW)","Modeled harm is 1.6 to 15 deaths a year at 3 GW versus 5 to 45 at 9 GW. 1.5 GW was not modeled.","adv"],
+ ["More non-gas power in later phases","The governor said later phases should not be gas, and the developer says it will evaluate renewables. Effect not modeled.","gov"],
+ ["Recycled water and efficient cooling","The developer says it will use recycling and efficient systems. No independent figure for net depletion.","dev"],
+ ["Unused water going to the lake","An executive order provision, per the governor. Effect depends on how much of roughly 11,800 af/yr of unused rights is involved.","gov"],
+ ["Delay","The governor said the order could delay the project. No source quantifies the effect.","gov"]
+];
+function drawConds(){
+  el('conds').innerHTML=CONDS.map(c=>`<tr><th scope="row">${c[0]}</th><td>${c[1]} <span class="tag ${c[2]}">${TAGS[c[2]]}</span></td></tr>`).join("");
+}
+const SRC=[
+ ["NRDC press release on the EmPower health report","https://www.nrdc.org/press-releases/stratos-data-center-will-emit-air-pollution-linked-premature-deaths-and-health"],
+ ["KSL: study and the developer's response","https://www.ksl.com/article/51642235/study-projects-health-impacts-from-proposed-stratos-data-center-kevin-olearys-team-disputes-findings"],
+ ["Utah Clean Energy: emissions and water estimates","https://utahcleanenergy.org/estimated-emissions-and-water-consumption-from-the-proposed-stratos-data-center/"],
+ ["Salt Lake Tribune: heat island estimates","https://www.sltrib.com/news/environment/2026/05/07/utahs-data-center-could-create/"],
+ ["Grist: Cox on natural gas and emissions estimates","https://grist.org/accountability/data-center-natural-gas-utah-cox-box-elder-stratos/"],
+ ["Utah News Dispatch: project size and first phase","https://utahnewsdispatch.com/2026/10/27/report-stratos-projects-emissions-could-cause-up-to-45-premature-deaths-illnesses-each-year/"],
+ ["Governor's Executive Order 2026-03","https://governor.utah.gov/wp-content/uploads/2026.05.29-EO-Higher-Bar-for-Data-Center-Development-1.pdf"],
+ ["Herald Journal: order details and Cox comments","https://www.hjnews.com/news/local/gov-cox-signs-order-creating-higher-bar-for-data-centers/article_073e0030-bf7e-42ac-b618-2cfac696bbf6.html"],
+ ["KUTV: governor's statements on Box Elder concerns","https://kutv.com/news/local/utah-governor-posts-answers-to-questions-concerns-about-box-elder-county-data-center"],
+ ["ABC4: Stratos water rights application","https://www.abc4.com/news/northern-utah/stratos-project-new-water-rights-application/"],
+ ["CNN: jobs and investment claims","https://www.cnn.com/2026/05/09/tech/ai-data-center-utah-kevin-oleary-opposition"],
+ ["Deseret News: economic benefits and tax volatility","https://www.deseret.com/business/2026/09/02/utah-data-centers-face-scrutiny-from-state-officials-rural-communities/"],
+ ["Friends of Great Salt Lake: protest page (spring flow claim)","https://fogsl.org/newsroom/file-a-protest-against-the-box-elder-data-center-water-rights-application"],
+ ["Your research notes: water rights, developer and independent water figures (not independently checked)","#"]
+];
+function drawSrc(){el('srcs').innerHTML=SRC.map(s=>s[1]==="#"?`<li>${s[0]}</li>`:`<li><a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a></li>`).join("")}
+function render(){
+  seg('gBranch',BRANCH,'branch');seg('gSize',SIZE,'size');seg('gTech',TECH,'tech');seg('gTime',TIME,'time');
+  drawReading();drawGrid();
+}
+render();drawEO();drawConds();drawSrc();
+</script>
+</body>
+</html>

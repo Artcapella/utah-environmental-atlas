@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utah data center water planner</title>
+<style>
+:root{
+  --bg:#e8edee; --panel:#f7f9f9; --ink:#12324a; --muted:#566b74; --line:#c5d0d4;
+  --c0:#5fae9f; --c1:#e2a43a; --c2:#d2622f; --c3:#8e1b3a; --accent:#12324a; --on:#fff; --hl:#fff4d6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#10181d; --panel:#18232a; --ink:#e3edf0; --muted:#9bb0b8; --line:#2c3d46; --accent:#9ccfe0; --on:#10181d; --hl:#3a3320; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;margin:0}
+.wrap{max-width:1260px;margin:0 auto;padding:0 20px 40px}
+header{padding:18px 0 6px}
+h1{font-size:1.6rem;line-height:1.2}
+header p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.controls{display:flex;gap:18px 28px;flex-wrap:wrap;margin-top:12px;align-items:flex-end}
+.controls .grp>span{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px}
+.segs{display:flex}
+.note{border:1px solid var(--c3);border-left-width:5px;background:var(--panel);border-radius:4px;padding:8px 12px;font-size:.86rem;margin:10px 0 14px}
+.lensnote{font-size:.85rem;color:var(--muted);margin-top:8px;max-width:90ch}
+.grid{display:grid;grid-template-columns:minmax(320px,1fr) minmax(340px,470px);gap:18px}
+@media(max-width:920px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.col{display:flex;flex-direction:column;gap:14px}
+svg{width:100%;height:auto;display:block}
+.state{fill:var(--bg);stroke:var(--ink);stroke-width:1.5}
+.basin{cursor:pointer;stroke:var(--panel);stroke-width:2;transition:fill .3s}
+.basin:focus{outline:none;stroke:var(--ink);stroke-width:3.5}
+.basin.sel{stroke:var(--ink);stroke-width:3.5}
+.capring{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-dasharray:4 3;opacity:.65;pointer-events:none}
+.blabel.empty{fill:var(--muted);font-style:italic}
+.blabel{font-size:9.5px;font-weight:600;fill:var(--ink);text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:var(--panel);stroke-width:3px}
+.pin{cursor:pointer}
+.pin:focus{outline:none}
+.pin:focus .pshape{stroke-width:3.5}
+.pshape{stroke:var(--ink);stroke-width:1.6;fill:var(--ink)}
+.pin.future .pshape{fill:var(--panel);stroke-dasharray:3 2}
+.pin.paused .pshape{fill:var(--panel);stroke:var(--muted);stroke-dasharray:1 3;opacity:.8}
+.pin.hl .ring{fill:none;stroke:var(--c3);stroke-width:3}
+.qb{fill:var(--panel);stroke:var(--c3);stroke-width:2;pointer-events:none}
+.qt{font-size:10px;font-weight:700;fill:var(--c3);text-anchor:middle;pointer-events:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:1px solid var(--ink)}
+.sq{width:10px;height:10px;display:inline-block;border:1.5px solid var(--ink);background:var(--ink)}
+.sq.dash{border-style:dashed;background:transparent}
+.sq.pz{border-style:dotted;border-color:var(--muted);background:transparent}
+.yeartop{display:flex;align-items:center;gap:12px;margin-top:12px}
+.bigyear{font-size:2.4rem;line-height:1;min-width:4.2ch}
+button{font:inherit;padding:7px 14px;border:1px solid var(--ink);background:var(--ink);color:var(--on);border-radius:4px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button.seg{border-radius:0;margin-left:-1px}
+button.seg:first-child{border-radius:4px 0 0 4px;margin-left:0}
+button.seg:last-child{border-radius:0 4px 4px 0}
+button.seg[aria-pressed=true]{background:var(--ink);color:var(--on)}
+button.seg:not([aria-pressed=true]){background:transparent;color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.focusable:focus-visible{outline:3px solid var(--c1);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.strip{display:grid;gap:3px;align-items:end;margin-top:10px}
+.strip button{padding:0;border:0;background:transparent;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem}
+.strip i{display:block;width:100%;background:var(--c2);border-radius:2px 2px 0 0;min-height:2px}
+.strip button[aria-current=true] i{background:var(--c3);outline:2px solid var(--ink)}
+.strip small{color:var(--muted)}
+h2{font-size:1.15rem}
+.headline{font-size:1.25rem;line-height:1.3;margin:4px 0 6px}
+.kpis{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}
+.kpis div{min-width:100px}
+.kpis b{display:block;font-size:1.3rem;font-family:Georgia,serif}
+.kpis span{font-size:.78rem;color:var(--muted)}
+.pill{display:inline-block;border-radius:10px;padding:1px 9px;font-size:.78rem;color:#fff;font-weight:600;white-space:nowrap}
+.badge{display:inline-block;border:1px solid var(--ink);border-radius:10px;padding:0 8px;font-size:.74rem;white-space:nowrap}
+.small{font-size:.82rem;color:var(--muted)}
+.worse{color:var(--c3);font-weight:700}
+.seglabel{font-size:.8rem;color:var(--muted);margin:12px 0 4px}
+.pcard{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-top:10px;background:var(--bg)}
+.pcard.hl{background:var(--hl);border-color:var(--c1)}
+.ptop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.ptop b{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.02rem}
+table.fig{width:100%;border-collapse:collapse;margin:8px 0;font-size:.86rem}
+table.fig td{padding:3px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+table.fig td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+table.fig tr.lens td{font-weight:700}
+table.fig tr.lens td:first-child::before{content:"\25B8 ";color:var(--c3)}
+.none{color:var(--muted);font-style:italic;font-weight:400}
+.impact{font-size:.88rem;margin:6px 0}
+.check{color:var(--c3);font-size:.78rem}
+.yr{width:78px;padding:3px 6px;font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:4px}
+.plist .pj{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:7px 4px;border-top:1px solid var(--line);cursor:pointer}
+.plist .pj:first-child{border-top:0}
+.plist .pj:hover{background:var(--bg)}
+.row{display:grid;grid-template-columns:1fr 36px;gap:6px;align-items:center;margin-top:6px;font-size:.85rem}
+.row span{text-align:right}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+select,input[type=number],input[type=text]{font:inherit;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px;width:100%}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.form label{font-size:.78rem;color:var(--muted);display:block}
+.form .full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.srcs{font-size:.82rem;color:var(--muted);padding-left:18px;margin:6px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Utah data center water planner</h1>
+  <p>Move through the years to see where planned data centers land, press any basin to see which projects affect it, and switch the water figure to compare what developers say with what the rights and independent estimates suggest.</p>
+  <div class="controls">
+    <div class="grp"><span>Water figure to use</span>
+      <div class="segs" role="group" aria-label="Water figure to use">
+        <button class="seg" data-lens="stated" aria-pressed="false">Developer says</button>
+        <button class="seg" data-lens="rights" aria-pressed="true">Water rights</button>
+        <button class="seg" data-lens="high" aria-pressed="false">Highest on record</button>
+      </div>
+    </div>
+    <div class="grp"><span>Water supply conditions</span>
+      <div class="segs" role="group" aria-label="Water supply conditions">
+        <button class="seg" data-dry="100" aria-pressed="true">Normal year</button>
+        <button class="seg" data-dry="70" aria-pressed="false">Dry year</button>
+        <button class="seg" data-dry="50" aria-pressed="false">Severe drought</button>
+      </div>
+    </div>
+  </div>
+  <div class="lensnote" id="lensnote"></div>
+</header>
+<div class="note"><strong>Read before presenting.</strong> Project figures come from your research notes (news and county filings, current as of mid-2026) and I have not independently verified them. Basin baselines (remaining supply, junior-right share, storage, use growth) are still placeholders. Project start years marked "assumed" are my assumptions, not published dates. Basin assignments are my best guess from each county and the map shapes are schematic. Treat risk scores as illustrative until the baselines are real.</div>
+
+<div class="grid">
+  <div class="col">
+    <div class="panel">
+      <svg id="map" viewBox="-10 -10 410 520" role="img" aria-label="Schematic map of Utah showing basin risk and data center projects"></svg>
+      <div class="legend" id="legend"></div>
+      <div class="yeartop">
+        <button id="play" aria-label="Play through the years">Play</button>
+        <div class="serif bigyear" id="bigyear"></div>
+        <div class="small" style="flex:1">Bars show how many basins are at High or Critical risk each year. Click a bar or drag the slider.</div>
+      </div>
+      <div class="strip" id="strip"></div>
+      <input type="range" id="year" aria-label="Year">
+    </div>
+    <div class="panel">
+      <h2>Capacity over time</h2>
+      <div class="small">Statewide capacity from phases with a published, target or assumed date (solid line), against all announced capacity (bar). Announced capacity is a ceiling, not a forecast.</div>
+      <label class="small" style="display:block;margin-top:6px">Stratos first phase (sources conflict):
+        <select id="sP1"><option value="1500">1.5 GW (governor, May 2026)</option><option value="3000">3 GW (health report)</option></select></label>
+      <svg id="capchart" viewBox="0 0 400 230" role="img" aria-label="Statewide data center capacity by year"></svg>
+      <div class="small" id="capnote"></div>
+    </div>
+    <div class="panel">
+      <h2>All projects</h2>
+      <div class="small" style="margin-bottom:4px">Press a project to jump to its basin. Figures are acre-feet per year (1 acre-foot is about 326,000 gallons).</div>
+      <div class="plist" id="plist"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel" id="summary"></div>
+    <div class="panel" id="detail" tabindex="-1"></div>
+    <div class="panel">
+      <h2>Tools</h2>
+      <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="cpaused"> Count paused or on-hold projects</label>
+      <div class="actions">
+        <button class="ghost" id="brief">Download briefing for this year</button>
+        <button class="ghost" onclick="document.getElementById('file').click()">Import projects (CSV)</button>
+        <input id="file" type="file" accept=".csv" hidden>
+        <button class="ghost" id="tmpl">CSV template</button>
+      </div>
+      <div class="small" id="msg" role="status" style="margin-top:6px"></div>
+      <details>
+        <summary>Add a what-if project</summary>
+        <div class="form">
+          <div class="full"><label for="fn">Project name</label><input type="text" id="fn" value="What-if project"></div>
+          <div><label for="fb">Basin</label><select id="fb"></select></div>
+          <div><label for="fy">Start year</label><input type="number" id="fy"></div>
+          <div class="full"><label for="fd">Water use (af/yr)</label><input type="number" id="fd" min="0" value="2000"></div>
+          <div class="full"><button id="fadd">Add to map</button></div>
+        </div>
+      </details>
+      <details>
+        <summary>Advanced: how risk is scored</summary>
+        <p class="small">Risk combines four factors, scaled 0 to 1 and weighted: counted project demand compared with remaining supply (capped at 1.5x), share of junior water rights, thin storage, and municipal and industrial use growth (capped at 25 percent per five years). Weights, caps and category cut-offs (Low under 40, Watch 40 to 55, High 55 to 70, Critical 70 and above) are my own simplifying choices, not an official method. Projects are counted in full from their start year, so phasing is not modeled.</p>
+        <div id="weights"></div>
+      </details>
+      <details>
+        <summary>What is known and not known</summary>
+        <p class="small">From your research notes: under HB 76 (effective July 1, 2026), new data centers over 10,000 sq ft that will draw 75 af or more a year must report to the Division of Water Rights. No reports had been published yet, so the first actual-use numbers should appear around September 2027. The notes also say no public source projects a statewide data center water total over the next five years, and that Stratos has changed its filings several times. Developer figures often cover only cooling inside the data halls, not water for on-site gas power plants.</p>
+      </details>
+      <details>
+        <summary>Sources listed in the research notes</summary>
+        <p class="small">These were listed in your document and I have not opened or verified them. I cannot tell which source supports which project figure, and the first one (a Grand County report) does not obviously match any project here, so please check it.</p>
+        <ul class="srcs">
+          <li>Grand County Planning Commission staff report, May 2026 (Utah PMN)</li>
+          <li>Salt Lake Tribune, Oct. 20, 2026: Stratos water application</li>
+          <li>Salt Lake Tribune, May 4, 2026: Stratos explainer</li>
+          <li>Christian Science Monitor: Stratos pushback</li>
+          <li>Utah Citizens Counsel: Power, Water, and Preemption</li>
+          <li>Trellis: Joule campus</li>
+          <li>Salt Lake Tribune: Delta Gigasite</li>
+          <li>Utah News Dispatch: Creekstone water tech</li>
+          <li>Salt Lake Tribune: Iron County data center rules</li>
+          <li>KSL: Iron County moratorium</li>
+          <li>Duchesne County Planning Commission minutes, April 2, 2026</li>
+          <li>Utah News Dispatch: Tooele Valley</li>
+          <li>Baxtel: DCPC Summit Ridge</li>
+          <li>Utah Division of Water Rights: Large Data Center Water Use Reporting</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ---------------- BASINS (positions approximate; baseline numbers are PLACEHOLDERS) ----------------
+const DEFAULT_BASINS = [
+ {name:"Bear River",        lon:-112.0, lat:41.6, demand:9000,  headroom:40000, junior:35, storage:60, trend:8},
+ {name:"Weber River",       lon:-111.5, lat:41.05,demand:12000, headroom:15000, junior:55, storage:45, trend:12},
+ {name:"Jordan / Salt Lake",lon:-112.0, lat:40.7, demand:20000, headroom:6000,  junior:70, storage:25, trend:15},
+ {name:"Utah Lake / Provo", lon:-111.5, lat:40.15,demand:15000, headroom:9000,  junior:62, storage:35, trend:18},
+ {name:"Uintah Basin",      lon:-109.9, lat:40.4, demand:6000,  headroom:30000, junior:30, storage:55, trend:5},
+ {name:"West Desert",       lon:-113.3, lat:40.0, demand:7000,  headroom:3000,  junior:40, storage:10, trend:10},
+ {name:"Sevier River",      lon:-112.3, lat:38.9, demand:4000,  headroom:5000,  junior:50, storage:50, trend:6},
+ {name:"Southeast Colorado",lon:-109.8, lat:38.4, demand:3000,  headroom:25000, junior:25, storage:20, trend:4},
+ {name:"Cedar / Beaver",    lon:-112.9, lat:38.2, demand:5000,  headroom:2500,  junior:65, storage:15, trend:14},
+ {name:"Virgin / Kanab",    lon:-113.4, lat:37.25,demand:8000,  headroom:3500,  junior:68, storage:30, trend:20}
+];
+
+// ---------------- PROJECTS (figures from the user's research notes; years marked "assumed" are mine) ----------------
+// stated = developer figure; rights = water rights held or sought; indLow/indHigh = independent estimates; alt = other upper figure on record
+// basinCheck = true where I am unsure which planning basin the county/site falls in
+const STATUS = {
+  construction:{label:"Under construction"},
+  approved:{label:"Approved"},
+  proposed:{label:"Proposed"},
+  paused:{label:"Paused or on hold"},
+  small:{label:"Smaller project"}
+};
+const DEFAULT_PROJECTS = [
+ {id:"stratos",name:"Stratos / Wonder Valley",county:"Box Elder",basin:"Bear River",basinCheck:false,status:"approved",statusNote:"County approved May 2026",size:"9 GW",mw:9000,year:2028,yearSrc:"assumed",
+  stated:1215,rights:13000,indLow:50000,indHigh:100000,alt:null,
+  note:"Developer's October engineering report projects about 1,215 af diverted at full buildout, with about 987 af net depletion after return flows. Rights: about 3,000 af to be purchased plus about 10,000 af under contract. Independent estimates run far higher: about 50,000 af if it uses combined-cycle gas turbines, and a BYU ecologist estimates closer to 100,000. Per the notes, Stratos has changed its water filings several times."},
+ {id:"joule",name:"Joule campus",county:"Millard (near Delta)",basin:"Sevier River",basinCheck:false,status:"construction",statusNote:"455 MW Phase 1 under construction",size:"455 MW now; 4,000+ MW full buildout",mw:4000,year:2026,yearSrc:"assumed",
+  stated:null,rights:10000,indLow:null,indHigh:null,alt:null,
+  note:"About 10,000 af in rights. The developer has published no annual figure. The data halls use closed-loop cooling, but the gas generators will use some freshwater for cooling."},
+ {id:"creekstone",name:"Creekstone Delta Gigasite",county:"Millard",basin:"Sevier River",basinCheck:false,status:"construction",statusNote:"220 MW Phase 1 under construction",size:"220 MW now; 10 GW planned",mw:10000,year:2026,yearSrc:"assumed",
+  stated:200,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"Developer says up to 2 af per 100 MW, so up to 200 af at a full 10 GW. It also claims a technology that could produce about 4,000 af/yr, but large-scale water generation is likely several years away. That possible supply is not counted here."},
+ {id:"antelope",name:"Antelope (Pronghorn)",county:"Iron",basin:"Cedar / Beaver",basinCheck:true,status:"approved",statusNote:"County permit approved June 2026",size:"1.5 GW plus gas plant",mw:1500,year:2027,yearSrc:"assumed",
+  stated:10.8,rights:null,indLow:null,indHigh:null,alt:20,
+  note:"Filings show 10 to 20 af/yr during construction, a one-time fill of 8 af, and 10.8 af/yr once operating. Other filings gave 3.1 to 12.75 af/yr. The basin's water rights are fully appropriated, so new users must obtain existing rights."},
+ {id:"redbutte",name:"Red Butte (BrightNight)",county:"Iron",basin:"Cedar / Beaver",basinCheck:true,status:"paused",statusNote:"Held by county moratorium",size:"1.5 GW",mw:1500,year:2029,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published. Currently held by the Iron County moratorium."},
+ {id:"ninemile",name:"Nine Mile (Energence)",county:"Duchesne",basin:"Uintah Basin",basinCheck:true,status:"approved",statusNote:"County permits approved April 2026",size:"about 400 MW",mw:400,year:2027,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published. Paired with a produced-water recycling facility (reWater LLC)."},
+ {id:"cyrusone",name:"CyrusOne at Dugway",county:"Tooele",basin:"West Desert",basinCheck:false,status:"proposed",statusNote:"1,000 MW proposed",size:"1,000 MW",mw:1000,year:2029,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published. CyrusOne has committed to water-free cooling for all its new builds."},
+ {id:"tract",name:"Tract Pole Canyon / Pony Express",county:"Utah (Eagle Mountain)",basin:"Utah Lake / Provo",basinCheck:true,status:"proposed",statusNote:"First phase planned for 2028",size:"1,700 MW and 120 MW",mw:1820,year:2028,yearSrc:"published",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published. First phase is planned for 2028."},
+ {id:"qts",name:"QTS Eagle Mountain",county:"Utah (Eagle Mountain)",basin:"Utah Lake / Provo",basinCheck:true,status:"construction",statusNote:"Under construction",size:"size not given",mw:null,year:2026,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No annual figure. Closed-loop cooling that needs a one-time fill."},
+ {id:"summit",name:"Summit Ridge (DCPC)",county:"Utah (Santaquin)",basin:"Utah Lake / Provo",basinCheck:true,status:"approved",statusNote:"20 MW approved; joint venture covers a 500 MW project",size:"20 MW approved; 500 MW joint venture",mw:20,year:2027,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published. The developer says consumption will be \"hardly anything\"."},
+ {id:"blusky",name:"BluSky",county:"Juab (Nephi)",basin:"Sevier River",basinCheck:true,status:"small",statusNote:"Smaller project",size:"9.3 MW",mw:9.3,year:2027,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published."},
+ {id:"tooele",name:"Tooele Valley projects",county:"Tooele",basin:"West Desert",basinCheck:true,status:"paused",statusNote:"Paused",size:"size not given",mw:null,year:2029,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published. Currently paused."},
+ {id:"slc",name:"Novva and Aligned expansions",county:"Salt Lake",basin:"Jordan / Salt Lake",basinCheck:false,status:"small",statusNote:"Expansions",size:"size not given",mw:null,year:2027,yearSrc:"assumed",
+  stated:null,rights:null,indLow:null,indHigh:null,alt:null,
+  note:"No water figures published."}
+];
+const LENSES = {
+  stated:{label:"Developer says",desc:"Counts only the annual water use each developer has published. Most projects have not published one, so this understates demand."},
+  rights:{label:"Water rights",desc:"Counts the water rights each developer holds or is seeking. Per the research notes, unused rights can be sold or leased, so this can show risk the stated use does not."},
+  high:{label:"Highest on record",desc:"Counts the highest figure on record for each project, including independent estimates that account for on-site gas power plants. This is the cautious view."}
+};
+const FACTORS = [
+ {k:"ratio",label:"Counted demand vs remaining supply",w:35},
+ {k:"junior",label:"Junior-right share",w:25},
+ {k:"storage",label:"Thin storage buffer",w:20},
+ {k:"trend",label:"Municipal and industrial growth",w:20}
+];
+const CATS = [
+ {name:"Low",min:0,hex:"#5fae9f"},{name:"Watch",min:40,hex:"#e2a43a"},
+ {name:"High",min:55,hex:"#d2622f"},{name:"Critical",min:70,hex:"#8e1b3a"}
+];
+const LAKE_NEED = 800000; // af/yr, Great Salt Lake Strike Team estimate as cited in the user's notes
+
+let basins = JSON.parse(JSON.stringify(DEFAULT_BASINS));
+let projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+let weights = Object.fromEntries(FACTORS.map(f=>[f.k,f.w]));
+let dry=100, lens="rights", sel=null, selProj=null, year=2026, timer=null, countPaused=false, MINY=2026, MAXY=2032;
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const el=id=>document.getElementById(id);
+const SX=77.2, SY=100, px=lon=>(lon+114.05)*SX, py=lat=>(42-lat)*SY;
+const catOf=s=>[...CATS].reverse().find(c=>s>=c.min);
+const fmt=n=>Math.round(n).toLocaleString();
+const fmtAF=v=>v==null?null:(v<100?String(Math.round(v*10)/10):Math.round(v).toLocaleString());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const bIndex=name=>basins.findIndex(b=>b.name===name);
+const nn=(...v)=>v.filter(x=>x!=null);
+function highOf(p){const a=nn(p.stated,p.rights,p.indHigh,p.alt);return a.length?Math.max(...a):null}
+function lensVal(p){return lens==="stated"?p.stated:lens==="rights"?p.rights:highOf(p)}
+const included=p=>p.status!=="paused"||countPaused;
+
+function calc(bi,y){
+  const b=basins[bi]; let proj=0, unknown=0, counted=[];
+  projects.forEach(p=>{
+    if(p.basin!==b.name||!included(p)||p.year>y) return;
+    const v=lensVal(p); if(v==null) unknown++; else {proj+=v;counted.push(p);}
+  });
+  const demand=b.demand+proj, head=b.headroom*dry/100, ratio=head>0?demand/head:9;
+  const f={ratio:clamp(ratio/1.5,0,1),junior:clamp(b.junior/100,0,1),storage:1-clamp(b.storage/100,0,1),trend:clamp(b.trend/25,0,1)};
+  const tw=Object.values(weights).reduce((a,c)=>a+c,0)||1;
+  const contrib=Object.fromEntries(FACTORS.map(x=>[x.k,weights[x.k]*f[x.k]/tw*100]));
+  const score=Object.values(contrib).reduce((a,c)=>a+c,0);
+  return {demand,proj,unknown,head,ratio,f,contrib,score,cat:catOf(score),curtail:demand>head&&b.junior>=50};
+}
+const allAt=y=>basins.map((b,i)=>({i,b,m:calc(i,y)}));
+const riskyCount=y=>allAt(y).filter(r=>r.m.score>=55).length;
+
+// ---------------- MAP ----------------
+// ---------------- CAPACITY OVER TIME ----------------
+// Phase levels are cumulative capacity (MW) for that project once the phase is online.
+// basis: "published" date, "target" (developer target) or "assumed" (my assumption; uses the project's start year).
+// type: "gen" = on-site generating capacity; "unspec" = not specified (could be data center load or generation).
+const CAPPH={
+ stratos:{type:"gen",phases:[{y:2028,mw:1500,basis:"assumed",note:"First phase. The governor said it would not exceed 1.5 GW; the health report describes a 3 GW first phase. No date published, so the project's start year is used."}],full:9000,fullYear:null,fullNote:"9 GW full buildout; no date published."},
+ joule:{type:"gen",phases:[{y:2026,mw:1000,basis:"target",note:"1 GW initial phase from gas generators; a tracker reports first power targeted for late 2026."}],full:4000,fullYear:null,fullNote:"4,000+ MW per your notes; some reports cite up to 12 GW."},
+ creekstone:{type:"gen",phases:[{y:2027,mw:220,basis:"published",note:"About 220 MW first generating block; on-site power planned for 2027."}],full:10000,fullYear:null,fullNote:"More than 10 GW of generating capacity envisioned. A tracker lists 4.61 GW of full-build data center (IT) load, so generation and server load differ."},
+ antelope:{type:"gen",phases:[{y:2028,mw:500,basis:"target",note:"First 500 MW targeted for 2028."},{y:2033,mw:1500,basis:"target",note:"Full 1.5 GW gas plant targeted for 2033."}],full:1500,fullYear:2033,fullNote:""},
+ redbutte:{type:"gen",phases:[],full:1500,fullYear:null,fullNote:"1.5 GW data center and gas plant per your notes; on hold, no dates."},
+ ninemile:{type:"gen",phases:[{y:2029,mw:400,basis:"target",note:"About 400 MW gas plant; operation planned by 2029. A tracker also lists 333 MW of solar, not counted here."}],full:400,fullYear:2029,fullNote:""},
+ cyrusone:{type:"unspec",phases:[],full:1000,fullYear:null,fullNote:"1,000 MW proposed per your notes. The Army projects first operating capability in fiscal 2029 but has not published its size."},
+ tract:{type:"unspec",phases:[],full:1820,fullYear:null,fullNote:"1,700 MW and 120 MW proposed. First phase planned for 2028, size not published."},
+ qts:{type:"unspec",phases:[],full:0,fullYear:null,fullNote:"Capacity not published."},
+ summit:{type:"unspec",phases:[{y:2027,mw:20,basis:"assumed",note:"20 MW approved. A tracker lists 2027 operation for a 100 MW figure. Uses the project's start year."}],full:500,fullYear:null,fullNote:"A joint venture covers a 500 MW project; no date."},
+ blusky:{type:"unspec",phases:[{y:2027,mw:9.3,basis:"assumed",note:"9.3 MW per your notes (a tracker says 4 MW). Uses the project's start year."}],full:9.3,fullYear:null,fullNote:""},
+ tooele:{type:"unspec",phases:[],full:0,fullYear:null,fullNote:"Capacity not published."},
+ slc:{type:"unspec",phases:[],full:0,fullYear:null,fullNote:"Capacity not published."}
+};
+// Air-permitted generating capacity found (as of Nov 2026)
+const PERMIT={joule:{low:175,high:350,note:"Air approval orders found for Joule sites with 69 gas engines of 3,392 hp each, about 175 MW per site (my conversion: 69 x 3,392 hp x 0.7457 kW/hp). I found orders for one to two sites; how many are final is not confirmed."}};
+const UTAH_CAP=10277; // MW, Utah total net summer generating capacity in 2024 (EIA, cited in a legislative policy brief)
+let stratosP1=1500;
+function ph(p){
+  const d=CAPPH[p.id];
+  if(!d) return {type:"unspec",phases:p.mw?[{y:p.year,mw:p.mw,basis:"assumed",note:"Imported or what-if project; full capacity counted from its start year."}]:[],full:p.mw||0,fullYear:null,fullNote:""};
+  return {...d,phases:d.phases.map(x=>({...x,y:x.basis==="assumed"?p.year:x.y,mw:p.id==="stratos"?stratosP1:x.mw}))};
+}
+function capAt(p,y){let c=0;ph(p).phases.forEach(x=>{if(x.y<=y)c=Math.max(c,x.mw)});return c}
+function capFull(p){const d=ph(p);return Math.max(d.full||0,0,...d.phases.map(x=>x.mw))}
+function basinCapAt(name,y){return projects.filter(p=>p.basin===name).reduce((a,p)=>a+capAt(p,y),0)}
+function basinCapFull(name){return projects.filter(p=>p.basin===name).reduce((a,p)=>a+capFull(p),0)}
+function rOf(mw){const max=Math.max(1,...basins.map(b=>basinCapFull(b.name)));return mw>0?14+Math.sqrt(mw/max)*36:10}
+const fmtMW=mw=>mw<100?(Math.round(mw*10)/10)+" MW":Math.round(mw).toLocaleString()+" MW";
+function drawCap(){
+  const ys=[];for(let y=MINY;y<=MAXY;y++)ys.push(y);
+  const T=y=>projects.reduce((a,p)=>a+capAt(p,y),0);
+  const F=projects.reduce((a,p)=>a+capFull(p),0);
+  const dated=T(MAXY), undated=Math.max(0,F-dated);
+  const pl=Object.values(PERMIT).reduce((a,x)=>a+x.low,0), phi=Object.values(PERMIT).reduce((a,x)=>a+x.high,0);
+  const W=400,H=230,x0=44,x1=300,y0=200,y1=14, top=Math.max(F,UTAH_CAP)*1.08;
+  const X=i=>x0+i*(x1-x0)/Math.max(ys.length-1,1), Y=v=>y0-(v/top)*(y0-y1);
+  let g="";
+  for(let v=0;v<=top;v+=10000){g+=`<line x1="${x0}" x2="${W-8}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${x0-4}" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="var(--muted)">${v/1000} GW</text>`;}
+  ys.forEach((y,i)=>{if(i%2===0||y===year)g+=`<text x="${X(i)}" y="${y0+14}" font-size="10" text-anchor="middle" fill="var(--muted)">${y}</text>`});
+  let d=`M${X(0)},${Y(T(ys[0]))}`;ys.forEach((y,i)=>{if(i)d+=` H${X(i)} V${Y(T(y))}`});d+=` H${x1+10}`;
+  const yi=ys.indexOf(year);
+  g+=`<line x1="${X(yi)}" x2="${X(yi)}" y1="${y1}" y2="${y0}" stroke="var(--c3)" stroke-dasharray="2 3"/>`;
+  g+=`<line x1="${x0}" x2="${W-8}" y1="${Y(UTAH_CAP)}" y2="${Y(UTAH_CAP)}" stroke="var(--c2)" stroke-dasharray="6 4" stroke-width="1.5"/><text x="${x0+4}" y="${Y(UTAH_CAP)-5}" font-size="10" fill="var(--c2)">Utah's total generating capacity, 2024</text>`;
+  g+=`<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+  g+=`<text x="${X(yi)+4}" y="${Y(T(year))-6}" font-size="10" font-weight="700" fill="var(--ink)">${fmtMW(T(year))} dated by ${year}</text>`;
+  // full-announced bar
+  const bx=330,bw=40;
+  g+=`<rect x="${bx}" y="${Y(dated)}" width="${bw}" height="${y0-Y(dated)}" fill="var(--ink)" opacity=".75"/>`;
+  g+=`<rect x="${bx}" y="${Y(F)}" width="${bw}" height="${Y(dated)-Y(F)}" fill="none" stroke="var(--ink)" stroke-dasharray="3 3"/>`;
+  g+=`<text x="${bx+bw/2}" y="${Y(F)-5}" font-size="10" text-anchor="middle" fill="var(--ink)">${(F/1000).toFixed(1)} GW</text><text x="${bx+bw/2}" y="${y0+14}" font-size="10" text-anchor="middle" fill="var(--muted)">All announced</text>`;
+  el('capchart').innerHTML=g;
+  el('capnote').innerHTML=`<b>${fmtMW(dated)}</b> has a published, target or assumed date by ${MAXY} (solid). Another <b>${fmtMW(undated)}</b> is announced with no date (dashed part of the bar). Air-permitted generating capacity found: about <b>${pl}–${phi} MW</b>, Joule only, by my estimate. Figures mix generating capacity and data center load; each project card says which.`;
+}
+function drawMap(){
+  const outline=[[-114.05,42],[-111.05,42],[-111.05,41],[-109.05,41],[-109.05,37],[-114.05,37]].map(([lo,la])=>px(lo)+","+py(la)).join(" ");
+  let h=`<polygon class="state" points="${outline}"/>`;
+  const rows=allAt(year), rad={};
+  rows.forEach(({i,b,m})=>{
+    if(!projects.some(p=>p.basin===b.name)) return; // no projects: no bubble
+    const nowC=basinCapAt(b.name,year), fullC=basinCapFull(b.name);
+    const r=rOf(nowC), rf=rOf(fullC); rad[b.name]=Math.max(r,rf);
+    const mwTxt=`${fmtMW(nowC)} scheduled by ${year}; ${fullC?fmtMW(fullC):"no capacity"} announced in total`;
+    if(fullC>nowC) h+=`<circle class="capring" cx="${px(b.lon)}" cy="${py(b.lat)}" r="${rf}"/>`;
+    h+=`<circle class="basin ${i===sel?'sel':''}" tabindex="0" role="button" data-i="${i}" cx="${px(b.lon)}" cy="${py(b.lat)}" r="${r}" fill="${m.cat.hex}" fill-opacity=".72" aria-label="${esc(b.name)}: ${m.cat.name} risk, ${mwTxt}. Press for project details."><title>${esc(b.name)}: ${mwTxt}</title></circle>`;
+    {
+      const names=projects.filter(p=>p.basin===b.name).map(p=>p.name.replace(/\s*\(.*\)\s*$/,""));
+      const shown=names.slice(0,3); if(names.length>3) shown.push(`+${names.length-3} more`);
+      if(!shown.length){
+        h+=`<text class="blabel empty" x="${px(b.lon)}" y="${py(b.lat)+4}">No projects</text>`;
+      } else {
+        const lh=11, y0=py(b.lat)+4-(shown.length-1)*lh/2;
+        h+=`<text class="blabel" x="${px(b.lon)}" y="${y0}">`+shown.map((n,k)=>`<tspan x="${px(b.lon)}" dy="${k?lh:0}">${esc(n)}</tspan>`).join("")+`</text>`;
+      }
+    }
+    if(m.unknown) h+=`<circle class="qb" cx="${px(b.lon)-r*.7}" cy="${py(b.lat)-r*.7}" r="11"/><text class="qt" x="${px(b.lon)-r*.7}" y="${py(b.lat)-r*.7+3.5}">${m.unknown}?</text>`;
+  });
+  projects.forEach(p=>{
+    const bi=bIndex(p.basin); if(bi<0) return;
+    const b=basins[bi], same=projects.filter(q=>q.basin===p.basin), k=same.indexOf(p);
+    const ang=(k/Math.max(same.length,1))*Math.PI*2+0.7, d=(rad[b.name]||30)+12;
+    const x=px(b.lon)+Math.cos(ang)*d, y=py(b.lat)+Math.sin(ang)*d;
+    const r=p.mw?clamp(5+Math.log10(p.mw)*1.6,5,12):6;
+    const cls=!included(p)?"paused":(p.year>year?"future":"");
+    h+=`<g class="pin ${cls} ${p.id===selProj?'hl':''}" tabindex="0" role="button" data-id="${p.id}" aria-label="${esc(p.name)}, ${p.year}. Press for details."><circle class="ring" cx="${x}" cy="${y}" r="${r+6}" fill="none"/><rect class="pshape" x="${x-r}" y="${y-r}" width="${2*r}" height="${2*r}"/><title>${esc(p.name)}</title></g>`;
+  });
+  const m=el('map'); m.innerHTML=h;
+  m.querySelectorAll('.basin').forEach(c=>{
+    const go=()=>{sel=+c.dataset.i;selProj=null;render(true)};
+    c.onclick=go; c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}};
+  });
+  m.querySelectorAll('.pin').forEach(c=>{
+    const go=()=>pickProject(c.dataset.id);
+    c.onclick=go; c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}};
+  });
+}
+function pickProject(id){
+  const p=projects.find(x=>x.id===id); if(!p) return;
+  sel=bIndex(p.basin); selProj=id; render(true);
+  const c=el('card_'+id); if(c) c.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+function drawLegend(){
+  el('legend').innerHTML=CATS.map(c=>`<span><i class="dot" style="background:${c.hex}"></i>${c.name} risk</span>`).join("")+
+   `<span><i class="sq"></i>Project, counted</span><span><i class="sq dash"></i>Not started yet</span><span><i class="sq pz"></i>Paused (not counted)</span>`+
+   `<span><b style="color:var(--c3)">3?</b> projects with no figure under this water figure</span><span>Bigger square = more megawatts</span><span>Filled bubble = capacity (MW) scheduled to be online by the selected year; dashed ring = full announced capacity. Basins with no listed projects are hidden</span>`;
+}
+function drawStrip(){
+  const n=basins.length||1, ys=[];for(let y=MINY;y<=MAXY;y++)ys.push(y);
+  el('strip').style.gridTemplateColumns=`repeat(${ys.length},1fr)`;
+  el('strip').innerHTML=ys.map(y=>{const c=riskyCount(y);
+    return `<button data-y="${y}" aria-label="${y}: ${c} basins at High or Critical risk" ${y===year?'aria-current="true"':''}><i style="height:${Math.max(2,c/n*54)}px"></i><small>${String(y).slice(2)}</small></button>`}).join("");
+  el('strip').querySelectorAll('button').forEach(b=>b.onclick=()=>{year=+b.dataset.y;el('year').value=year;render()});
+}
+
+// ---------------- SUMMARY ----------------
+function drawSummary(){
+  const now=allAt(year), prev=year>MINY?allAt(year-1):null;
+  const risky=now.filter(r=>r.m.score>=55);
+  const started=projects.filter(p=>included(p)&&p.year<=year);
+  const counted=started.filter(p=>lensVal(p)!=null);
+  const total=counted.reduce((a,p)=>a+lensVal(p),0);
+  const unk=started.length-counted.length;
+  const moved=prev?now.filter((r,i)=>r.m.cat.min>prev[i].m.cat.min):[];
+  const thisYr=projects.filter(p=>included(p)&&p.year===year);
+  let line;
+  if(moved.length) line=`${moved.map(r=>r.b.name).join(", ")} ${moved.length>1?"move":"moves"} to a higher risk level this year.`;
+  else if(thisYr.length) line=`${thisYr.length} project${thisYr.length>1?"s":""} start${thisYr.length>1?"":"s"} this year, with no basin changing risk level.`;
+  else line="No projects start this year.";
+  el('summary').innerHTML=`
+   <h2>${year} at a glance</h2>
+   <p class="headline serif">${risky.length} of ${basins.length} basins at High or Critical risk. ${line}</p>
+   <div class="kpis">
+     <div><b>${fmt(total)}</b><span>af/yr counted from ${counted.length} project${counted.length===1?"":"s"} (${LENSES[lens].label.toLowerCase()})</span></div>
+     <div><b>${unk}</b><span>started project${unk===1?"":"s"} with no published figure, so not counted</span></div>
+   </div>
+   <div class="small">For scale: counted project water is about ${(total/LAKE_NEED*100).toFixed(1)}% of the roughly ${fmt(LAKE_NEED)} af/yr of extra inflow the Great Salt Lake Strike Team says the lake needs (as cited in your notes). Not every basin drains to the lake. Conditions: ${dry===100?"normal year":dry===70?"dry year (70% of normal supply)":"severe drought (50% of normal supply)"}.</div>`;
+}
+
+// ---------------- BASIN DETAIL (projects that affect the area) ----------------
+function why(m,b){
+  const t={
+    ratio:()=>m.ratio>=9?"there is no remaining supply":`counted demand is ${m.ratio.toFixed(1)} times the remaining supply`,
+    junior:()=>`${b.junior}% of water rights are junior, so they are curtailed first in shortages`,
+    storage:()=>`storage covers only ${b.storage}% of a year's use`,
+    trend:()=>`municipal and industrial use is growing about ${b.trend}% every five years`};
+  return FACTORS.map(f=>({k:f.k,c:m.contrib[f.k]})).sort((a,c)=>c.c-a.c).slice(0,2).map(x=>t[x.k]());
+}
+function spark(bi){
+  const w=300,h=70,ys=[];for(let y=MINY;y<=MAXY;y++)ys.push(y);
+  const pts=ys.map((y,i)=>[8+i*(w-16)/Math.max(ys.length-1,1),h-6-calc(bi,y).score/100*(h-12)]);
+  const cur=pts[clamp(year-MINY,0,pts.length-1)];
+  const lines=[40,55,70].map(v=>`<line x1="0" x2="${w}" y1="${h-6-v/100*(h-12)}" y2="${h-6-v/100*(h-12)}" stroke="var(--line)" stroke-dasharray="3 3"/>`).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Risk score by year for this basin">${lines}<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="${cur[0]}" cy="${cur[1]}" r="5" fill="var(--c3)" stroke="var(--ink)"/></svg>`;
+}
+function figRow(label,val,isLens,extra){
+  const v=val==null?`<span class="none">none published</span>`:fmtAF(val)+(extra||"");
+  return `<tr class="${isLens?'lens':''}"><td>${label}</td><td>${v}</td></tr>`;
+}
+function card(p,b,m){
+  const v=lensVal(p), st=STATUS[p.status]||{label:p.status};
+  const indStr=p.indHigh!=null?`${fmtAF(p.indLow)} to ${fmtAF(p.indHigh)}`:null;
+  let impact;
+  if(!included(p)) impact=`<span class="small">Paused, so not counted. Turn on "Count paused or on-hold projects" under Tools to include it.</span>`;
+  else if(p.year>year) impact=`Not started in ${year}. Expected around ${p.year} (${p.yearSrc==="published"?"published":"assumed"}).`;
+  else if(v==null) impact=`<span class="worse">Started, but no figure is published under "${LENSES[lens].label}", so its water use is not in the basin score.</span> The basin's real risk may be higher.`;
+  else{
+    const pct=v/m.head*100;
+    impact=`In ${year} this adds <b>${fmtAF(v)} af/yr</b> to the basin, about <b>${pct<10?pct.toFixed(1):Math.round(pct)}%</b> of its remaining supply in this scenario${p.mw&&p.mw>1000?"":""}.`;
+  }
+  return `<div class="pcard ${p.id===selProj?'hl':''}" id="card_${p.id}">
+    <div class="ptop"><b>${esc(p.name)}</b><span class="badge">${esc(st.label)}</span></div>
+    <div class="small">${esc(p.county)} County. ${esc(p.size)}. ${esc(p.statusNote)}.</div>
+    <table class="fig" aria-label="Water figures for ${esc(p.name)}">
+      ${figRow("Developer says",p.stated,lens==="stated")}
+      ${figRow("Water rights held or sought",p.rights,lens==="rights")}
+      <tr class="${lens==='high'?'lens':''}"><td>Independent estimate</td><td>${indStr?indStr:`<span class="none">none published</span>`}</td></tr>
+      ${lens==="high"?figRow("Highest on record",highOf(p),true):""}
+    </table>
+    <div class="impact">${impact}</div>
+    ${(()=>{const d=ph(p),pm=PERMIT[p.id];return `<div class="small" style="margin:6px 0"><b>Capacity over time</b> (${d.type==="gen"?"on-site generating capacity":"type not specified: may be data center load or generation"})`+
+      (d.phases.length?d.phases.map(x=>`<br>${x.y}: ${fmtMW(x.mw)} (${x.basis==="published"?"published":x.basis==="target"?"developer target":"assumed"}). ${esc(x.note)}`).join(""):"<br>No dated phases published.")+
+      `<br>Full announced: ${capFull(p)?fmtMW(capFull(p)):"not published"}${d.fullYear?" by "+d.fullYear:" (no date)"}. ${esc(d.fullNote||"")}`+
+      (pm?`<br>Air-permitted: about ${pm.low}–${pm.high} MW. ${esc(pm.note)}`:"")+`</div>`})()}
+    <div class="small">${esc(p.note)}</div>
+    <div class="small" style="margin-top:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <label for="yr_${p.id}">Start year (${p.yearSrc==="published"?"published":"assumed"}):</label>
+      <input class="yr" type="number" id="yr_${p.id}" data-id="${p.id}" value="${p.year}" min="2026" max="2045">
+      ${p.basinCheck?`<span class="check">Basin assignment is approximate. Please verify.</span>`:""}
+    </div>
+  </div>`;
+}
+function drawDetail(){
+  if(sel===null||!projects.some(p=>p.basin===basins[sel].name)){const c=allAt(year).filter(r=>projects.some(p=>p.basin===r.b.name)).sort((a,c)=>c.m.score-a.m.score);sel=c.length?c[0].i:0}
+  const b=basins[sel], m=calc(sel,year);
+  const mine=projects.filter(p=>p.basin===b.name).sort((a,c)=>(lensVal(c)||0)-(lensVal(a)||0)||a.year-c.year);
+  el('detail').innerHTML=`
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>${esc(b.name)}</h2><span class="pill" style="background:${m.cat.hex}">${m.cat.name} risk (${Math.round(m.score)}, illustrative)</span></div>
+   <p style="margin:6px 0">Main reasons for this rating: ${why(m,b).join("; and ")}.</p>
+   ${m.curtail?`<p class="worse" style="margin:4px 0">In this scenario, demand exceeds remaining supply and most rights are junior, so junior users would likely be curtailed first.</p>`:""}
+   ${m.unknown?`<p class="small" style="margin:4px 0"><b>${m.unknown} started project${m.unknown>1?"s":""} here ${m.unknown>1?"have":"has"} no published figure under this water figure.</b> The score leaves ${m.unknown>1?"them":"it"} out, so it likely understates the pressure.</p>`:""}
+   <div class="seglabel">Risk score by year (dashed lines mark Watch, High and Critical)</div>${spark(sel)}
+   <div class="small">Baseline (placeholder) pending demand ${fmt(b.demand)} af/yr, plus ${fmt(m.proj)} af/yr from counted projects, against ${fmt(m.head)} af/yr remaining supply.</div>
+   <div class="seglabel"><b>Projects affecting ${esc(b.name)} (${mine.length})</b></div>
+   ${mine.length?mine.map(p=>card(p,b,m)).join(""):`<div class="small">No projects on record in this basin.</div>`}`;
+  el('detail').querySelectorAll('.yr').forEach(i=>i.onchange=()=>{
+    const p=projects.find(x=>x.id===i.dataset.id); p.year=clamp(Math.round(+i.value)||p.year,2026,2045); p.yearSrc="edited";
+    setRange(); render();
+  });
+}
+function drawList(){
+  const list=projects.slice().sort((a,c)=>a.year-c.year||(lensVal(c)||0)-(lensVal(a)||0));
+  el('plist').innerHTML=list.map(p=>{
+    const v=lensVal(p);
+    return `<div class="pj focusable" tabindex="0" role="button" data-id="${p.id}"><div><b>${esc(p.name)}</b><div class="small">${esc(p.basin)} - ${esc(STATUS[p.status]?.label||p.status)} - ${p.year}${p.yearSrc==="published"?"":" (assumed)"}</div></div><div class="small" style="text-align:right">${v==null?'<span class="none">no figure</span>':fmtAF(v)+" af/yr"}</div></div>`;
+  }).join("");
+  el('plist').querySelectorAll('.pj').forEach(r=>{
+    r.onclick=()=>{pickProject(r.dataset.id);el('detail').scrollIntoView({block:'start',behavior:'auto'})};
+    r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();r.click()}};
+  });
+}
+function drawWeights(){
+  el('weights').innerHTML=FACTORS.map(f=>`<div class="row"><label for="w_${f.k}">${f.label}</label><span id="wv_${f.k}">${weights[f.k]}</span></div><input id="w_${f.k}" type="range" min="0" max="100" value="${weights[f.k]}">`).join("");
+  FACTORS.forEach(f=>el('w_'+f.k).oninput=e=>{weights[f.k]=+e.target.value;el('wv_'+f.k).textContent=e.target.value;render()});
+}
+function setRange(){
+  MINY=2026; MAXY=Math.max(2035,...projects.map(p=>p.year));
+  year=clamp(year,MINY,MAXY); const y=el('year'); y.min=MINY;y.max=MAXY;y.value=year;
+}
+function render(scroll){
+  el('bigyear').textContent=year; el('lensnote').textContent=LENSES[lens].desc;
+  drawMap();drawCap();drawStrip();drawSummary();drawDetail();drawList();
+  if(scroll&&window.innerWidth<=920) el('detail').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+
+// ---------------- CONTROLS ----------------
+el('year').oninput=e=>{year=+e.target.value;render()};
+el('play').onclick=()=>{
+  if(timer){clearInterval(timer);timer=null;el('play').textContent="Play";return}
+  if(year>=MAXY) year=MINY;
+  el('play').textContent="Pause";
+  timer=setInterval(()=>{
+    if(year>=MAXY){clearInterval(timer);timer=null;el('play').textContent="Play";return}
+    year++;el('year').value=year;render();
+  },1200);
+};
+document.querySelectorAll('[data-dry]').forEach(b=>b.onclick=()=>{dry=+b.dataset.dry;document.querySelectorAll('[data-dry]').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+document.querySelectorAll('[data-lens]').forEach(b=>b.onclick=()=>{lens=b.dataset.lens;document.querySelectorAll('[data-lens]').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+el('sP1').onchange=e=>{stratosP1=+e.target.value;render()};
+el('cpaused').onchange=e=>{countPaused=e.target.checked;render()};
+el('fadd').onclick=()=>{
+  const d=Math.max(0,+el('fd').value||0), id="w"+Date.now();
+  projects.push({id,name:el('fn').value||"What-if project",county:"n/a",basin:el('fb').value,basinCheck:false,status:"proposed",statusNote:"What-if scenario",size:"n/a",mw:null,year:+el('fy').value||2028,yearSrc:"assumed",stated:d,rights:d,indLow:null,indHigh:null,alt:null,note:"Added as a what-if scenario. The same figure is used for every water figure option."});
+  setRange();sel=bIndex(el('fb').value);selProj=id;render(true);el('msg').textContent="Added. It appears on the map and in the basin's project list.";
+};
+el('brief').onclick=()=>{
+  const rows=allAt(year).sort((a,c)=>c.m.score-a.m.score);
+  let t=`Utah data center water briefing, ${year}\nWater figure used: ${LENSES[lens].label}. Conditions: ${dry===100?"normal year":dry===70?"dry year":"severe drought"}. Figures are acre-feet per year.\nProject figures come from research notes (mid-2026) and are unverified. Basin baselines are placeholders, so scores are illustrative.\n\n`;
+  rows.forEach(r=>{
+    t+=`${r.b.name}: ${r.m.cat.name} risk (score ${Math.round(r.m.score)})${r.m.curtail?"; junior rights likely curtailed first":""}${r.m.unknown?`; ${r.m.unknown} started project(s) with no published figure`:""}\n`;
+    projects.filter(p=>p.basin===r.b.name).forEach(p=>{const v=lensVal(p);t+=`   - ${p.name} (${STATUS[p.status]?.label}, ~${p.year}${p.yearSrc==="published"?"":" assumed"}): ${v==null?"no figure published":fmtAF(v)+" af/yr"}\n`});
+  });
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=`utah_water_briefing_${year}.txt`;a.click();
+};
+
+// ---------------- CSV ----------------
+const PH=["name","basin","county","status","year","mw","stated_af","rights_af","high_af","note"];
+function parseCSV(text){
+  const rows=[];let row=[],cur="",q=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++} else q=false } else cur+=ch }
+    else if(ch==='"') q=true;
+    else if(ch===','){row.push(cur);cur=""}
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; row.push(cur);rows.push(row);row=[];cur="" }
+    else cur+=ch;
+  }
+  if(cur!==""||row.length){row.push(cur);rows.push(row)}
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+const num=v=>{if(v==null||String(v).trim()==="")return null;const n=+v;return isNaN(n)?NaN:n};
+el('tmpl').onclick=()=>{
+  const q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
+  const csv=PH.join(",")+"\n"+DEFAULT_PROJECTS.map(p=>[q(p.name),q(p.basin),q(p.county),p.status,p.year,p.mw??"",p.stated??"",p.rights??"",(p.indHigh??p.alt)??"",q(p.note)].join(",")).join("\n");
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download="utah_projects_template.csv";a.click();
+};
+el('file').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const rows=parseCSV(rd.result), hdr=rows.shift().map(s=>s.trim());
+      const miss=PH.filter(c=>!hdr.includes(c)); if(miss.length) throw new Error("Missing columns: "+miss.join(", "));
+      const unknown=new Set(), out=[];
+      rows.forEach((c,i)=>{
+        const o=Object.fromEntries(hdr.map((h,j)=>[h,c[j]]));
+        if(bIndex(o.basin)<0){unknown.add(o.basin);return}
+        if(!STATUS[o.status]) throw new Error(`Unknown status '${o.status}'. Use: ${Object.keys(STATUS).join(", ")}`);
+        const p={id:"p"+i,name:o.name,county:o.county||"n/a",basin:o.basin,basinCheck:false,status:o.status,statusNote:STATUS[o.status].label,size:o.mw?o.mw+" MW":"size not given",mw:num(o.mw),year:num(o.year),yearSrc:"imported",stated:num(o.stated_af),rights:num(o.rights_af),indLow:null,indHigh:num(o.high_af),alt:null,note:o.note||""};
+        if([p.mw,p.year,p.stated,p.rights,p.indHigh].some(Number.isNaN)||p.year==null) throw new Error("Row "+(i+2)+" has a missing year or a non-numeric value.");
+        out.push(p);
+      });
+      projects=out;selProj=null;setRange();render();
+      el('msg').textContent=`Loaded ${out.length} projects.`+(unknown.size?` Skipped rows with unrecognized basins: ${[...unknown].join(", ")}.`:"");
+    }catch(err){el('msg').textContent="Import failed: "+err.message}
+  };
+  rd.readAsText(f);
+};
+
+// ---------------- INIT ----------------
+el('fb').innerHTML=basins.map(b=>`<option>${esc(b.name)}</option>`).join("");
+el('fy').value=2028;
+drawLegend();setRange();drawWeights();render();
+</script>
+</body>
+</html>

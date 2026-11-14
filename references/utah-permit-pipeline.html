@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utah data center permit pipeline</title>
+<style>
+:root{
+  --bg:#e8edee; --panel:#f7f9f9; --ink:#12324a; --muted:#566b74; --line:#c5d0d4;
+  --ok:#2f7d6f; --warn:#b4731a; --bad:#8e1b3a; --info:#3b5f9a; --accent:#12324a; --on:#fff; --hl:#fff4d6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#10181d; --panel:#18232a; --ink:#e3edf0; --muted:#9bb0b8; --line:#2c3d46; --ok:#6fc4b4; --warn:#e2a43a; --bad:#f08aa3; --info:#8fb4ee; --accent:#9ccfe0; --on:#10181d; --hl:#3a3320; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;margin:0}
+.wrap{max-width:1300px;margin:0 auto;padding:0 20px 48px}
+header{padding:18px 0 4px}
+h1{font-size:1.65rem;line-height:1.2}
+h2{font-size:1.15rem;margin-bottom:6px}
+header p{margin:4px 0 0;color:var(--muted);max-width:80ch}
+.note{border:1px solid var(--bad);border-left-width:5px;background:var(--panel);border-radius:4px;padding:8px 12px;font-size:.86rem;margin:10px 0 14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.row{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:flex-end}
+.grp>span{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px}
+.segs{display:flex;flex-wrap:wrap}
+button{font:inherit;padding:6px 12px;border:1px solid var(--ink);background:var(--ink);color:var(--on);border-radius:4px;cursor:pointer}
+button.seg{border-radius:0;margin-left:-1px;font-size:.86rem}
+button.seg:first-child{border-radius:4px 0 0 4px;margin-left:0}
+button.seg:last-child{border-radius:0 4px 4px 0}
+button.seg[aria-pressed=true]{background:var(--ink);color:var(--on)}
+button.seg:not([aria-pressed=true]){background:transparent;color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.rowbtn:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+select{font:inherit;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:14px 0}
+.tier{background:var(--panel);border:1px solid var(--line);border-top-width:5px;border-radius:6px;padding:10px 14px}
+.tier.t1{border-top-color:var(--ok)} .tier.t2{border-top-color:var(--warn)} .tier.t3{border-top-color:var(--bad)} .tier.t0{border-top-color:var(--muted)}
+.tier b.big{font-family:Georgia,serif;font-size:1.6rem}
+.tier .nm{font-size:.84rem;color:var(--muted)}
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;font-size:.86rem}
+th{font-size:.78rem;color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--panel)}
+tr.grouprow td{background:var(--bg);font-weight:700;font-size:.82rem;padding:8px}
+.rowbtn{background:transparent;color:var(--ink);border:0;padding:0;text-align:left;font-weight:600;cursor:pointer;font-size:.92rem}
+.rowbtn:hover{text-decoration:underline}
+.sub{font-size:.76rem;color:var(--muted);font-weight:400}
+.cell{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--muted);border-radius:12px;padding:0 8px;font-size:.76rem;white-space:nowrap}
+.cell.done{border-color:var(--ok);color:var(--ok);font-weight:700}
+.cell.inprogress{border-color:var(--ok);border-style:dashed;color:var(--ok);font-weight:700}
+.cell.partial{border-color:var(--ok);border-style:dotted;color:var(--ok);font-weight:700}
+.cell.pending{border-color:var(--warn);color:var(--warn);font-weight:700}
+.cell.appealed{border-color:var(--warn);border-width:3px;color:var(--warn);font-weight:700}
+.cell.onhold{border-color:var(--warn);border-style:dashed;color:var(--warn);font-weight:700}
+.cell.withdrawn{border-color:var(--bad);color:var(--bad);font-weight:700}
+.cell.notfound{border-color:var(--muted);border-style:dashed;color:var(--muted)}
+.cell.notsearched{border-color:var(--muted);border-style:dotted;color:var(--muted);font-style:italic}
+.cell.inferred{border-color:var(--info);border-style:dotted;color:var(--info)}
+.cell.na{border-color:var(--line);color:var(--muted)}
+tr.detail td{background:var(--hl);font-size:.86rem}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 18px}
+.dgrid h3{font-size:.9rem;margin-bottom:2px}
+.dgrid p{margin:0 0 6px;color:var(--ink)}
+.flag{display:inline-block;border:1px solid var(--info);color:var(--info);border-radius:10px;padding:0 7px;font-size:.7rem;margin-left:6px;white-space:nowrap}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:14px;margin-top:14px}
+ul.tl{list-style:none;margin:8px 0 0;padding:0}
+ul.tl li{display:grid;grid-template-columns:82px 1fr;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:.86rem}
+ul.tl li:first-child{border-top:0}
+ul.tl .d{color:var(--muted);font-variant-numeric:tabular-nums}
+ul.tl li.today{border-top:3px solid var(--bad);border-bottom:3px solid var(--bad);padding:8px 0;font-weight:700;color:var(--bad)}
+ul.tl li.future .d::after{content:" (planned)";font-size:.7rem}
+ul.open{padding-left:18px;margin:6px 0 0;font-size:.88rem}
+ul.open li{margin:5px 0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;align-items:center;font-size:.8rem;color:var(--muted)}
+a{color:var(--accent)}
+.small{font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Utah data center permit pipeline</h1>
+  <p>Where each project stands at each approval gate, who decides, and what is due next. Built from permit records, county pages and news found through November 14, 2026.</p>
+</header>
+<div class="note"><strong>Read before using.</strong> "Not found" means I did not find a filing in my searches. It does not mean none exists. Statuses come from search results, county pages and news, several of them secondary or AI-generated summaries, and I have not opened every permit document. Appeals, drafts and applications change weekly. Tiers are my own grouping, not an official classification, and carry no approval probabilities. Confirm any row against the original record before relying on it.</div>
+
+<div class="panel">
+  <div class="row">
+    <div class="grp"><span>Show</span>
+      <div class="segs" id="gScope" role="group" aria-label="Which projects"></div></div>
+    <div class="grp"><span>Who decides land use</span>
+      <select id="fDM" aria-label="Filter by decision-maker"></select></div>
+    <div class="grp"><span>Tier</span>
+      <div class="segs" id="gTier" role="group" aria-label="Filter by tier"></div></div>
+  </div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="tiers" id="tiers"></div>
+
+<div class="panel">
+  <h2>Pipeline by approval gate</h2>
+  <div class="small">Press a project name to see the notes, what I could not find, and sources. "Land use" is the local or federal siting decision, which is often not a permission to build.</div>
+  <div class="tablewrap"><table id="tbl"></table></div>
+</div>
+
+<div class="two">
+  <div class="panel">
+    <h2>Dated events</h2>
+    <div class="small">Past events come from the records above. Future items are planned or expected dates, not commitments.</div>
+    <div class="grp" style="margin-top:8px"><div class="segs" id="gEv" role="group" aria-label="Event view"></div></div>
+    <ul class="tl" id="tl"></ul>
+  </div>
+  <div class="panel">
+    <h2>Open decisions</h2>
+    <div class="small">Pending items I found, with the date if I found one.</div>
+    <ul class="open" id="open"></ul>
+  </div>
+</div>
+</div>
+
+<script>
+const TODAY="2026-11-14";
+const ST={
+ done:["Done","\u2713"], inprogress:["In progress","\u25B6"], partial:["Partly done","\u25D0"],
+ pending:["Pending","\u22EF"], appealed:["Appealed","\u2696"], onhold:["On hold","\u23F8"],
+ withdrawn:["Withdrawn","\u2715"], notfound:["Not found","?"], notsearched:["Not searched","\u2205"],
+ inferred:["Inferred","\u2248"], na:["Not applicable","\u2013"]
+};
+const GATES=[["land","Land use"],["water","Water right"],["air","Air permit"],["wq","Water quality"],["build","Construction"]];
+const DM={county:"County",city:"City or town",authority:"State authority (MIDA, port authority)",federal:"Federal (Army)",unknown:"Not confirmed"};
+const TIER={t1:"Under construction or air-permitted",t2:"Approved locally, state permits pending",t3:"Proposed, on hold or in negotiation",t0:"Not classified"};
+
+// g = gate statuses; n = notes per gate; gaps = what I could not find; dm = decision-maker category; dmText = who
+const P=[
+ {name:"Stratos / Wonder Valley",county:"Box Elder",inData:true,dm:"authority",dmText:"Military Installation Development Authority for land use; State Engineer for water; state agencies for air and water quality",
+  g:{land:"done",water:"pending",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"MIDA approved the project and the county consented to the project area. The governor said this decision covers land use only. A county moratorium does not apply because MIDA holds jurisdiction.",
+     water:"Two earlier change applications (a54385 for 1,900 af; a54536 for 11 af) were withdrawn in May after thousands of protests. Protests do not carry over. A new application, a55167, was filed October 15; its protest window closed November 4. A hearing is the next step.",
+     air:"No application found. The state environmental quality commissioner said in May that air and water permitting were at least a year away.",
+     wq:"No application found.",build:"No construction reported."},
+  gaps:"Air and water-quality filings; hearing date for a55167; number of protests on a55167 (an advocacy newsletter reported 287 early on).",
+  src:[["ABC4: application a55167","https://www.abc4.com/news/northern-utah/stratos-project-new-water-rights-application/"],["Salt Lake Tribune: second application withdrawn","https://www.sltrib.com/news/environment/2026/05/27/another-water-rights-application/"],["FOX 13: executive order and DEQ timing","https://www.fox13now.com/news/politics/gov-cox-issues-executive-order-on-evaluation-and-development-of-data-centers"],["Herald Journal: MIDA decision is land use only","https://www.hjnews.com/news/local/gov-cox-signs-order-creating-higher-bar-for-data-centers/article_073e0030-bf7e-42ac-b618-2cfac696bbf6.html"]],asof:"2026-10-15"},
+ {name:"Joule campus",county:"Millard (near Delta)",inData:true,dm:"county",dmText:"Millard County for land use; Utah Division of Air Quality for air",
+  g:{land:"done",water:"notfound",air:"partial",wq:"notfound",build:"inprogress"},
+  n:{land:"County rezoned about 4,000 acres to heavy industrial in August 2025 and said a conditional use permit was also required. I did not confirm the permit's issuance, but the project is reported under construction.",
+     water:"No water-right filing found. Your notes list about 10,000 af of rights.",
+     air:"Approval orders issued, including DAQE-AN162810001-26 (69 gas engines, 69 diesel emergency generators, 69 chillers) and DAQE-AN162920001-26 (Site 4, a new major source). A draft permit for Power Station 4 (up to 175 MW) was proposed August 5 with comments to September 4. The campus plans six such plants.",
+     wq:"No filing found.",build:"Reported under construction."},
+  gaps:"Final decision on the Site 4 draft; permits for the other plants; water rights; conditional use permit document.",
+  src:[["DAQ approval order DAQE-AN162810001-26","https://daqpermitting.utah.gov/DocViewer?IntDocID=160548&contentType=application%2Fpdf"],["DAQ approval order DAQE-AN162920001-26","https://daqpermitting.utah.gov/DocViewer?IntDocID=166256&contentType=application%2Fpdf"],["Oil & Gas Watch: draft permit alert","https://oilandgaswatch.org/alert/59172f3f-e47f-479e-9608-4a6016cb25ca"],["Deseret News: county rezoning","https://www.deseret.com/business/2025/08/15/worlds-largest-data-center-campus-could-be-coming-to-central-utah/"]],asof:"2026-08-05"},
+ {name:"Creekstone Delta Gigasite",county:"Millard",inData:true,dm:"county",dmText:"Millard County for land use; Utah Division of Air Quality for air",
+  g:{land:"done",water:"notfound",air:"notfound",wq:"notfound",build:"inprogress"},
+  n:{land:"About 1,143 acres zoned heavy industrial, with a conditional use permit covering the data center and on-site power generation.",
+     water:"No filing found. The developer claims a technology that would generate water; your notes say large-scale water generation is likely years away.",
+     air:"No air permit found. The first power block is reported as 29 gas engines of about 230 MW, with power planned for 2027.",
+     wq:"No filing found.",build:"Phase 1 reported under construction."},
+  gaps:"Air approval order; water filings.",
+  src:[["CompressorTech: gas capacity and permit status","https://www.compressortech2.com/news/creekstone-secures-gas-capacity-for-utah-data-center-power-project/8127663.article"]],asof:"2026-07-24"},
+ {name:"Antelope (Pronghorn)",county:"Iron",inData:true,dm:"county",dmText:"Iron County planning commission; hearing officer on appeal; Utah Division of Air Quality",
+  g:{land:"appealed",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"Conditional use permit approved June 4 for about a 250-acre footprint of 640 acres. Residents appealed to a hearing officer. I could not confirm the outcome. The county planner said the permit is not a permit to build.",
+     water:"No water-right filing found. The application hopes to use Cedar Valley Water Conservancy supply, else acquire rights. The area is a managed groundwater basin.",
+     air:"Required as a condition. No air application found.",wq:"No filing found.",build:"Not started."},
+  gaps:"Appeal outcome; air permit application; water source.",
+  src:[["St. George News: permit approval","https://www.stgeorgeutah.com/news/planning-commission-approves-conditional-use-permit-for-proposed-iron-county-data-center/article_0a818ae9-8496-4e3e-87e0-53a09ee256c5.html"],["New Project Media: appeal","https://newprojectmedia.com/origination-utahs-1-5-gw-behind-the-meter-project-antelope-stalled-after-resident-appeal/"],["Salt Lake Tribune: water context","https://www.sltrib.com/news/2026/05/15/iron-county-residents-raise/"]],asof:"2026-07-07"},
+ {name:"Red Butte (BrightNight)",county:"Iron",inData:true,dm:"county",dmText:"Iron County",
+  g:{land:"onhold",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"Application submitted May 4, deemed incomplete May 22, and put on hold under the moratorium. The moratorium was repealed October 26, so the developer can refile under the new overlay rules.",
+     water:"The application estimates about 1,900 af/yr (this is an estimate, not a water-right filing). The site is in a groundwater management area. Your notes said no figure was published, so this updates them.",
+     air:"No filing found.",wq:"No filing found.",build:"Not started."},
+  gaps:"Whether a new application has been filed since October 26.",
+  src:[["Salt Lake Tribune: open house and water area","https://www.sltrib.com/news/2026/05/15/iron-county-residents-raise/"],["Policy tracker: dates","https://servercountry.org/policy/utah/"],["Project listing: 1,900 af/yr (secondary)","https://globaldatacenters.net/project/antelope-data-center-cedar-city-utah/"]],asof:"2026-10-26"},
+ {name:"Nine Mile (Energence)",county:"Duchesne",inData:true,dm:"county",dmText:"Duchesne County; EPA and state agencies for the power plant; Tri-County Health Department",
+  g:{land:"done",water:"notfound",air:"pending",wq:"notfound",build:"notfound"},
+  n:{land:"Complete application March 11 (960 acres). Planning commission approved conditional use permits April 2 for the data center, a gas plant (Wells Draw Energy), solar, and a reWater expansion. County commission denied appeals April 27, one for lack of standing.",
+     water:"County materials say the final operating volume, water-right chain and priority dates are not established.",
+     air:"County staff said EPA permitting and emission controls are prerequisites to operating the gas plant. No application found.",
+     wq:"On-site septic planned through the health department. No filing found.",build:"Construction not begun as of May."},
+  gaps:"Air application; water rights; any further appeal.",
+  src:[["County findings report","https://duchesne.utah.gov/wp-content/uploads/2026/03/Findings-Report-Nine-Mile-Data-LLC-040226.pdf"],["Project timeline","https://uintahbasindatacenter.com/timeline.html"],["Open questions page","https://uintahbasindatacenter.com/questions.html"]],asof:"2026-07-18"},
+ {name:"CyrusOne at Dugway",county:"Tooele",inData:true,dm:"federal",dmText:"U.S. Army (Enhanced Use Lease); Army Corps of Engineers for environmental review",
+  g:{land:"pending",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"The Army conditionally selected CyrusOne on March 26 to enter exclusive negotiations for about 1,201 acres. No final lease signed in the sources I found. An environmental review by the Army Corps of Engineers comes before work begins. First operating capability is projected for fiscal 2029.",
+     water:"No filing found. The Army says developers will build their own power and water solutions.",
+     air:"No filing found.",wq:"No filing found.",build:"Not started."},
+  gaps:"Lease status; environmental review documents; state permits.",
+  src:[["Army announcement","https://www.army.mil/article/291360/army_reaches_conditional_agreement_with_private_industry_for_hyperscaled_data_centers"],["KSL: Goshute opposition","https://www.ksl.com/article/51617458/goshute-indian-tribe-voices-opposition-to-us-army-data-center-proposal-in-tooele-county"]],asof:"2026-09-12"},
+ {name:"Tract Pole Canyon / Pony Express",county:"Utah (Eagle Mountain)",inData:true,dm:"city",dmText:"Eagle Mountain (not confirmed); Utah Division of Air Quality",
+  g:{land:"notfound",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"No filing found. A tracker lists two campuses on 844 and 225 acres. Your notes say the first phase is planned for 2028.",water:"No filing found.",air:"No filing found.",wq:"No filing found.",build:"Not started."},
+  gaps:"All approvals.",
+  src:[["Utah data center tracker","https://utahjunction.com/news/politics/every-data-center-in-utah-map/"]],asof:"2026-07-28"},
+ {name:"QTS Eagle Mountain",county:"Utah (Eagle Mountain)",inData:true,dm:"city",dmText:"Eagle Mountain (not confirmed)",
+  g:{land:"inferred",water:"notfound",air:"notfound",wq:"notfound",build:"inprogress"},
+  n:{land:"Inferred from construction; I found no approval document.",water:"No filing found. The company says it uses closed-loop cooling.",air:"No filing found.",wq:"No filing found.",build:"A five-building, 193-acre campus is under construction. Sources disagree on completion (2026 versus 2029)."},
+  gaps:"Approval documents; air permits for any on-site power.",
+  src:[["Community Digital Technologies","https://communitydigitaltech.com/projects/qts-eagle-mountain-campus"],["Utah data center tracker","https://utahjunction.com/news/politics/every-data-center-in-utah-map/"]],asof:"2026-10-09"},
+ {name:"Summit Ridge (DCPC)",county:"Utah (Santaquin)",inData:true,dm:"city",dmText:"Santaquin city; Utah Division of Air Quality",
+  g:{land:"done",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"A tracker says the city approved it in 2024; many residents said they learned of it in early 2026.",water:"No filing found. The developer says water and sewer use will be low (a developer claim relayed by the city).",air:"A tracker lists whether the gas engines have an air permit as unanswered. I found none.",wq:"No filing found.",build:"Trackers conflict on whether it is under construction."},
+  gaps:"Air permit; size (your notes say 20 MW, a tracker says 100 MW).",
+  src:[["Tracker: Summit Ridge","https://suedatacenters.org/data-centers/summit-ridge-santaquin-ut"],["Tracker: status and open questions","https://nearbydatacenters.org/projects/ut-santaquin-summit-ridge/"]],asof:"2026-10-23"},
+ {name:"BluSky",county:"Juab (Nephi)",inData:true,dm:"city",dmText:"Nephi (not confirmed)",
+  g:{land:"done",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"A tracker lists a 4 MW Nephi site as permitted. Your notes say 9.3 MW. A separate BluSky agreement at the Creekstone campus exists.",water:"No filing found.",air:"No filing found.",wq:"No filing found.",build:"Not reported."},
+  gaps:"Permit documents; reconcile size.",
+  src:[["Tracker listing","https://suedatacenters.org/data-centers/summit-ridge-santaquin-ut"],["Deseret News: Creekstone and BluSky","https://www.deseret.com/business/2025/08/15/worlds-largest-data-center-campus-could-be-coming-to-central-utah/"]],asof:"2026-08-15"},
+ {name:"Tooele Valley (paused, per your notes)",county:"Tooele",inData:true,dm:"county",dmText:"Tooele County",
+  g:{land:"onhold",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"Your notes say paused. The county directed staff to draft data center rules and an energy excise tax in June, per a tracker. I could not identify the specific project.",water:"No filing found.",air:"No filing found.",wq:"See the separate Tooele Valley Public Infrastructure District row. I cannot confirm it is the same project.",build:"Not started."},
+  gaps:"Which project this refers to.",
+  src:[["Policy tracker","https://servercountry.org/policy/utah/"]],asof:"2026-07-17"},
+ {name:"Novva and Aligned expansions",county:"Salt Lake",inData:true,dm:"unknown",dmText:"Not confirmed",
+  g:{land:"notsearched",water:"notsearched",air:"notsearched",wq:"notsearched",build:"notsearched"},
+  n:{land:"I did not search for these.",water:"Not searched.",air:"Not searched.",wq:"Not searched.",build:"Not searched."},
+  gaps:"Everything.",src:[],asof:null},
+
+ {name:"Tooele Valley Public Infrastructure District (about 500 MW)",county:"Tooele",inData:false,dm:"authority",dmText:"Utah Inland Port Authority financing; Division of Water Quality for the discharge permit",
+  g:{land:"notfound",water:"notfound",air:"notfound",wq:"pending",build:"notfound"},
+  n:{land:"Land-use approvals not found. The district is financed with over $240 million from the port authority, per an advocacy group.",water:"The site sits in a basin an advocacy group says was declared over-appropriated in 1996. No filing found.",air:"Not found.",wq:"A draft discharge permit (UT0026409) would allow up to 260,000 gallons a day of reverse-osmosis brine into a channel flowing to wetlands near Great Salt Lake. A public hearing was held July 27. I did not find a decision.",build:"Not reported."},
+  gaps:"Decision on the discharge permit; land-use approvals; air.",
+  src:[["Utah Physicians for a Healthy Environment (advocacy)","https://www.uphe.org/2026/06/16/help-stop-another-data-center-proposal-tooele/"]],asof:"2026-08-05"},
+ {name:"Nebo North (Mona)",county:"Juab",inData:false,dm:"county",dmText:"Juab County; Williams gas line; state agencies",
+  g:{land:"appealed",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"Planning commission approved the conditional use permit April 15 after a four-minute hearing. Neighbors filed an appeal in mid-September. County commissioners said they were unsure they could reverse it.",water:"No filing found.",air:"No filing found. A gas pipeline was reportedly planned for on-site power.",wq:"No filing found.",build:"Not started."},
+  gaps:"Appeal outcome; water and air filings.",
+  src:[["Salt Lake Tribune: appeal","https://www.sltrib.com/news/2026/09/16/utah-residents-challenge-juab/"],["KSL: appeal filed","https://www.ksl.com/article/51624497/mona-residents-file-appeal-seeking-to-overturn-approval-of-data-center-project"]],asof:"2026-09-16"},
+ {name:"DCPC north of Mona",county:"Juab",inData:false,dm:"county",dmText:"Juab County",
+  g:{land:"done",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"Conditional use permits approved November 2024 and, for a reconfigured site, November 2025.",water:"A tracker reports about 300 af/yr consumptive use from leased well water. No water-right filing found.",air:"Island power with natural gas noted in minutes. No filing found.",wq:"No filing found.",build:"Not reported."},
+  gaps:"Water-right and air documents.",
+  src:[["Tracker: DCPC campus","https://signaldata.org/ut/data-centers/projects/dcpc-north-of-mona/"]],asof:"2026-10-17"},
+ {name:"Project Juniper",county:"Iron",inData:false,dm:"authority",dmText:"Iron County and Utah Inland Port Authority",
+  g:{land:"pending",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"A proposed industrial campus of over 830 acres that could include data centers. The port authority was scheduled November 5 to consider adding the land to a project area. I did not find the outcome. A formal county application could not be filed during the moratorium.",water:"No filing found.",air:"No filing found.",wq:"No filing found.",build:"Not started."},
+  gaps:"Outcome of the November 5 consideration; any application since October 26.",
+  src:[["St. George News: ordinance and Juniper","https://www.stgeorgeutah.com/news/iron-county-approves-data-center-ordinance-ends-moratorium-despite-calls-for-delay/article_cc7c0141-e96b-4f21-aa30-b6b225fd4595.html"],["Real estate blog summary (secondary)","https://www.redsign.com/blog/iron-county-data-center-rules"]],asof:"2026-11-05"},
+ {name:"GoldMine (Fairfield)",county:"Utah (Fairfield)",inData:false,dm:"city",dmText:"Fairfield town",
+  g:{land:"notfound",water:"notfound",air:"notfound",wq:"notfound",build:"notfound"},
+  n:{land:"The town had received no development application as of September 25. A 933-acre business park that could include data centers.",water:"No filing found. Developers told commissioners they want closed-loop, air-cooled systems.",air:"No filing found.",wq:"No filing found.",build:"Not started."},
+  gaps:"Any application since September.",
+  src:[["Utah News Dispatch","https://utahnewsdispatch.com/2026/09/25/developer-eyes-goldmine-data-center-project-in-fairfield/"]],asof:"2026-09-25"}
+];
+function tierOf(p){
+  if(p.g.land==="notsearched") return "t0";
+  if(p.g.build==="inprogress"||p.g.air==="done"||p.g.air==="partial") return "t1";
+  if(["done","inferred","appealed"].includes(p.g.land)) return "t2";
+  return "t3";
+}
+P.forEach(p=>p.tier=tierOf(p));
+
+const EV=[
+["2026-03-11","Nine Mile: complete land-use application filed (Duchesne)"],
+["2026-03-26","Army conditionally selects CyrusOne for Dugway"],
+["2026-04-02","Nine Mile conditional use permits approved (Duchesne)"],
+["2026-04-15","Nebo North conditional use permit approved after a four-minute hearing (Juab)"],
+["2026-04-27","Nine Mile appeals denied"],
+["2026-04-28","Stratos second water change application (a54536) filed"],
+["2026-05-04","Red Butte application submitted (Iron)"],
+["2026-05-05","Stratos first change application (a54385) withdrawn"],
+["2026-05-22","Red Butte deemed incomplete; a54536 withdrawal notice filed"],
+["2026-05-26","Iron County adopts 180-day moratorium"],
+["2026-05-27","a54536 formally canceled"],
+["2026-05-29","Governor signs Executive Order 2026-03 (Data Center Framework)"],
+["2026-06-04","Antelope conditional use permit approved (Iron)"],
+["2026-06-10","Box Elder County adopts moratorium (does not cover Stratos)"],
+["2026-06-23","Cache County adopts moratorium"],
+["2026-07-01","HB 76 data center water reporting takes effect"],
+["2026-07-23","Draft 2026 State Water Plan released"],
+["2026-07-27","Public hearing on Tooele Valley brine discharge permit UT0026409"],
+["2026-08-05","Draft air permit proposed for Joule Power Station 4"],
+["2026-09-04","Comment period on Joule Power Station 4 draft closes"],
+["2026-09-15","Mona neighbors file appeal of Nebo North permit"],
+["2026-10-15","Stratos new water application (a55167) filed"],
+["2026-10-26","Iron County adopts data center overlay and repeals moratorium"],
+["2026-11-04","Protest window on a55167 closes"],
+["2026-11-05","Port authority scheduled to consider Project Juniper land (outcome not found)"],
+[TODAY,"Today"],
+["2026-11-19","Box Elder planning commission expected to take up draft data center ordinance"],
+["2026-12-15","Box Elder County Commission vote on ordinance expected in December (date not found)"],
+["2026-12-31","Final 2026 State Water Plan due"],
+["2027-09-15","First HB 76 actual-use reports expected around September (per your notes)"],
+["2027-12-31","Creekstone first on-site power planned for 2027"],
+["2028-12-31","Tract first phase planned 2028; Antelope first 500 MW targeted 2028"],
+["2029-12-31","Dugway first operating capability projected fiscal 2029"]
+];
+const OPEN=[
+ ["Stratos a55167: hearing before the State Engineer","date not found"],
+ ["Antelope: hearing officer decision on the residents' appeal","date not found"],
+ ["Nebo North: county response to the Mona appeal","date not found"],
+ ["Joule Power Station 4: final decision on the draft air permit","date not found; comments closed September 4"],
+ ["Tooele Valley brine discharge permit UT0026409: decision","date not found; hearing held July 27"],
+ ["Box Elder data center ordinance: planning commission","expected November 19"],
+ ["Project Juniper: port authority consideration of the land","scheduled November 5; outcome not found"],
+ ["Red Butte: whether the developer refiles under Iron County's new rules","not found"],
+ ["Dugway: Army lease terms and environmental review","no dates found"]
+];
+
+const S={scope:"all",dm:"all",tier:"all",ev:"all",open:null};
+const el=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function seg(id,map,key){
+  el(id).innerHTML=Object.entries(map).map(([k,v])=>`<button class="seg" data-k="${k}" aria-pressed="${S[key]===k}">${v}</button>`).join("");
+  el(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{S[key]=b.dataset.k;render()});
+}
+function cell(st){const [l,sym]=ST[st];return `<span class="cell ${st}"><span aria-hidden="true">${sym}</span>${l}</span>`}
+function visible(){
+  return P.filter(p=>(S.scope==="all"||(S.scope==="data"?p.inData:!p.inData))&&(S.dm==="all"||p.dm===S.dm)&&(S.tier==="all"||p.tier===S.tier));
+}
+function drawTiers(){
+  const vis=P.filter(p=>S.scope==="all"||(S.scope==="data"?p.inData:!p.inData));
+  el('tiers').innerHTML=["t1","t2","t3","t0"].map(t=>{
+    const m=vis.filter(p=>p.tier===t);
+    return `<div class="tier ${t}"><b class="big">${m.length}</b> <b>${TIER[t]}</b><div class="nm">${m.map(p=>esc(p.name)).join("; ")||"None"}</div></div>`;
+  }).join("");
+}
+function drawTable(){
+  const rows=visible();
+  let h=`<thead><tr><th scope="col">Project</th><th scope="col">Who decides land use</th>${GATES.map(g=>`<th scope="col">${g[1]}</th>`).join("")}</tr></thead><tbody>`;
+  ["t1","t2","t3","t0"].forEach(t=>{
+    const m=rows.filter(p=>p.tier===t); if(!m.length) return;
+    h+=`<tr class="grouprow"><td colspan="${GATES.length+2}">${TIER[t]} (${m.length})</td></tr>`;
+    m.forEach(p=>{
+      const i=P.indexOf(p), open=S.open===i;
+      h+=`<tr><td><button class="rowbtn" data-i="${i}" aria-expanded="${open}">${esc(p.name)}</button>${p.inData?"":'<span class="flag">not in your data</span>'}<div class="sub">${esc(p.county)} County${p.asof?" - latest source "+p.asof:""}</div></td><td>${DM[p.dm]}</td>${GATES.map(g=>`<td>${cell(p.g[g[0]])}</td>`).join("")}</tr>`;
+      if(open){
+        h+=`<tr class="detail"><td colspan="${GATES.length+2}"><div class="dgrid">`+
+          `<div><h3>Who decides</h3><p>${esc(p.dmText)}</p><h3>What I could not find</h3><p>${esc(p.gaps)}</p></div>`+
+          GATES.map(g=>`<div><h3>${g[1]}: ${ST[p.g[g[0]]][0]}</h3><p>${esc(p.n[g[0]])}</p></div>`).join("")+
+          `<div><h3>Sources</h3>${p.src.length?p.src.map(s=>`<p><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></p>`).join(""):"<p>None found.</p>"}</div>`+
+          `</div></td></tr>`;
+      }
+    });
+  });
+  if(!rows.length) h+=`<tr><td colspan="${GATES.length+2}">No projects match these filters.</td></tr>`;
+  el('tbl').innerHTML=h+"</tbody>";
+  el('tbl').querySelectorAll('.rowbtn').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;S.open=S.open===i?null:i;drawTable()});
+}
+function drawTL(){
+  const list=EV.filter(e=>S.ev==="all"||(S.ev==="up"?e[0]>=TODAY:e[0]<=TODAY)).slice().sort((a,b)=>a[0].localeCompare(b[0]));
+  el('tl').innerHTML=list.map(e=>{
+    const today=e[0]===TODAY&&e[1]==="Today", fut=e[0]>TODAY;
+    return `<li class="${today?'today':fut?'future':''}"><span class="d">${today?"Nov 14, 2026":new Date(e[0]+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span><span>${esc(today?"Today":e[1])}</span></li>`;
+  }).join("");
+}
+function drawOpen(){el('open').innerHTML=OPEN.map(o=>`<li><b>${esc(o[0])}</b><div class="small">${esc(o[1])}</div></li>`).join("")}
+function render(){
+  seg('gScope',{all:"All",data:"In your data",other:"Found elsewhere"},'scope');
+  seg('gTier',{all:"All",t1:"Under construction",t2:"Approved locally",t3:"Proposed or on hold"},'tier');
+  seg('gEv',{all:"All",past:"Past",up:"Upcoming"},'ev');
+  el('fDM').innerHTML=`<option value="all">All decision-makers</option>`+Object.entries(DM).map(([k,v])=>`<option value="${k}" ${S.dm===k?"selected":""}>${v}</option>`).join("");
+  el('fDM').onchange=e=>{S.dm=e.target.value;render()};
+  drawTiers();drawTable();drawTL();drawOpen();
+}
+el('legend').innerHTML=Object.keys(ST).map(k=>cell(k)).join(" ");
+render();
+</script>
+</body>
+</html>

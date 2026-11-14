@@ -1,0 +1,47 @@
+/* Impact Panel. Uses the Stratos pilot's palette and tag outlines. Scope: .ip */
+.ip{--bg:#e8edee;--panel:#f7f9f9;--ink:#12324a;--muted:#566b74;--line:#c5d0d4;--ben:#2f7d6f;--cost:#8e1b3a;--warn:#b4731a;--on:#fff;
+  color:var(--ink);background:var(--panel);font:14px/1.45 "Avenir Next","Segoe UI",system-ui,sans-serif;
+  width:380px;max-height:100%;overflow:auto;border-left:1px solid var(--line);padding:12px 14px;box-sizing:border-box}
+@media (prefers-color-scheme:dark){.ip{--bg:#10181d;--panel:#18232a;--ink:#e3edf0;--muted:#9bb0b8;--line:#2c3d46;--warn:#e2a43a;--on:#10181d}}
+.ip button{font:inherit;padding:4px 9px;border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:4px;cursor:pointer}
+.ip button[aria-pressed=true],.ip button[aria-selected=true]{background:var(--ink);color:var(--on)}
+.ip button:focus-visible,.ip input:focus-visible,.ip select:focus-visible,.ip summary:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.ip-tabs,.ip-branch{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.ip-branch button{font-size:.8rem}
+.ip-list{max-height:180px;overflow:auto;display:grid;gap:2px}
+.ip-list label{display:block}
+.ip-size,.ip input[type=number],.ip select,.ip textarea{font:inherit;width:100%;box-sizing:border-box;padding:4px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px}
+.ip-row-btns{display:flex;gap:4px;margin-top:6px}
+.ip-form{display:grid;gap:6px}
+.ip-chip{display:inline-block;border:1px solid var(--line);border-radius:12px;padding:1px 8px;margin:4px 4px 0 0;font-size:.8rem}
+.ip-muted{color:var(--muted);font-size:.82rem}
+.ip-err{color:var(--cost)}
+.ip-nq{color:var(--muted);font-style:italic}
+.ip-note{border:1px solid var(--cost);border-left-width:5px;border-radius:4px;padding:8px 10px;background:var(--bg)}
+.ip-summary p{background:var(--bg);border-left:4px solid var(--ink);padding:6px 10px;margin:8px 0}
+.ip-row{border-top:1px solid var(--line);padding:6px 0}
+.ip-row summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:2px 8px;align-items:center}
+.ip-row summary::-webkit-details-marker{display:none}
+.ip-title{font-weight:600}
+.ip-val{font-weight:700;font-variant-numeric:tabular-nums}
+.ip-badge{font-size:.68rem;border:1px solid var(--muted);border-radius:10px;padding:0 6px;color:var(--muted)}
+.ip-bar{grid-column:1/-1;position:relative;height:8px;background:var(--bg);border-radius:4px}
+.ip-span{position:absolute;top:0;height:8px;background:var(--line);border-radius:4px}
+.ip-mark{position:absolute;top:-3px;width:3px;height:14px;background:var(--ink);transform:translateX(-1px)}
+.ip-unit{grid-column:1/-1;font-size:.75rem;color:var(--muted)}
+.ip-detail{padding:4px 0 2px;font-size:.86rem}
+.ip-flagrow{display:grid;grid-template-columns:1fr auto}
+.ip-flagrow .ip-detail{grid-column:1/-1}
+.ip-three{width:100%;border-collapse:collapse;font-size:.82rem;margin:4px 0}
+.ip-three th,.ip-three td{border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top}
+.ip-figs{padding-left:16px;margin:6px 0}
+.ip-eo{font-size:.82rem;margin-top:4px}
+.ip-lever{display:block;border:1px solid var(--line);border-radius:4px;padding:6px;margin:4px 0}
+.ip-lever q{color:var(--muted);font-size:.8rem}
+.ip-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-top:1px solid var(--line);margin-top:8px;padding-top:8px}
+.ip-math-box{font-size:.78rem;overflow:auto}
+.ip-math-box table{border-collapse:collapse}
+.ip-math-box td,.ip-math-box th{border:1px solid var(--line);padding:2px 4px}
+/* source tags: distinct outlines so meaning does not rely on color (from the Stratos pilot) */
+.ip .tag{display:inline-block;border:1px solid var(--muted);border-radius:10px;padding:0 7px;font-size:.68rem;margin:1px 2px;color:var(--muted);white-space:nowrap}
+.ip .tag.dev{border-style:dashed}.ip .tag.adv{border-width:2px}.ip .tag.ind{border-style:double;border-width:3px}.ip .tag.der{border-style:dotted}

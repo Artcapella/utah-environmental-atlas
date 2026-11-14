@@ -18,6 +18,7 @@ from typing import Any, Iterable
 import httpx
 
 from backend.config import settings
+from backend.guide.environmental import answer_environmental, tools_only_answer
 from backend.guide.links import normalize_source_url
 from backend.guide.planning import UTAH_TIME, local_answer, requested_day, utah_now
 from backend.guide.prompts import GUIDE_INSTRUCTIONS
@@ -102,8 +103,9 @@ class RetrievedDocument:
 def guide_status() -> dict[str, object]:
     """Safe configuration state for the UI and deployment diagnostics."""
     return {
-        "status": "ready" if settings.openai_api_key else "fallback_ready",
+        "status": "ready" if settings.openai_api_key or settings.gemini_api_key else "fallback_ready",
         "openai_configured": bool(settings.openai_api_key),
+        "gemini_configured": bool(settings.gemini_api_key),
         "live_web_available": bool(settings.openai_api_key and settings.openai_enable_web_search),
         "supabase_write_configured": bool(get_service_client()),
     }
@@ -494,17 +496,36 @@ async def search_guide(request: GuideSearchRequest) -> GuideSearchResponse:
     return GuideSearchResponse(results=[document.result() for document in documents], retrieval=retrieval)
 
 
+def _strip_unknown_labels(answer: str, citations: list[GuideCitation]) -> str:
+    """An unsupported model label should not become a dangling link in the UI."""
+    valid_labels = {citation.label for citation in citations}
+    return re.sub(r"\[([SW]\d+)\]", lambda match: match.group(0) if match.group(1) in valid_labels else "", answer)
+
+
 async def answer_guide(request: GuideAnswerRequest) -> GuideAnswerResponse:
     request.query = _clean_query(request.query)
+    if request.mode == "environmental":
+        environmental = await answer_environmental(request)
+        agent = "gemini"
+        if not environmental:
+            # Gemini unavailable (unconfigured, quota, outage): live readings beat a travel-guide reply.
+            environmental, agent = await tools_only_answer(request), "local_fallback"
+        if environmental:
+            answer, tool_citations = environmental
+            citations = _used_citations(answer, tool_citations)
+            return GuideAnswerResponse(
+                answer=_strip_unknown_labels(answer, citations),
+                citations=citations,
+                retrieval="tools",
+                agent=agent,
+            )
     documents, retrieval = await retrieve(request.query, request.lat, request.lng, request.persona)
     documents = _prepare_documents(documents, request.query)
     generated, web_citations, live_web_used = await _generate_answer(request, documents)
     answer = generated or _local_answer(request.query, documents)
     citations = [document.citation(f"S{index}") for index, document in enumerate(documents, 1)]
     citations = _used_citations(answer, [*citations, *web_citations])
-    # An unsupported model label should not become a dangling link in the UI.
-    valid_labels = {citation.label for citation in citations}
-    answer = re.sub(r"\[([SW]\d+)\]", lambda match: match.group(0) if match.group(1) in valid_labels else "", answer)
+    answer = _strip_unknown_labels(answer, citations)
     return GuideAnswerResponse(
         answer=answer,
         citations=citations,

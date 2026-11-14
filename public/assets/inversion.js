@@ -172,23 +172,6 @@ function drawTable() {
   document.querySelector("#next").disabled = STATE.page >= pages - 1;
 }
 
-/* temperature vs elevation scatter (SVG, no chart library) */
-function profileSvg(stations, lidM) {
-  const W = 640, H = 300, P = 44, rows = stations.filter(s => s.air_temp_c != null);
-  if (!rows.length) return "";
-  const tMin = Math.min(...rows.map(s => s.air_temp_c)) - 1, tMax = Math.max(...rows.map(s => s.air_temp_c)) + 1;
-  const x = t => P + (t - tMin) / (tMax - tMin) * (W - 2 * P);
-  const y = e => H - P - (e - 1200) / (3500 - 1200) * (H - 2 * P);
-  const dots = rows.map(s => `<circle cx="${x(s.air_temp_c)}" cy="${y(s.elevation_m)}" r="4" fill="#28564e" fill-opacity=".7"><title>${esc(s.name)}: ${s.elevation_m.toFixed(0)} m, ${s.air_temp_c}°C</title></circle>`).join("");
-  const lid = lidM ? `<line x1="${P}" x2="${W - P}" y1="${y(lidM)}" y2="${y(lidM)}" stroke="#c83232" stroke-dasharray="6 4" stroke-width="2"/><text x="${W - P}" y="${y(lidM) - 6}" text-anchor="end" font-size="12" fill="#c83232">lid ≈ ${lidM} m</text>` : "";
-  const ticks = [1500, 2000, 2500, 3000, 3500].map(e => `<text x="${P - 6}" y="${y(e) + 4}" text-anchor="end" font-size="11" fill="#607171">${e}</text>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Temperature versus elevation">
-    <line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="#d9ded4"/><line x1="${P}" y1="${P / 2}" x2="${P}" y2="${H - P}" stroke="#d9ded4"/>
-    ${ticks}<text x="${W / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#607171">Air temp (°C) → warmer</text>
-    <text x="14" y="${H / 2}" font-size="12" fill="#607171" transform="rotate(-90 14 ${H / 2})" text-anchor="middle">Elevation (m)</text>
-    ${dots}${lid}</svg>`;
-}
-
 /* illustration in the "What is an inversion?" section */
 function drawIllustration() {
   const e = [1300, 1500, 1700, 1800, 2200, 2600, 3000];
@@ -206,20 +189,26 @@ function drawIllustration() {
     <text x="12" y="${H / 2}" font-size="12" transform="rotate(-90 12 ${H / 2})" text-anchor="middle">height ↑</text></svg>`;
 }
 
-/* 7-day outlook bars */
+/* 7-day outlook: mixing height + morning warm layer (EnvCharts) */
 async function drawOutlook() {
   const box = document.querySelector("#outlook");
+  box.classList.add("chart-loading");
   try {
     const days = await fetch(`/api/inversion/outlook?lat=${STATE.lat}&lng=${STATE.lng}`).then(r => { if (!r.ok) throw new Error(); return r.json(); });
-    box.innerHTML = days.map(d => {
-      const h = Math.max(8, Math.min(100, (d.lid_elevation_m - 1300) / 1700 * 100));
-      const label = new Date(`${d.date}T12:00`).toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" });
-      return `<div class="day ${d.confidence}" title="Morning inversion ${d.morning_inversion_c}°C · afternoon mixing ${d.afternoon_mixing_m} m">
-        <div class="bar ${d.risk}" style="height:${h}%">${d.risk}</div><b>${label}</b><span>lid ${d.lid_elevation_m.toLocaleString()} m</span></div>`;
-    }).join("");
+    EnvCharts.outlook(box, days);
   } catch {
-    box.innerHTML = `<p class="muted">Forecast is unavailable right now.</p>`;
+    EnvCharts.outlook(box, []);
+  } finally {
+    box.classList.remove("chart-loading");
   }
+}
+
+/* temperature vs elevation with the lid and the trailhead verdicts (EnvCharts) */
+function drawProfile(d) {
+  EnvCharts.profile(document.querySelector("#profile-chart"), d);
+  document.querySelector("#profile-note").textContent = d.mode === "demo"
+    ? "Demo: a simulated inversion day at real station locations."
+    : `${d.source}. ${d.lid.reason ? d.lid.reason[0].toUpperCase() + d.lid.reason.slice(1) + "." : ""}`;
 }
 
 /* ---------- load + controls ---------- */
@@ -229,6 +218,7 @@ async function load() {
   if (!d.headline) throw new Error("bad response");
   STATE.data = d;
   drawPanels(d);
+  drawProfile(d);
   drawMap(d);
   if (STATE.moved) {
     STATE.moved = false;

@@ -2,13 +2,15 @@ import asyncio
 import hmac
 from pathlib import Path
 
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from datetime import date
 
 from backend import repository
+from backend.atlas.router import router as atlas_router
 from backend.config import settings
 from backend.guide import (
     GuideAnswerRequest,
@@ -22,6 +24,7 @@ from backend.intelligence.model import model_status
 from backend.intelligence.router import router as intelligence_router
 from backend.models import Coordinate, IngestRequest
 from backend.providers.events import search_ticketmaster_events
+from backend.services import air as air_service, alerts as alerts_service, climate as climate_service
 from backend.services.dashboard import build_dashboard, build_inversion_recommendations
 from backend.services.event_recommendations import recommend_events
 from backend.services.ingest import ingest_all_places, ingest_events, run_ingest
@@ -30,6 +33,11 @@ from backend.inversion import service as inversion_service, sources as inversion
 
 ROOT_DIR = Path(__file__).resolve().parent
 PUBLIC_DIR = ROOT_DIR / "public"
+
+# Read-only environmental data changes at most hourly upstream. On Vercel these headers let
+# the edge cache serve repeat views, so NWS/DAQ see one request per window, not one per visitor.
+LIVE_CACHE = "public, max-age=60, s-maxage=600, stale-while-revalidate=1800"
+FORECAST_CACHE = "public, max-age=300, s-maxage=3600, stale-while-revalidate=7200"
 
 app = FastAPI(
     title="Comprehensive Utah API",
@@ -45,24 +53,32 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+# The climate grid and inversion payloads are large, repetitive JSON; compress them.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
 @app.get("/", include_in_schema=False)
 async def homepage() -> FileResponse:
-    """Map-first by default; the discovery dashboard remains available as a static artifact."""
-    return FileResponse(PUBLIC_DIR / "index.html")
+    """The map is the homepage. On Vercel, vercel.json rewrites / to public/map.html."""
+    return FileResponse(PUBLIC_DIR / "map.html")
 
 
 @app.get("/map", include_in_schema=False)
 async def map_page() -> FileResponse:
-    """Full-screen map hub. On Vercel the CDN serves public/map.html via the vercel.json rewrite."""
+    """Same map, kept for existing links."""
     return FileResponse(PUBLIC_DIR / "map.html")
 
 
 @app.get("/map/simple", include_in_schema=False)
-async def simple_map_page() -> FileResponse:
-    """A focused, north-up street map for everyday place discovery."""
-    return FileResponse(PUBLIC_DIR / "map-simple.html")
+async def simple_map_page() -> RedirectResponse:
+    """The simple view was merged into the map; keep old links working."""
+    return RedirectResponse("/", status_code=308)
+
+
+@app.get("/about", include_in_schema=False)
+async def about_page() -> FileResponse:
+    """Landing page with the air-trend charts and the data-source directory."""
+    return FileResponse(PUBLIC_DIR / "about.html")
 
 
 @app.get("/api/health")
@@ -142,6 +158,12 @@ async def escape_inversion(
     return (await build_inversion_recommendations(Coordinate(lat=lat, lng=lng))).model_dump(mode="json")
 
 
+@app.get("/briefing", include_in_schema=False)
+async def briefing_page() -> FileResponse:
+    """One-page legislative briefing from the Environmental Atlas impact engine (print to PDF)."""
+    return FileResponse(PUBLIC_DIR / "atlas" / "briefing.html")
+
+
 @app.get("/inversion", include_in_schema=False)
 async def inversion_page() -> FileResponse:
     return FileResponse(PUBLIC_DIR / "inversion.html")
@@ -155,22 +177,82 @@ async def promoters_page() -> FileResponse:
 
 @app.get("/api/inversion/today")
 async def inversion_today(
+    response: Response,
     mode: str = Query(default="live", pattern="^(live|demo)$"),
     lat: float = Query(default=40.7649, ge=-90, le=90),
     lng: float = Query(default=-111.8421, ge=-180, le=180),
 ) -> dict:
-    return await inversion_service.today(mode, lat, lng)
+    payload = await inversion_service.today(mode, lat, lng)
+    # Don't let the edge hold a degraded answer (saved stations, no monitors) for the full window.
+    live = mode == "demo" or (str(payload.get("source", "")).startswith("NWS live") and payload.get("monitors"))
+    response.headers["Cache-Control"] = LIVE_CACHE if live else "no-store"
+    return payload
 
 
 @app.get("/api/inversion/outlook")
 async def inversion_outlook(
+    response: Response,
     lat: float = Query(default=40.7649, ge=-90, le=90),
     lng: float = Query(default=-111.8421, ge=-180, le=180),
 ) -> list[dict]:
     try:
-        return await inversion_service.outlook(lat, lng)
+        days = await inversion_service.outlook(lat, lng)
     except Exception:
         raise HTTPException(status_code=503, detail="Forecast provider unavailable")
+    response.headers["Cache-Control"] = FORECAST_CACHE
+    return days
+
+
+@app.get("/api/air/history")
+async def air_history(
+    response: Response,
+    lat: float = Query(default=40.7608, ge=-90, le=90),
+    lng: float = Query(default=-111.8910, ge=-180, le=180),
+    hours: int = Query(default=72, ge=6, le=240),
+    station: str | None = Query(default=None, max_length=8, pattern="^[a-z0-9]+$"),
+) -> dict:
+    """Hourly PM2.5 at the nearest (or a chosen) Utah DAQ station, oldest first, for trend charts."""
+    try:
+        payload = await air_service.station_history(lat, lng, hours, station)
+    except LookupError as exc:
+        raise HTTPException(status_code=404 if station else 502, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Utah DAQ is temporarily unavailable") from exc
+    response.headers["Cache-Control"] = LIVE_CACHE
+    return payload
+
+
+@app.get("/api/air/monitors")
+async def air_monitors(response: Response) -> dict:
+    """Latest PM2.5 at every Utah DAQ monitor, highest first. Empty list when the feed is down."""
+    payload = await air_service.statewide_monitors()
+    if payload["monitors"]:
+        response.headers["Cache-Control"] = LIVE_CACHE
+    return payload
+
+
+@app.get("/api/alerts")
+async def active_alerts(response: Response) -> dict:
+    """Active NWS alerts for Utah with zone outlines resolved, as GeoJSON for the map overlay."""
+    try:
+        payload = await alerts_service.utah_alerts()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="NWS alerts are temporarily unavailable") from exc
+    response.headers["Cache-Control"] = "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
+    return payload
+
+
+@app.get("/api/climate/grid")
+async def climate_grid(response: Response) -> dict:
+    """Statewide 72-hour forecast grids (temperature, wind, mixing height, modeled PM2.5) for the map."""
+    try:
+        payload = await climate_service.climate_grid()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Forecast grids are temporarily unavailable") from exc
+    response.headers["Cache-Control"] = (
+        "no-store" if payload["unavailable"] else "public, max-age=600, s-maxage=10800, stale-while-revalidate=3600"
+    )
+    return payload
 
 
 @app.get("/api/geocode")
@@ -258,6 +340,7 @@ def _secret_matches(provided: str | None, expected: str) -> bool:
 
 
 app.include_router(intelligence_router)
+app.include_router(atlas_router)
 
 
 # Local development serves public/assets itself. On Vercel the CDN serves public/** and the
@@ -265,3 +348,6 @@ app.include_router(intelligence_router)
 # API fail at import (FUNCTION_INVOCATION_FAILED on every /api route).
 if (PUBLIC_DIR / "assets").is_dir():
     app.mount("/assets", StaticFiles(directory=PUBLIC_DIR / "assets"), name="assets")
+if (PUBLIC_DIR / "atlas").is_dir():
+    # Briefing, Stratos pilot and the static atlas layers (/atlas/data/*); Vercel's CDN serves these itself.
+    app.mount("/atlas", StaticFiles(directory=PUBLIC_DIR / "atlas", html=True), name="atlas")

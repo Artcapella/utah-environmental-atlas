@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utah new-demand water risk map</title>
+<style>
+:root{
+  --bg:#e8edee; --panel:#f6f8f8; --ink:#12324a; --muted:#52666f; --line:#c3cfd3;
+  --lo:#6fb3a8; --mid:#e2a43a; --hi:#8e1b3a; --accent:#12324a;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#10181d; --panel:#18232a; --ink:#e3edf0; --muted:#9bb0b8; --line:#2c3d46; --accent:#9ccfe0; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+h1,h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;margin:0}
+h1{font-size:1.7rem;line-height:1.2}
+h2{font-size:1.1rem;margin-bottom:.5rem}
+header{padding:20px 24px 8px;max-width:1200px;margin:0 auto}
+header p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.banner{max-width:1200px;margin:8px auto 0;padding:0 24px}
+.banner div{border:1px solid var(--hi);border-left-width:5px;background:var(--panel);padding:8px 12px;border-radius:4px;font-size:.9rem}
+main{max-width:1200px;margin:12px auto 40px;padding:0 24px;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.stack{display:flex;flex-direction:column;gap:16px}
+svg{width:100%;height:auto;display:block}
+.state{fill:var(--panel);stroke:var(--ink);stroke-width:1.5}
+.bubble{cursor:pointer;stroke:var(--ink);stroke-width:1.2;transition:r .25s,fill .25s}
+.bubble:focus{outline:none;stroke-width:3.5}
+.bubble.sel{stroke-width:3.5}
+.lbl{font-size:10.5px;fill:var(--ink);pointer-events:none;text-anchor:middle;paint-order:stroke;stroke:var(--panel);stroke-width:3px}
+.flag{fill:var(--panel);stroke:var(--hi);stroke-width:2;pointer-events:none}
+.flagt{font-size:11px;font-weight:700;fill:var(--hi);text-anchor:middle;pointer-events:none}
+label{display:block;font-size:.85rem;color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 46px;gap:8px;align-items:center;margin:6px 0}
+.row span{text-align:right;font-variant-numeric:tabular-nums;font-size:.85rem}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number]{width:100%;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px;font:inherit}
+button{font:inherit;padding:7px 12px;border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:4px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--mid);outline-offset:1px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.rk{cursor:pointer}
+tr.rk:hover,tr.rk.sel{background:var(--bg)}
+.chip{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;border:1px solid var(--ink)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%}
+.legend{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend .grad{flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--lo),var(--mid),var(--hi))}
+.small{font-size:.8rem;color:var(--muted)}
+.detail dl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin:8px 0}
+.detail dt{color:var(--muted)} .detail dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.warn{color:var(--hi);font-weight:700}
+.toggle{display:flex;gap:8px;align-items:center;margin:6px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Utah new-demand water risk map</h1>
+  <p>Scores each basin on pending demand versus remaining headroom, junior-right share, storage buffer and municipal and industrial (M&amp;I) use trend. Bubble size is pending demand; color is risk.</p>
+</header>
+<div class="banner"><div><strong>Placeholder data.</strong> Every number below is invented for layout and demonstration. Basin names and positions are my approximation of Utah's planning basins and the bubbles are not true basin boundaries. Replace the numbers with real data (Import CSV) before drawing any conclusions.</div></div>
+
+<main>
+  <div class="stack">
+    <div class="panel">
+      <svg id="map" viewBox="-10 -10 410 520" role="img" aria-label="Schematic map of Utah with basin risk bubbles"></svg>
+      <div class="legend"><span>Lower risk</span><div class="grad"></div><span>Higher risk</span></div>
+      <div class="small" style="margin-top:6px">Red-outlined "J" marks a basin where, in the selected dry year, pending demand exceeds headroom and most rights are junior.</div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Scenario</h2>
+      <div class="row"><label for="dry">Dry-year supply (percent of normal headroom)</label><span id="dryv"></span></div>
+      <input id="dry" type="range" min="30" max="100" value="100">
+      <h2 style="margin-top:12px">Score weights</h2>
+      <div id="weights"></div>
+      <div class="actions">
+        <button class="ghost" id="reset">Reset</button>
+        <label class="ghost" style="margin:0"><button class="ghost" onclick="document.getElementById('file').click()">Import CSV</button></label>
+        <input id="file" type="file" accept=".csv" hidden>
+        <button class="ghost" id="tmpl">Download CSV template</button>
+      </div>
+      <div class="small" id="msg" role="status" style="margin-top:6px"></div>
+    </div>
+
+    <div class="panel detail" id="detail"></div>
+
+    <div class="panel">
+      <h2>Basins ranked by risk</h2>
+      <table id="rank"><thead><tr><th>Basin</th><th class="n">Score</th><th class="n">Demand / headroom</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="panel small">
+      <strong>How the score works.</strong> Each factor is scaled 0 to 1, then combined with the weights above and shown as 0 to 100.
+      Demand ratio = pending demand / (headroom x dry-year factor), capped at 1.5. Junior share is the fraction of rights that are junior.
+      Storage buffer risk = 1 minus storage as a fraction of annual use (capped at 100 percent). M&amp;I trend is capped at 25 percent growth per five years.
+      These caps and the scaling are my own simplifying choices, not an official method, so validate or change them.
+    </div>
+  </div>
+</main>
+
+<script>
+// ---------- PLACEHOLDER DATA (invented) ----------
+// Columns: demand = pending/recent application volume (acre-feet/yr); headroom = remaining unappropriated supply (acre-feet/yr)
+// junior = share of rights that are junior (0-100); storage = storage as % of annual use; trend = M&I use change per 5 yrs (%)
+const DEFAULT = [
+ {name:"Bear River",        lon:-112.0, lat:41.6, demand:9000,  headroom:40000, junior:35, storage:60, trend:8},
+ {name:"Weber River",       lon:-111.5, lat:41.05,demand:12000, headroom:15000, junior:55, storage:45, trend:12},
+ {name:"Jordan / Salt Lake",lon:-112.0, lat:40.7, demand:20000, headroom:6000,  junior:70, storage:25, trend:15},
+ {name:"Utah Lake / Provo", lon:-111.5, lat:40.15,demand:15000, headroom:9000,  junior:62, storage:35, trend:18},
+ {name:"Uintah Basin",      lon:-109.9, lat:40.4, demand:6000,  headroom:30000, junior:30, storage:55, trend:5},
+ {name:"West Desert",       lon:-113.3, lat:40.0, demand:7000,  headroom:3000,  junior:40, storage:10, trend:10},
+ {name:"Sevier River",      lon:-112.3, lat:38.9, demand:4000,  headroom:5000,  junior:50, storage:50, trend:6},
+ {name:"Southeast Colorado",lon:-109.8, lat:38.4, demand:3000,  headroom:25000, junior:25, storage:20, trend:4},
+ {name:"Cedar / Beaver",    lon:-112.9, lat:38.2, demand:5000,  headroom:2500,  junior:65, storage:15, trend:14},
+ {name:"Virgin / Kanab",    lon:-113.4, lat:37.25,demand:8000,  headroom:3500,  junior:68, storage:30, trend:20}
+];
+const FACTORS = [
+ {k:"ratio",   label:"Demand vs headroom", w:35},
+ {k:"junior",  label:"Junior-right share", w:25},
+ {k:"storage", label:"Thin storage buffer",w:20},
+ {k:"trend",   label:"M&I use trend",      w:20}
+];
+let data = JSON.parse(JSON.stringify(DEFAULT));
+let weights = Object.fromEntries(FACTORS.map(f=>[f.k,f.w]));
+let dry = 100, sel = 0, extra = {}; // extra: hypothetical project demand by basin name
+
+const SX = 77.2, SY = 100;
+const px = lon => (lon + 114.05) * SX, py = lat => (42 - lat) * SY;
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt = n => Math.round(n).toLocaleString();
+
+function metrics(b){
+  const demand = b.demand + (extra[b.name]||0);
+  const head = b.headroom * dry/100;
+  const ratio = head>0 ? demand/head : 9;
+  const f = {
+    ratio: clamp(ratio/1.5,0,1),
+    junior: clamp(b.junior/100,0,1),
+    storage: 1 - clamp(b.storage/100,0,1),
+    trend: clamp(b.trend/25,0,1)
+  };
+  const tw = Object.values(weights).reduce((a,c)=>a+c,0) || 1;
+  const score = 100 * FACTORS.reduce((s,x)=>s + weights[x.k]*f[x.k],0) / tw;
+  const curtail = demand > head && b.junior >= 50;
+  return {demand, head, ratio, f, score, curtail};
+}
+function color(s){ // 0..100 -> teal / amber / crimson
+  const stops=[[111,179,168],[226,164,58],[142,27,58]];
+  const t = clamp(s/70,0,1)*2, i = Math.min(Math.floor(t),1), u = t-i;
+  const c = stops[i].map((v,j)=>Math.round(v+(stops[i+1][j]-v)*u));
+  return `rgb(${c})`;
+}
+
+// ---------- RENDER ----------
+const svg = document.getElementById('map');
+function drawMap(){
+  const outline = [[-114.05,42],[-111.05,42],[-111.05,41],[-109.05,41],[-109.05,37],[-114.05,37]]
+    .map(([lo,la])=>px(lo)+","+py(la)).join(" ");
+  let h = `<polygon class="state" points="${outline}"/>`;
+  data.forEach((b,i)=>{
+    const m = metrics(b);
+    const r = 12 + Math.sqrt(m.demand/20000)*26;
+    const cx = px(b.lon), cy = py(b.lat);
+    h += `<circle class="bubble ${i===sel?'sel':''}" tabindex="0" role="button" aria-label="${b.name}, risk score ${Math.round(m.score)}" data-i="${i}" cx="${cx}" cy="${cy}" r="${r}" fill="${color(m.score)}" fill-opacity=".85"/>`;
+    h += `<text class="lbl" x="${cx}" y="${cy+r+12}">${b.name}</text>`;
+    if(m.curtail) h += `<circle class="flag" cx="${cx+r*.75}" cy="${cy-r*.75}" r="9"/><text class="flagt" x="${cx+r*.75}" y="${cy-r*.75+4}">J</text>`;
+  });
+  svg.innerHTML = h;
+  svg.querySelectorAll('.bubble').forEach(el=>{
+    el.addEventListener('click',()=>{sel=+el.dataset.i;render()});
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sel=+el.dataset.i;render()}});
+  });
+}
+function drawDetail(){
+  const b = data[sel], m = metrics(b), d = document.getElementById('detail');
+  const pct = x=>Math.round(x*100)+"%";
+  d.innerHTML = `
+   <h2>${b.name}</h2>
+   <div class="bar" aria-hidden="true"><i style="width:${m.score}%;background:${color(m.score)}"></i></div>
+   <dl>
+     <dt>Risk score</dt><dd><strong>${Math.round(m.score)}</strong> / 100</dd>
+     <dt>Pending demand (acre-feet/yr)</dt><dd>${fmt(m.demand)}</dd>
+     <dt>Headroom in this scenario (acre-feet/yr)</dt><dd>${fmt(m.head)}</dd>
+     <dt>Demand / headroom</dt><dd>${m.ratio>=9?"no headroom":m.ratio.toFixed(2)}</dd>
+     <dt>Junior-right share</dt><dd>${b.junior}%</dd>
+     <dt>Storage buffer (% of annual use)</dt><dd>${b.storage}%</dd>
+     <dt>M&amp;I trend (per 5 yrs)</dt><dd>+${b.trend}%</dd>
+   </dl>
+   <p class="${m.curtail?'warn':'small'}">${m.curtail
+     ? "In this scenario, pending demand exceeds headroom and most rights are junior, so junior rights would likely be curtailed first."
+     : "No junior-curtailment flag in this scenario."}</p>
+   <label for="proj">Test a new project here: added demand (acre-feet/yr)</label>
+   <div class="actions" style="margin-top:4px">
+     <input id="proj" type="number" min="0" step="100" value="${extra[b.name]||0}" style="max-width:140px">
+     <button id="apply">Apply</button>
+   </div>
+   <p class="small">Use this to see how a large new user (for example a data center) shifts the score. Enter the real water figure for the project; I do not have one.</p>`;
+  document.getElementById('apply').onclick = ()=>{extra[b.name]=Math.max(0,+document.getElementById('proj').value||0);render()};
+}
+function drawRank(){
+  const rows = data.map((b,i)=>({b,i,m:metrics(b)})).sort((a,c)=>c.m.score-a.m.score);
+  document.querySelector('#rank tbody').innerHTML = rows.map(({b,i,m})=>
+   `<tr class="rk ${i===sel?'sel':''}" data-i="${i}"><td><span class="chip" style="background:${color(m.score)}"></span>${b.name}${m.curtail?' <span class="warn">J</span>':''}</td><td class="n">${Math.round(m.score)}</td><td class="n">${m.ratio>=9?"n/a":m.ratio.toFixed(2)}</td></tr>`).join('');
+  document.querySelectorAll('tr.rk').forEach(r=>r.onclick=()=>{sel=+r.dataset.i;render()});
+}
+function drawWeights(){
+  document.getElementById('weights').innerHTML = FACTORS.map(f=>
+   `<div class="row"><label for="w_${f.k}">${f.label}</label><span id="wv_${f.k}">${weights[f.k]}</span></div>
+    <input id="w_${f.k}" type="range" min="0" max="100" value="${weights[f.k]}">`).join('');
+  FACTORS.forEach(f=>document.getElementById('w_'+f.k).oninput=e=>{weights[f.k]=+e.target.value;document.getElementById('wv_'+f.k).textContent=e.target.value;render(false)});
+}
+function render(full=true){
+  document.getElementById('dryv').textContent = dry+"%";
+  drawMap(); drawDetail(); drawRank();
+}
+document.getElementById('dry').oninput = e=>{dry=+e.target.value;render()};
+document.getElementById('reset').onclick = ()=>{
+  data=JSON.parse(JSON.stringify(DEFAULT));extra={};dry=100;sel=0;
+  weights=Object.fromEntries(FACTORS.map(f=>[f.k,f.w]));
+  document.getElementById('dry').value=100;drawWeights();render();
+  document.getElementById('msg').textContent="Reset to placeholder data.";
+};
+
+// ---------- CSV ----------
+const HEAD = "basin,lon,lat,new_demand_af,headroom_af,junior_share_pct,storage_buffer_pct,mi_trend_pct";
+document.getElementById('tmpl').onclick = ()=>{
+  const csv = HEAD+"\n"+DEFAULT.map(b=>[`"${b.name}"`,b.lon,b.lat,b.demand,b.headroom,b.junior,b.storage,b.trend].join(",")).join("\n");
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download="utah_basin_template.csv";a.click();
+};
+document.getElementById('file').onchange = e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const lines=rd.result.trim().split(/\r?\n/); const hdr=lines.shift().split(",").map(s=>s.trim());
+      const need=HEAD.split(","); const miss=need.filter(c=>!hdr.includes(c));
+      if(miss.length) throw new Error("Missing columns: "+miss.join(", "));
+      const rows=lines.filter(Boolean).map(l=>{
+        const cells=l.match(/("([^"]*)"|[^,]+)/g).map(s=>s.replace(/^"|"$/g,"").trim());
+        const o=Object.fromEntries(hdr.map((h,i)=>[h,cells[i]]));
+        return {name:o.basin,lon:+o.lon,lat:+o.lat,demand:+o.new_demand_af,headroom:+o.headroom_af,junior:+o.junior_share_pct,storage:+o.storage_buffer_pct,trend:+o.mi_trend_pct};
+      });
+      if(rows.some(r=>[r.lon,r.lat,r.demand,r.headroom,r.junior,r.storage,r.trend].some(isNaN))) throw new Error("A row has a non-numeric value.");
+      data=rows;extra={};sel=0;render();
+      document.getElementById('msg').textContent="Loaded "+rows.length+" basins from "+f.name+".";
+    }catch(err){document.getElementById('msg').textContent="Import failed: "+err.message;}
+  };
+  rd.readAsText(f);
+};
+drawWeights(); render();
+</script>
+</body>
+</html>

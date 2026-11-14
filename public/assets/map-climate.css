@@ -1,0 +1,103 @@
+/* Climate legend card, layer legends, monitor trend chart and the assistant on the dark map UI. */
+
+/* ---------- floating climate legend ---------- */
+#climate-card { position: fixed; z-index: 18; left: calc(var(--panel-w) + 4px); top: 70px; width: 330px; padding: 10px 12px 9px;
+  border-radius: var(--r); color: var(--ink); font-size: 12.5px; }
+.cf-head { display: flex; align-items: center; gap: 10px; }
+.cf-play { flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--glacier); color: var(--deeper);
+  font-size: 13px; font-weight: 800; cursor: pointer; }
+.cf-play:focus-visible, .cf-tab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cf-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.cf-title b { font-size: 13.5px; }
+.cf-title span { color: var(--ink-dim); font-size: 11.5px; }
+.cf-tabs { display: flex; gap: 4px; margin: 8px 0 7px; }
+.cf-tab { flex: 1; padding: 5px 6px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-dim);
+  font-size: 11.5px; font-weight: 700; cursor: pointer; }
+.cf-tab.on { background: rgba(111,168,191,.22); border-color: var(--glacier); color: var(--ink); }
+.cf-ramp { height: 10px; border-radius: 5px; }
+.cf-ticks { position: relative; height: 16px; margin-top: 2px; color: var(--ink-dim); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.cf-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.cf-ticks span:first-child { transform: none; }
+.cf-ticks em { position: absolute; right: 0; font-style: normal; }
+.cf-probe { margin: 4px 0 0; min-height: 17px; line-height: 1.4; }
+.cf-note { margin: 4px 0 0; color: var(--ink-dim); font-size: 11px; line-height: 1.4; }
+
+/* ---------- legends inside the Layers tab ---------- */
+.layer-legend { display: flex; flex-direction: column; gap: 4px; margin: -2px 0 8px 46px; }
+.layer-legend .ll-ramp { display: block; height: 7px; border-radius: 4px; }
+
+/* ---------- monitor trend chart in the dark detail panel ---------- */
+#detail .env-chart { --ink: #e7efe9; --muted: #a9bdb6; --card: #0f2628; --line: rgba(231,239,233,.14); }
+#detail .env-chart .chart-plot .strong, #detail .env-chart .chart-plot .value { fill: var(--ink); }
+#detail .chart-table summary { color: var(--glacier); }
+
+/* ---------- assistant ---------- */
+.guide-launcher { display: inline-flex; align-items: center; gap: 7px; align-self: flex-end; min-height: 40px; padding: 0 14px; border: 0;
+  border-radius: 999px; background: var(--glacier); color: var(--deeper); font-weight: 800; font-size: 13px; cursor: pointer;
+  box-shadow: var(--shadow); white-space: nowrap; }
+.guide-launcher:hover { filter: brightness(1.08); }
+.guide-launcher:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.guide-sheet { position: fixed; z-index: 40; right: 12px; top: 70px; bottom: 12px; width: min(420px, calc(100vw - 24px)); display: flex;
+  flex-direction: column; overflow: hidden; border-radius: var(--r); color: var(--ink); }
+.guide-sheet[hidden] { display: none; }
+.guide-heading { display: flex; gap: 12px; align-items: flex-start; padding: 16px 16px 12px; border-bottom: 1px solid var(--line); }
+.guide-heading > div { flex: 1; }
+.guide-eyebrow { margin: 0 0 4px; color: var(--glacier); font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.guide-heading h2 { margin: 0; font-size: 19px; line-height: 1.2; }
+.guide-close { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(255,255,255,.08); color: var(--ink); font-size: 20px; cursor: pointer; }
+.guide-messages { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding: 14px; overscroll-behavior: contain; }
+.guide-message { max-width: 92%; padding: 10px 12px; border-radius: 12px 12px 12px 3px; background: rgba(111,168,191,.12); font-size: 13.5px;
+  line-height: 1.55; overflow-wrap: anywhere; }
+.guide-message.assistant { max-width: 100%; }
+.guide-message.user { align-self: flex-end; border-radius: 12px 12px 3px 12px; background: var(--glacier); color: var(--deeper); }
+.guide-message.pending { opacity: .7; }
+.guide-message p { margin: 0; }
+.guide-message p + p, .guide-message ul + p, .guide-message ol + p { margin-top: 9px; }
+.guide-message h3 { margin: 14px 0 4px; font-size: 14px; }
+.guide-message h3:first-child { margin-top: 0; }
+.guide-message ul, .guide-message ol { margin: 6px 0; padding-left: 20px; }
+.guide-message li + li { margin-top: 5px; }
+.guide-message a { color: #9fd0e3; }
+.guide-message .guide-citation { display: inline-block; margin-left: 3px; padding: 0 5px; border-radius: 4px; background: rgba(159,208,227,.18);
+  color: #cfe9f3; font-size: 10px; font-weight: 800; line-height: 1.65; text-decoration: none; vertical-align: 1px; }
+.guide-suggest { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.guide-suggest button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.04); color: var(--ink);
+  font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.guide-suggest button:hover { border-color: var(--glacier); }
+.guide-sources { display: grid; gap: 6px; margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--line); }
+.guide-sources h4 { margin: 0; color: var(--ink-dim); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.guide-source { display: flex; gap: 8px; align-items: center; padding: 7px 8px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); text-decoration: none; }
+.guide-source:hover { border-color: var(--glacier); }
+.guide-source .source-label { flex: none; display: grid; width: 24px; height: 24px; place-items: center; border-radius: 6px; background: rgba(159,208,227,.18);
+  font-size: 10px; font-weight: 800; }
+.guide-source .source-copy { display: grid; gap: 1px; min-width: 0; }
+.guide-source .source-name { font-size: 12px; color: #cfe9f3; }
+.guide-source .source-provider { font-size: 10.5px; color: var(--ink-dim); }
+.guide-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: end; padding: 10px 12px 12px; border-top: 1px solid var(--line); }
+.guide-form textarea { grid-column: 1 / -1; width: 100%; resize: none; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px;
+  background: rgba(255,255,255,.05); color: var(--ink); font: inherit; font-size: 14px; }
+.guide-form textarea:focus { outline: 2px solid var(--glacier); outline-offset: 1px; }
+.guide-where { color: var(--ink-dim); font-size: 11px; line-height: 1.35; }
+.guide-send { display: inline-flex; gap: 8px; align-items: center; min-height: 38px; padding: 0 16px; border: 0; border-radius: 9px;
+  background: var(--glacier); color: var(--deeper); font-weight: 800; cursor: pointer; }
+.guide-send:disabled { opacity: .5; cursor: progress; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+
+/* The detail panel and the assistant share the right edge: the assistant wins while open. */
+body.guide-open #detail.open { transform: translateX(calc(100% + 24px)); }
+
+@media (max-width: 899px) {
+  #climate-card { left: 8px; right: 8px; top: auto; width: auto; bottom: 182px; padding: 8px 10px 7px; }
+  #climate-card .cf-note { display: none; }
+  .guide-launcher { min-height: 42px; padding: 0 12px; }
+  .guide-launcher span:last-child { display: none; }
+  .guide-sheet { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: min(82dvh, 640px); border-radius: 18px 18px 0 0; }
+  .guide-form textarea { font-size: 16px; } /* stops iOS zooming on focus */
+  body.detail-open #climate-card, body.guide-open #climate-card { display: none; }
+}
+
+/* Desktop: the button column and zoom control slide left of an open detail panel instead of covering it. */
+@media (min-width: 900px) {
+  #fabs, .maplibregl-ctrl-top-right { transition: right .25s ease; }
+  body.detail-open #fabs, body.detail-open .maplibregl-ctrl-top-right { right: calc(var(--detail-w) + 24px); }
+}

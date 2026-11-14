@@ -34,6 +34,8 @@ class GuideSearchRequest(BaseModel):
 
 class GuideAnswerRequest(GuideSearchRequest):
     use_live_web: bool = False
+    # "environmental" routes to the Gemini tool-calling agent (env-mode pages); "travel" keeps the planner.
+    mode: Literal["travel", "environmental"] = "travel"
 
 
 class GuideCitation(BaseModel):
@@ -68,7 +70,7 @@ class GuideSearchResponse(BaseModel):
 class GuideAnswerResponse(BaseModel):
     answer: str
     citations: list[GuideCitation]
-    retrieval: Literal["hybrid", "keyword", "fallback"]
-    agent: Literal["openai", "local_fallback"]
+    retrieval: Literal["hybrid", "keyword", "fallback", "tools"]
+    agent: Literal["openai", "gemini", "local_fallback"]
     persona_nudge: str | None = None
     live_web_used: bool = False

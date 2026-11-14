@@ -69,11 +69,12 @@ def test_guide_search_route_exposes_ranked_source_metadata(monkeypatch) -> None:
     assert response.json()["results"][0]["citation"]["source_name"] == "Salt Lake City"
 
 
-def test_map_guide_keeps_persona_in_a_browser_cookie() -> None:
-    script = (Path(__file__).resolve().parents[1] / "public" / "assets" / "simple-map.js").read_text(encoding="utf-8")
-    assert 'const PERSONA_COOKIE = "youtah_persona"' in script
-    assert "SameSite=Lax" in script
+def test_map_guide_asks_the_environmental_agent_for_the_map_centre() -> None:
+    script = (Path(__file__).resolve().parents[1] / "public" / "assets" / "map-guide.js").read_text(encoding="utf-8")
     assert "/api/guide/answer" in script
+    assert 'mode: ENV_MODE ? "environmental" : "travel"' in script
+    assert "hub.map.getCenter()" in script
+    assert "renderer.renderMarkdown" in script  # answers are rendered through the shared, escaping renderer
 
 
 def test_guide_request_accepts_a_salt_lake_city_coordinate() -> None:

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utah water and infrastructure planner</title>
+<style>
+:root{
+  --bg:#e8edee; --panel:#f7f9f9; --ink:#12324a; --muted:#566b74; --line:#c5d0d4;
+  --c0:#5fae9f; --c1:#e2a43a; --c2:#d2622f; --c3:#8e1b3a; --accent:#12324a; --on:#fff;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#10181d; --panel:#18232a; --ink:#e3edf0; --muted:#9bb0b8; --line:#2c3d46; --accent:#9ccfe0; --on:#10181d; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+header{padding:18px 0 6px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+h1{font-size:1.6rem;line-height:1.2}
+header p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.note{border:1px solid var(--c3);border-left-width:5px;background:var(--panel);border-radius:4px;padding:8px 12px;font-size:.88rem;margin:8px 0 14px}
+.grid{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,440px);gap:18px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.col{display:flex;flex-direction:column;gap:14px}
+svg{width:100%;height:auto;display:block}
+.state{fill:var(--bg);stroke:var(--ink);stroke-width:1.5}
+.basin{cursor:pointer;stroke:var(--panel);stroke-width:2;transition:fill .3s}
+.basin:focus{outline:none;stroke:var(--ink);stroke-width:3.5}
+.basin.sel{stroke:var(--ink);stroke-width:3.5}
+.blabel{font-size:10.5px;fill:var(--ink);text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:var(--panel);stroke-width:3px}
+.pin{cursor:pointer}
+.pin:focus{outline:none}
+.pin:focus .pshape{stroke-width:3.5}
+.pshape{stroke:var(--ink);stroke-width:1.6}
+.pin.future .pshape{fill:var(--panel);stroke-dasharray:3 2;opacity:.8}
+.pin.now .ring{fill:none;stroke:var(--ink);stroke-width:2}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:1px solid var(--ink)}
+.sq{width:10px;height:10px;display:inline-block;border:1.5px solid var(--ink)}
+.sq.dash{border-style:dashed;background:transparent}
+.yearbar{margin-top:12px}
+.yeartop{display:flex;align-items:center;gap:12px}
+.bigyear{font-size:2.4rem;line-height:1;min-width:4.2ch}
+button{font:inherit;padding:7px 14px;border:1px solid var(--ink);background:var(--ink);color:var(--on);border-radius:4px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button.seg{border-radius:0;margin-left:-1px}
+button.seg[aria-pressed=true]{background:var(--ink);color:var(--on)}
+button.seg:not([aria-pressed=true]){background:transparent;color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--c1);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.strip{display:grid;gap:3px;margin-top:2px;align-items:end}
+.strip button{padding:0;border:0;background:transparent;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem}
+.strip i{display:block;width:100%;background:var(--c2);border-radius:2px 2px 0 0;min-height:2px}
+.strip button[aria-current=true] i{background:var(--c3);outline:2px solid var(--ink)}
+.strip small{color:var(--muted)}
+h2{font-size:1.15rem}
+.headline{font-size:1.3rem;line-height:1.3;margin:4px 0 6px}
+.kpis{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}
+.kpis div{min-width:90px}
+.kpis b{display:block;font-size:1.3rem;font-family:Georgia,serif}
+.kpis span{font-size:.78rem;color:var(--muted)}
+.pill{display:inline-block;border-radius:10px;padding:1px 9px;font-size:.78rem;color:#fff;font-weight:600}
+.pj{border-top:1px solid var(--line);padding:8px 0}
+.pj:first-child{border-top:0}
+.pj .t{font-weight:600}
+.small{font-size:.82rem;color:var(--muted)}
+.worse{color:var(--c3);font-weight:700}
+.seglabel{font-size:.8rem;color:var(--muted);margin:10px 0 4px}
+.segs{display:flex}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+.row{display:grid;grid-template-columns:1fr 36px;gap:6px;align-items:center;margin-top:6px;font-size:.85rem}
+.row span{text-align:right}
+select,input[type=number],input[type=text]{font:inherit;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px;width:100%}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.form label{font-size:.78rem;color:var(--muted);display:block}
+.form .full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sel-click{cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Utah water and infrastructure planner</h1>
+    <p>Move through the years to see which planned projects land where, and how each basin's water risk changes as they do.</p>
+  </div>
+  <div class="segs" role="group" aria-label="Water supply conditions">
+    <button class="seg" data-dry="100" aria-pressed="true">Normal year</button>
+    <button class="seg" data-dry="70" aria-pressed="false">Dry year</button>
+    <button class="seg" data-dry="50" aria-pressed="false">Severe drought</button>
+  </div>
+</header>
+<div class="note"><strong>Placeholder data.</strong> All projects, water volumes and basin figures here are invented to show how the tool works. Basin names and positions are approximate and the shapes are schematic, not official boundaries. Load real project data with "Import projects" before using this in a decision.</div>
+
+<div class="grid">
+  <div class="col">
+    <div class="panel">
+      <svg id="map" viewBox="-10 -10 410 520" role="img" aria-label="Schematic map of Utah showing basin risk and planned projects"></svg>
+      <div class="legend" id="legend"></div>
+      <div class="yearbar">
+        <div class="yeartop">
+          <button id="play" aria-label="Play through the years">Play</button>
+          <div class="serif bigyear" id="bigyear"></div>
+          <div class="small" style="flex:1">Bars show how many basins are at High or Critical risk each year. Click a bar or drag the slider.</div>
+        </div>
+        <div class="strip" id="strip" style="margin-top:10px"></div>
+        <input type="range" id="year" aria-label="Year">
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel" id="summary"></div>
+    <div class="panel" id="detail"></div>
+    <div class="panel">
+      <h2>Planned projects</h2>
+      <div class="small" style="margin-bottom:6px">Water figures are in acre-feet per year (1 acre-foot is about 326,000 gallons).</div>
+      <div id="projects"></div>
+    </div>
+    <div class="panel">
+      <h2>Tools</h2>
+      <div class="actions">
+        <button class="ghost" id="brief">Download briefing for this year</button>
+        <button class="ghost" onclick="document.getElementById('file').click()">Import projects (CSV)</button>
+        <input id="file" type="file" accept=".csv" hidden>
+        <button class="ghost" id="tmpl">CSV template</button>
+      </div>
+      <div class="small" id="msg" role="status" style="margin-top:6px"></div>
+      <details>
+        <summary>Add a what-if project</summary>
+        <div class="form">
+          <div class="full"><label for="fn">Project name</label><input type="text" id="fn" value="New project"></div>
+          <div><label for="fb">Basin</label><select id="fb"></select></div>
+          <div><label for="fy">Year it starts using water</label><input type="number" id="fy"></div>
+          <div><label for="ft">Type</label><select id="ft"></select></div>
+          <div><label for="fd">Water demand (af/yr)</label><input type="number" id="fd" min="0" value="2000"></div>
+          <div class="full"><button id="fadd">Add to map</button></div>
+        </div>
+      </details>
+      <details>
+        <summary>Advanced: how risk is scored</summary>
+        <p class="small">Risk combines four factors, scaled 0 to 1 and weighted: demand compared with remaining supply (capped at 1.5x), share of junior water rights, thin storage (storage as a share of annual use), and municipal and industrial use growth (capped at 25 percent per five years). The weights, caps and category cut-offs (Low under 40, Watch 40 to 55, High 55 to 70, Critical 70 and above) are my own simplifying choices and are not an official method. Adjust the weights below or replace the method.</p>
+        <div id="weights"></div>
+      </details>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ---------------- PLACEHOLDER DATA (invented) ----------------
+const DEFAULT_BASINS = [
+ {name:"Bear River",        lon:-112.0, lat:41.6, demand:9000,  headroom:40000, junior:35, storage:60, trend:8},
+ {name:"Weber River",       lon:-111.5, lat:41.05,demand:12000, headroom:15000, junior:55, storage:45, trend:12},
+ {name:"Jordan / Salt Lake",lon:-112.0, lat:40.7, demand:20000, headroom:6000,  junior:70, storage:25, trend:15},
+ {name:"Utah Lake / Provo", lon:-111.5, lat:40.15,demand:15000, headroom:9000,  junior:62, storage:35, trend:18},
+ {name:"Uintah Basin",      lon:-109.9, lat:40.4, demand:6000,  headroom:30000, junior:30, storage:55, trend:5},
+ {name:"West Desert",       lon:-113.3, lat:40.0, demand:7000,  headroom:3000,  junior:40, storage:10, trend:10},
+ {name:"Sevier River",      lon:-112.3, lat:38.9, demand:4000,  headroom:5000,  junior:50, storage:50, trend:6},
+ {name:"Southeast Colorado",lon:-109.8, lat:38.4, demand:3000,  headroom:25000, junior:25, storage:20, trend:4},
+ {name:"Cedar / Beaver",    lon:-112.9, lat:38.2, demand:5000,  headroom:2500,  junior:65, storage:15, trend:14},
+ {name:"Virgin / Kanab",    lon:-113.4, lat:37.25,demand:8000,  headroom:3500,  junior:68, storage:30, trend:20}
+];
+const TYPES = {
+ datacenter:{label:"Data center", shape:"sq"},
+ housing:{label:"Housing / community", shape:"tri"},
+ industrial:{label:"Industrial / energy", shape:"dia"},
+ supply:{label:"New water supply or reuse", shape:"circ"}
+};
+// supply projects add headroom (supply_af); others add demand (demand_af)
+const DEFAULT_PROJECTS = [
+ {year:2026,basin:"Jordan / Salt Lake",name:"Data center campus A (placeholder)",type:"datacenter",demand:3000,supply:0},
+ {year:2027,basin:"Utah Lake / Provo",name:"Housing development B (placeholder)",type:"housing",demand:4000,supply:0},
+ {year:2027,basin:"West Desert",name:"Data center campus C (placeholder)",type:"datacenter",demand:2500,supply:0},
+ {year:2028,basin:"Weber River",name:"Industrial park D (placeholder)",type:"industrial",demand:3000,supply:0},
+ {year:2028,basin:"Virgin / Kanab",name:"Planned community E (placeholder)",type:"housing",demand:5000,supply:0},
+ {year:2029,basin:"Jordan / Salt Lake",name:"Data center campus F (placeholder)",type:"datacenter",demand:4000,supply:0},
+ {year:2029,basin:"Cedar / Beaver",name:"Data center campus G (placeholder)",type:"datacenter",demand:3000,supply:0},
+ {year:2030,basin:"Uintah Basin",name:"Energy development H (placeholder)",type:"industrial",demand:2500,supply:0},
+ {year:2030,basin:"Utah Lake / Provo",name:"Data center campus I (placeholder)",type:"datacenter",demand:3500,supply:0},
+ {year:2031,basin:"Bear River",name:"Housing development J (placeholder)",type:"housing",demand:3000,supply:0},
+ {year:2032,basin:"Virgin / Kanab",name:"Water supply project K (placeholder)",type:"supply",demand:0,supply:6000},
+ {year:2033,basin:"Jordan / Salt Lake",name:"Water reuse project L (placeholder)",type:"supply",demand:0,supply:3000},
+ {year:2034,basin:"Sevier River",name:"Industrial site M (placeholder)",type:"industrial",demand:1500,supply:0},
+ {year:2035,basin:"Weber River",name:"Housing development N (placeholder)",type:"housing",demand:3500,supply:0}
+];
+const FACTORS = [
+ {k:"ratio",label:"Demand vs remaining supply",w:35},
+ {k:"junior",label:"Junior-right share",w:25},
+ {k:"storage",label:"Thin storage buffer",w:20},
+ {k:"trend",label:"Municipal and industrial growth",w:20}
+];
+const CATS = [
+ {name:"Low",min:0,color:"var(--c0)",hex:"#5fae9f"},
+ {name:"Watch",min:40,color:"var(--c1)",hex:"#e2a43a"},
+ {name:"High",min:55,color:"var(--c2)",hex:"#d2622f"},
+ {name:"Critical",min:70,color:"var(--c3)",hex:"#8e1b3a"}
+];
+
+let basins = clone(DEFAULT_BASINS), projects = clone(DEFAULT_PROJECTS);
+let weights = Object.fromEntries(FACTORS.map(f=>[f.k,f.w]));
+let dry = 100, sel = null, timer = null, year = 2026;
+let MINY = 2026, MAXY = 2035;
+
+function clone(o){return JSON.parse(JSON.stringify(o))}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=n=>Math.round(n).toLocaleString();
+const SX=77.2, SY=100;
+const px=lon=>(lon+114.05)*SX, py=lat=>(42-lat)*SY;
+const catOf=s=>[...CATS].reverse().find(c=>s>=c.min);
+const el=id=>document.getElementById(id);
+
+function bIndex(name){return basins.findIndex(b=>b.name===name)}
+function calc(bi,y){
+  const b=basins[bi];
+  let demand=b.demand, supply=b.headroom;
+  projects.forEach(p=>{ if(p.basin===b.name && p.year<=y){ demand+=p.demand; supply+=p.supply; }});
+  const head=supply*dry/100;
+  const ratio=head>0?demand/head:9;
+  const f={ratio:clamp(ratio/1.5,0,1),junior:clamp(b.junior/100,0,1),storage:1-clamp(b.storage/100,0,1),trend:clamp(b.trend/25,0,1)};
+  const tw=Object.values(weights).reduce((a,c)=>a+c,0)||1;
+  const contrib=Object.fromEntries(FACTORS.map(x=>[x.k,weights[x.k]*f[x.k]/tw*100]));
+  const score=Object.values(contrib).reduce((a,c)=>a+c,0);
+  return {demand,head,ratio,f,contrib,score,cat:catOf(score),curtail:demand>head&&b.junior>=50};
+}
+function allAt(y){return basins.map((b,i)=>({i,b,m:calc(i,y)}))}
+function riskyCount(y){return allAt(y).filter(r=>r.m.score>=55).length}
+
+// ---------------- RENDER ----------------
+function shapePath(t,x,y,r){
+  if(t==="sq") return `<rect class="pshape" x="${x-r}" y="${y-r}" width="${2*r}" height="${2*r}" fill="var(--ink)"/>`;
+  if(t==="tri") return `<polygon class="pshape" points="${x},${y-r-1} ${x+r+1},${y+r} ${x-r-1},${y+r}" fill="var(--ink)"/>`;
+  if(t==="dia") return `<polygon class="pshape" points="${x},${y-r-2} ${x+r+2},${y} ${x},${y+r+2} ${x-r-2},${y}" fill="var(--ink)"/>`;
+  return `<circle class="pshape" cx="${x}" cy="${y}" r="${r}" fill="var(--c0)"/>`;
+}
+function projPos(p){
+  const bi=bIndex(p.basin); if(bi<0) return null;
+  const b=basins[bi], same=projects.filter(q=>q.basin===p.basin), k=same.indexOf(p);
+  const ang=(k/Math.max(same.length,1))*Math.PI*2+0.6;
+  const rad=34+ (k%2)*10;
+  return {x:px(b.lon)+Math.cos(ang)*rad, y:py(b.lat)+Math.sin(ang)*rad};
+}
+function drawMap(){
+  const outline=[[-114.05,42],[-111.05,42],[-111.05,41],[-109.05,41],[-109.05,37],[-114.05,37]].map(([lo,la])=>px(lo)+","+py(la)).join(" ");
+  let h=`<polygon class="state" points="${outline}"/>`;
+  const rows=allAt(year);
+  rows.forEach(({i,b,m})=>{
+    const r=26+Math.sqrt(m.demand/20000)*22;
+    h+=`<circle class="basin ${i===sel?'sel':''}" tabindex="0" role="button" data-i="${i}" cx="${px(b.lon)}" cy="${py(b.lat)}" r="${r}" fill="${m.cat.hex}" fill-opacity=".72" aria-label="${b.name}: ${m.cat.name} risk"/>`;
+    h+=`<text class="blabel" x="${px(b.lon)}" y="${py(b.lat)+4}">${b.name}</text>`;
+  });
+  projects.forEach((p,pi)=>{
+    const pos=projPos(p); if(!pos) return;
+    const state=p.year>year?"future":"";
+    const now=p.year===year?"now":"";
+    h+=`<g class="pin ${state} ${now}" tabindex="0" role="img" aria-label="${p.name}, ${p.year}">${now?`<circle class="ring" cx="${pos.x}" cy="${pos.y}" r="12"/>`:""}${shapePath(TYPES[p.type]?.shape||"circ",pos.x,pos.y,6)}<title>${p.name} (${p.year})</title></g>`;
+  });
+  el('map').innerHTML=h;
+  el('map').querySelectorAll('.basin').forEach(c=>{
+    c.onclick=()=>{sel=+c.dataset.i;render()};
+    c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sel=+c.dataset.i;render()}};
+  });
+}
+function drawLegend(){
+  el('legend').innerHTML=
+   CATS.map(c=>`<span><i class="dot" style="background:${c.hex}"></i>${c.name} risk</span>`).join("")+
+   `<span><i class="sq" style="background:var(--ink)"></i>Data center</span>`+
+   `<span>Triangle: housing</span><span>Diamond: industrial / energy</span><span><i class="dot" style="background:var(--c0)"></i>New supply</span>`+
+   `<span><i class="sq dash"></i>Hollow, dashed: not built yet</span>`;
+}
+function drawStrip(){
+  const ys=[];for(let y=MINY;y<=MAXY;y++)ys.push(y);
+  const n=basins.length||1;
+  el('strip').style.gridTemplateColumns=`repeat(${ys.length},1fr)`;
+  el('strip').innerHTML=ys.map(y=>{
+    const c=riskyCount(y);
+    return `<button data-y="${y}" aria-label="${y}: ${c} basins at High or Critical risk" ${y===year?'aria-current="true"':''}><i style="height:${Math.max(2,c/n*54)}px"></i><small>${String(y).slice(2)}</small></button>`;
+  }).join("");
+  el('strip').querySelectorAll('button').forEach(b=>b.onclick=()=>{year=+b.dataset.y;el('year').value=year;render()});
+}
+function drawSummary(){
+  const now=allAt(year), prev=year>MINY?allAt(year-1):null;
+  const risky=now.filter(r=>r.m.score>=55);
+  const base=allAt(MINY-1+0); // before any project (projects start >= MINY)
+  const added=projects.filter(p=>p.year<=year&&p.year>=MINY).reduce((a,p)=>a+p.demand,0);
+  const supp=projects.filter(p=>p.year<=year).reduce((a,p)=>a+p.supply,0);
+  const moved=prev?now.filter((r,i)=>r.m.cat.min>prev[i].m.cat.min):[];
+  const thisYr=projects.filter(p=>p.year===year);
+  let line;
+  if(moved.length) line=`${moved.map(r=>r.b.name).join(", ")} ${moved.length>1?"move":"moves"} to a higher risk level this year.`;
+  else if(thisYr.length) line=`${thisYr.length} planned project${thisYr.length>1?"s":""} come${thisYr.length>1?"":"s"} online, with no basin changing risk level.`;
+  else line="No planned projects start this year.";
+  el('summary').innerHTML=`
+   <h2>${year} at a glance</h2>
+   <p class="headline serif">${risky.length} of ${basins.length} basins at High or Critical risk. ${line}</p>
+   <div class="kpis">
+     <div><b>${risky.length}</b><span>High or Critical basins</span></div>
+     <div><b>+${fmt(added)}</b><span>af/yr new project demand since ${MINY}</span></div>
+     <div><b>+${fmt(supp)}</b><span>af/yr new supply since ${MINY}</span></div>
+   </div>
+   <div class="small">Conditions: ${dry===100?"normal year":dry===70?"dry year (70% of normal supply)":"severe drought (50% of normal supply)"}.</div>`;
+}
+function why(m,b){
+  const phrase={
+    ratio:()=>m.ratio>=9?"there is no remaining supply":`pending demand is ${m.ratio.toFixed(1)} times the remaining supply`,
+    junior:()=>`${b.junior}% of water rights are junior, so they are curtailed first in shortages`,
+    storage:()=>`storage covers only ${b.storage}% of a year's use`,
+    trend:()=>`municipal and industrial use is growing about ${b.trend}% every five years`
+  };
+  return FACTORS.map(f=>({k:f.k,c:m.contrib[f.k]})).sort((a,c)=>c.c-a.c).slice(0,2).map(x=>phrase[x.k]());
+}
+function spark(bi){
+  const w=300,h=70,ys=[];for(let y=MINY;y<=MAXY;y++)ys.push(y);
+  const pts=ys.map((y,i)=>[8+i*(w-16)/Math.max(ys.length-1,1),h-6-calc(bi,y).score/100*(h-12)]);
+  const cur=pts[year-MINY];
+  const lines=[40,55,70].map(v=>`<line x1="0" x2="${w}" y1="${h-6-v/100*(h-12)}" y2="${h-6-v/100*(h-12)}" stroke="var(--line)" stroke-dasharray="3 3"/>`).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Risk score by year for this basin">${lines}<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="${cur[0]}" cy="${cur[1]}" r="5" fill="var(--c3)" stroke="var(--ink)"/></svg>`;
+}
+function drawDetail(){
+  if(sel===null){const r=allAt(year).sort((a,c)=>c.m.score-a.m.score)[0]; sel=r.i;}
+  const b=basins[sel], m=calc(sel,year);
+  const mine=projects.filter(p=>p.basin===b.name).sort((a,c)=>a.year-c.year);
+  el('detail').innerHTML=`
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>${b.name}</h2><span class="pill" style="background:${m.cat.hex}">${m.cat.name} risk (${Math.round(m.score)})</span></div>
+   <p style="margin:6px 0">Main reasons: ${why(m,b).join("; and ")}.</p>
+   ${m.curtail?`<p class="worse" style="margin:4px 0">In this scenario, demand exceeds supply and most rights are junior, so junior users would likely be curtailed first.</p>`:""}
+   <div class="seglabel">Risk score by year (dashed lines: Watch, High, Critical)</div>
+   ${spark(sel)}
+   <div class="seglabel">Demand and supply in ${year}</div>
+   <div class="small">Demand ${fmt(m.demand)} af/yr against remaining supply ${fmt(m.head)} af/yr.</div>
+   <div class="seglabel">Projects in this basin</div>
+   ${mine.length?mine.map(p=>`<div class="small">${p.year}: ${p.name} (${p.supply?"+"+fmt(p.supply)+" supply":fmt(p.demand)+" demand"})${p.year>year?" - not built yet":""}</div>`).join(""):`<div class="small">No planned projects.</div>`}`;
+}
+function drawProjects(){
+  const list=projects.slice().sort((a,c)=>a.year-c.year);
+  el('projects').innerHTML=list.map(p=>{
+    const bi=bIndex(p.basin), m=bi>=0?calc(bi,year):null;
+    const status=p.year<year?"Online":p.year===year?"Starts this year":"Planned";
+    return `<div class="pj"><div class="t">${p.name}</div>
+     <div class="small">${p.year} - ${p.basin} - ${TYPES[p.type]?.label||p.type} - ${p.supply?"+"+fmt(p.supply)+" af/yr supply":fmt(p.demand)+" af/yr demand"}</div>
+     <div class="small">${status}${m?` - basin now ${m.cat.name} risk`:""}</div></div>`;
+  }).join("");
+}
+function drawWeights(){
+  el('weights').innerHTML=FACTORS.map(f=>`<div class="row"><label for="w_${f.k}">${f.label}</label><span id="wv_${f.k}">${weights[f.k]}</span></div><input id="w_${f.k}" type="range" min="0" max="100" value="${weights[f.k]}">`).join("");
+  FACTORS.forEach(f=>el('w_'+f.k).oninput=e=>{weights[f.k]=+e.target.value;el('wv_'+f.k).textContent=e.target.value;render()});
+}
+function drawForm(){
+  el('fb').innerHTML=basins.map(b=>`<option>${b.name}</option>`).join("");
+  el('ft').innerHTML=Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("");
+  el('fy').min=MINY; el('fy').max=MAXY; if(!el('fy').value) el('fy').value=Math.min(MAXY,MINY+2);
+}
+function setRange(){
+  MINY=2026; MAXY=Math.max(2035,...projects.map(p=>p.year));
+  const y=el('year'); y.min=MINY; y.max=MAXY; y.value=year;
+}
+function render(){
+  el('bigyear').textContent=year;
+  drawMap(); drawStrip(); drawSummary(); drawDetail(); drawProjects();
+}
+
+// ---------------- CONTROLS ----------------
+el('year').oninput=e=>{year=+e.target.value;render()};
+el('play').onclick=()=>{
+  if(timer){clearInterval(timer);timer=null;el('play').textContent="Play";return;}
+  if(year>=MAXY) year=MINY;
+  el('play').textContent="Pause";
+  timer=setInterval(()=>{
+    if(year>=MAXY){clearInterval(timer);timer=null;el('play').textContent="Play";return;}
+    year++;el('year').value=year;render();
+  },1100);
+};
+document.querySelectorAll('[data-dry]').forEach(b=>b.onclick=()=>{
+  dry=+b.dataset.dry;
+  document.querySelectorAll('[data-dry]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  render();
+});
+el('fadd').onclick=()=>{
+  const t=el('ft').value, d=Math.max(0,+el('fd').value||0);
+  projects.push({year:+el('fy').value,basin:el('fb').value,name:el('fn').value||"New project",type:t,demand:t==="supply"?0:d,supply:t==="supply"?d:0});
+  setRange();render();el('msg').textContent="Added. It appears on the map and in the list.";
+};
+el('brief').onclick=()=>{
+  const rows=allAt(year).sort((a,c)=>c.m.score-a.m.score);
+  let t=`Utah water and infrastructure briefing, ${year}\n(Conditions: ${dry===100?"normal year":dry===70?"dry year":"severe drought"}. Figures are in acre-feet per year. Data may be placeholder.)\n\n`;
+  t+=rows.map(r=>`${r.b.name}: ${r.m.cat.name} risk (score ${Math.round(r.m.score)}); demand ${fmt(r.m.demand)} vs supply ${fmt(r.m.head)}${r.m.curtail?"; junior rights likely curtailed first":""}`).join("\n");
+  t+=`\n\nProjects starting in ${year}:\n`+(projects.filter(p=>p.year===year).map(p=>`- ${p.name} (${p.basin})`).join("\n")||"- none");
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=`utah_water_briefing_${year}.txt`;a.click();
+};
+const PH="year,basin,name,type,demand_af,supply_af";
+el('tmpl').onclick=()=>{
+  const csv=PH+"\n"+DEFAULT_PROJECTS.map(p=>[p.year,`"${p.basin}"`,`"${p.name}"`,p.type,p.demand,p.supply].join(",")).join("\n")+"\n# type must be one of: "+Object.keys(TYPES).join(" | ");
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download="utah_projects_template.csv";a.click();
+};
+el('file').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const lines=rd.result.trim().split(/\r?\n/).filter(l=>l&&!l.startsWith("#"));
+      const hdr=lines.shift().split(",").map(s=>s.trim());
+      const miss=PH.split(",").filter(c=>!hdr.includes(c));
+      if(miss.length) throw new Error("Missing columns: "+miss.join(", "));
+      const unknown=new Set(); const rows=[];
+      lines.forEach(l=>{
+        const c=l.match(/("([^"]*)"|[^,]+)/g).map(s=>s.replace(/^"|"$/g,"").trim());
+        const o=Object.fromEntries(hdr.map((h,i)=>[h,c[i]]));
+        if(bIndex(o.basin)<0){unknown.add(o.basin);return;}
+        if(!TYPES[o.type]) throw new Error("Unknown type '"+o.type+"'");
+        const p={year:+o.year,basin:o.basin,name:o.name,type:o.type,demand:+o.demand_af||0,supply:+o.supply_af||0};
+        if(isNaN(p.year)) throw new Error("Bad year in row: "+l);
+        rows.push(p);
+      });
+      projects=rows; setRange(); year=clamp(year,MINY,MAXY); el('year').value=year; render();
+      el('msg').textContent=`Loaded ${rows.length} projects.`+(unknown.size?` Skipped rows with unrecognized basins: ${[...unknown].join(", ")}.`:"");
+    }catch(err){el('msg').textContent="Import failed: "+err.message;}
+  };
+  rd.readAsText(f);
+};
+drawLegend(); setRange(); drawWeights(); drawForm(); render();
+</script>
+</body>
+</html>

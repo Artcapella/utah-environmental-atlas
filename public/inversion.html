@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/assets/styles.css" />
     <link rel="stylesheet" href="/assets/inversion.css" />
     <link rel="stylesheet" href="/assets/env-mode.css" />
+    <link rel="stylesheet" href="/assets/env-charts.css" />
   </head>
   <body class="env-mode">
     <main>
@@ -22,10 +23,10 @@
           <span>comprehensive<br /><strong>utah</strong></span>
         </a>
         <div class="nav-links">
-          <a class="tourist" href="/#discover">Discover</a>
+          <a class="tourist" href="/about#discover">Discover</a>
           <a href="/inversion" aria-current="page">Inversion map</a>
           <a class="tourist" href="/promoters">Promoters</a>
-          <a href="/#sources">Data sources</a>
+          <a href="/about#sources">Data sources</a>
         </div>
       </nav>
 
@@ -128,13 +129,19 @@
       </section>
 
       <section class="shell inv-block">
+        <div class="section-heading"><div><p class="eyebrow">The evidence</p><h2>How high is the lid?</h2></div><p>Each dot is a live weather-station temperature near your starting point. Normally air gets colder as you climb. When a layer higher up is warmer than the valley floor, that warm layer is the lid. Trailheads on the right are colored by their verdict.</p></div>
+        <div class="env-chart" id="profile-chart"><p class="chart-empty">Loading station temperatures…</p></div>
+        <p class="fineprint muted" id="profile-note"></p>
+      </section>
+
+      <section class="shell inv-block">
         <div class="section-heading"><div><p class="eyebrow">Best picks</p><h2 id="picks-title">Near University of Utah</h2></div><p>Trailheads within 80 km. Distances are straight-line. Check road and trail conditions before you go.</p></div>
         <div class="picks" id="picks"></div>
       </section>
 
       <section class="shell inv-block">
-        <div class="section-heading"><div><p class="eyebrow">Next 7 days</p><h2>Will the valley get trapped?</h2></div><p>Lid height ≈ how high valley air can mix in the afternoon (Open-Meteo forecast). Lower lid = more smog trapped. Days 1–3 are a forecast; days 4–7 are only a trend.</p></div>
-        <div class="outlook" id="outlook"><p class="muted">Loading forecast…</p></div>
+        <div class="section-heading"><div><p class="eyebrow">Next 7 days</p><h2>Will the valley get trapped?</h2></div><p>Afternoon mixing height ≈ how high valley air can mix (Open-Meteo forecast); below about 600 m, smog is trapped. A warm layer aloft in the morning (2 °C or more) is the inversion itself. Days 1–3 are a forecast; days 4–7 are only a trend.</p></div>
+        <div class="env-chart" id="outlook"><p class="chart-empty">Loading forecast…</p></div>
       </section>
 
       <section class="shell details inv-block">
@@ -168,8 +175,9 @@
         </div>
       </section>
     </main>
-    <footer class="shell footer"><span id="disclaimer">Inversion height is an estimate for visitors, not an official forecast or a safety clearance.</span><a href="/">← Back to Comprehensive Utah</a></footer>
+    <footer class="shell footer"><span id="disclaimer">Inversion height is an estimate for visitors, not an official forecast or a safety clearance.</span><a href="/">← Back to the map</a></footer>
     <script src="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.js"></script>
+    <script src="/assets/env-charts.js" defer></script>
     <script src="/assets/inversion.js" defer></script>
   </body>
 </html>
